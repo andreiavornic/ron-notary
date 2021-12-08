@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:notary/controllers/authentication.dart';
+import 'package:path/path.dart';
 
 class SessionService extends GetConnect {
   var url = dotenv.env['URL'];
@@ -23,7 +24,7 @@ class SessionService extends GetConnect {
     var token = box.read(CacheManagerKey.TOKEN.toString());
 
     final form = FormData({
-      'file': MultipartFile(file, filename: 'file.pdf'),
+      'file': MultipartFile(file, filename: basename(file.path)),
     });
 
     return post(
@@ -68,6 +69,17 @@ class SessionService extends GetConnect {
     return put(
       '$url/session/$status',
       {},
+      headers: {
+        "Authorization": "Bearer $token",
+      },
+    );
+  }
+
+  Future<Response> downloadFile(String id) {
+    final box = GetStorage();
+    var token = box.read(CacheManagerKey.TOKEN.toString());
+    return get(
+      '$url/session/$id',
       headers: {
         "Authorization": "Bearer $token",
       },

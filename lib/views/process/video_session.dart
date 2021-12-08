@@ -411,6 +411,7 @@ class _VideoSessionState extends State<VideoSession> {
 
   _finishSession() async {
     try {
+      print("here");
       await _twilioController.onHangup();
       await _sessionController.finishSession();
       Get.to(

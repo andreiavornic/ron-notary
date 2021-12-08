@@ -94,8 +94,7 @@ class TwilioController extends GetxController {
     try {
       var trackId = Uuid().v4();
       var accessToken = getToken();
-      print(roomName);
-      print(accessToken);
+
 
       var connectOptions = ConnectOptions(
         accessToken,

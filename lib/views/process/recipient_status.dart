@@ -12,6 +12,7 @@ class RecipientStatus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(recipient);
     return InkWell(
       highlightColor: Color(0xFFFFFFFF),
       splashColor: Color(0xFFFFFFFF),
@@ -45,7 +46,7 @@ class RecipientStatus extends StatelessWidget {
                   ),
                 ),
               ),
-              recipient.states.last == "LOGGED" ? CheckIcon() : Container(),
+          //    recipient?.states?.last == "LOGGED" ? CheckIcon() : Container(),
             ],
           ),
           SizedBox(height: reSize(8)),

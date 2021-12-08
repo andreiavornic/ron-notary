@@ -17,6 +17,29 @@ class AddRecipient extends StatefulWidget {
 }
 
 class _AddRecipientState extends State<AddRecipient> {
+  RecipientController _recipientController = Get.put(RecipientController());
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => checkRecipients());
+  }
+
+
+  checkRecipients() {
+    if (_recipientController.recipients.length == 0) {
+      modalContainer(NewRecipient());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GetBuilder<RecipientController>(

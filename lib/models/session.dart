@@ -18,7 +18,8 @@ class Session {
 
   Session.fromJson(Map<String, dynamic> json)
       : id = json['id'],
-        typeNotarization = json['typeNotarization'] == null
+        typeNotarization = json['typeNotarization'] == null ||
+                json['typeNotarization'].runtimeType == String
             ? null
             : new TypeNotarization.fromJson(json['typeNotarization']),
         state = json['state'],

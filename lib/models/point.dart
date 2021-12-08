@@ -44,7 +44,10 @@ class Point {
         isChecked = false,
         isSigned = json['isSigned'],
         color = HexColor.fromHex(json['color']),
-        fontFamily = Font.fromJson(json['fontFamily']);
+        fontFamily = json['fontFamily'] == null ||
+                json['fontFamily'].runtimeType == String
+            ? null
+            : Font.fromJson(json['fontFamily']);
 
   Map<String, dynamic> toJson() => {
         'color': color.toHex(),

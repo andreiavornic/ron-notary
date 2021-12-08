@@ -78,100 +78,110 @@ class _DocumentSettingState extends State<DocumentSetting> {
               children: [
                 DocumentView(),
                 SizedBox(height: reSize(30)),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Container(
-                    child: Column(
-                      children: [
-                        InkWell(
-                          onTap: () => Get.bottomSheet(
-                            Container(
-                              height: MediaQuery.of(context).size.height / 3 +
-                                  reSize(34),
-                              decoration: BoxDecoration(
-                                color: Color(0xFFFFFFFF),
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(25),
-                                  topRight: Radius.circular(25),
+                GetX<SessionController>(
+                  init: SessionController(),
+                  builder: (controller) {
+                    _typeNotarizations = controller.notarizations;
+                    _session = controller.session.value;
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Container(
+                        child: Column(
+                          children: [
+                            InkWell(
+                              onTap: () => Get.bottomSheet(
+                                Container(
+                                  height:
+                                      MediaQuery.of(context).size.height / 3 +
+                                          reSize(34),
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFFFFFFFF),
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(25),
+                                      topRight: Radius.circular(25),
+                                    ),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      SizedBox(height: 10),
+                                      Container(
+                                        width: reSize(50),
+                                        height: reSize(4),
+                                        decoration: BoxDecoration(
+                                            color: Color(0xFFE0E0E0),
+                                            borderRadius:
+                                                BorderRadius.circular(4)),
+                                      ),
+                                      SizedBox(height: reSize(20)),
+                                      SelectTypeNotarization(
+                                        _typeNotarizations,
+                                        (TypeNotarization type) {
+                                          _typeNotarization = type;
+                                          setState(() {});
+                                        },
+                                        _typeNotarization,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                               child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  SizedBox(height: 10),
+                                  Text(
+                                    'Type of Notarization ',
+                                    textAlign: TextAlign.start,
+                                    style: TextStyle(
+                                      color: Color(0xFF161617),
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                  SizedBox(height: reSize(7)),
+                                  _typeNotarization != null
+                                      ? Text(
+                                          _typeNotarization.name,
+                                          style: TextStyle(
+                                            color: Color(0xFF161617),
+                                            fontSize: 14,
+                                          ),
+                                          textAlign: TextAlign.start,
+                                        )
+                                      : Text(
+                                          'Choose type of document',
+                                          style: TextStyle(
+                                            color: Color(0xFFADAEAF),
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                  SizedBox(height: reSize(6)),
                                   Container(
-                                    width: reSize(50),
-                                    height: reSize(4),
-                                    decoration: BoxDecoration(
-                                        color: Color(0xFFE0E0E0),
-                                        borderRadius: BorderRadius.circular(4)),
-                                  ),
-                                  SizedBox(height: reSize(20)),
-                                  SelectTypeNotarization(
-                                    _typeNotarizations,
-                                    (TypeNotarization type) {
-                                      _typeNotarization = type;
-                                      setState(() {});
-                                    },
-                                    _typeNotarization,
-                                  ),
+                                    color: Color(0xFFEDEDED),
+                                    width:
+                                        MediaQuery.of(context).size.width - 40,
+                                    height: 1,
+                                  )
                                 ],
                               ),
                             ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Type of Notarization ',
-                                textAlign: TextAlign.start,
-                                style: TextStyle(
-                                  color: Color(0xFF161617),
-                                  fontSize: 10,
-                                ),
-                              ),
-                              SizedBox(height: reSize(7)),
-                              _typeNotarization != null
-                                  ? Text(
-                                      _typeNotarization.name,
-                                      style: TextStyle(
-                                        color: Color(0xFF161617),
-                                        fontSize: 14,
-                                      ),
-                                      textAlign: TextAlign.start,
-                                    )
-                                  : Text(
-                                      'Choose type of document',
-                                      style: TextStyle(
-                                        color: Color(0xFFADAEAF),
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                              SizedBox(height: reSize(6)),
-                              Container(
-                                color: Color(0xFFEDEDED),
-                                width: MediaQuery.of(context).size.width - 40,
-                                height: 1,
-                              )
-                            ],
-                          ),
-                        ),
-                        EditInput(
-                          onChanged: (value) {
-                            _documentTitle = value;
-                            setState(() {});
-                          },
-                          noCapitalize: true,
-                          hintText: "Document Title",
-                          labelText: "You can rename document here",
-                          initialValue:
-                              _documentTitle != null && _documentTitle.isEmpty
+                            EditInput(
+                              onChanged: (value) {
+                                _documentTitle = value;
+                                setState(() {});
+                              },
+                              noCapitalize: true,
+                              hintText: "Document Title",
+                              labelText: "You can rename document here",
+                              initialValue: _documentTitle != null &&
+                                      _documentTitle.isEmpty
                                   ? _session.sessionFileName
                                   : _documentTitle,
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
+                      ),
+                    );
+                  },
                 ),
                 SizedBox(height: reSize(50)),
               ],

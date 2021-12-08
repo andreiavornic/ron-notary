@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:notary/controllers/session.dart';
 import 'package:notary/methods/resize_formatting.dart';
 import 'package:notary/methods/show_error.dart';
 import 'package:notary/widgets/button_primary.dart';
+
+import 'download.dart';
 
 class Encryption extends StatefulWidget {
   @override
@@ -11,6 +14,8 @@ class Encryption extends StatefulWidget {
 }
 
 class _EncryptionState extends State<Encryption> {
+  SessionController _sessionController = Get.put(SessionController());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -79,7 +84,7 @@ class _EncryptionState extends State<Encryption> {
                 Column(
                   children: [
                     InkWell(
-                      onTap: () => null,
+                      onTap: _cancelEncryption,
                       overlayColor:
                           MaterialStateProperty.all(Colors.transparent),
                       highlightColor: Colors.transparent,
@@ -111,6 +116,18 @@ class _EncryptionState extends State<Encryption> {
   }
 
   _encryptDocument() async {
+    try {
+      await _sessionController.encryptFile();
+      Get.offAll(
+            () => Download(),
+        transition: Transition.noTransition,
+      );
+    } catch (err) {
+      showError(err);
+    }
+  }
+
+  _cancelEncryption() async {
     try {} catch (err) {
       showError(err);
     }

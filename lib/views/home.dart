@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -10,11 +12,16 @@ import 'package:notary/methods/show_error.dart';
 import 'package:notary/models/session.dart';
 import 'package:notary/models/user.dart';
 import 'package:notary/views/document-setting.dart';
+import 'package:notary/views/download.dart';
 import 'package:notary/views/errors/error_page.dart';
 import 'package:notary/widgets/bottom_navigator.dart';
 import 'package:notary/widgets/button_primary.dart';
 import 'package:notary/widgets/button_primary_outline.dart';
+import 'package:notary/widgets/loading.dart';
 import 'package:notary/widgets/wrap_pages/loading_page.dart';
+
+import 'home/certificate_upload.dart';
+import 'home/notary_edit.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -25,12 +32,10 @@ class _HomePageState extends State<HomePage> {
   final UserController _userController = Get.put(UserController());
   final SessionController _sessionController = Get.put(SessionController());
 
-  bool _isLoading;
-
   @override
   void initState() {
-    _isLoading = false;
     _userController.getUser();
+    _sessionController.getSession();
     super.initState();
   }
 
@@ -43,104 +48,182 @@ class _HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Expanded(
-              flex: 1,
-              child: Container(),
-            ),
-            Expanded(
-              flex: 3,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
+            GetX<UserController>(builder: (controller) {
+              return Expanded(
+                  child: Stack(
                 children: [
-                  Container(
-                    child: SvgPicture.asset(
-                      'assets/images/121.svg',
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              flex: 8,
-              child: GetX<UserController>(
-                builder: (controller) {
-                  return Column(
+                  Column(
                     children: [
-                      SizedBox(height: reSize(80)),
-                      SizedBox(
-                        height: reSize(19),
-                        child: Text(
-                          "Welcome,",
-                          style: TextStyle(
-                            color: Theme.of(context).accentColor,
-                            fontSize: 16,
-                          ),
-                        ),
+                      Expanded(
+                        flex: 1,
+                        child: Container(),
                       ),
-                      SizedBox(height: reSize(5)),
-                      Text(
-                        controller.user.value != null
-                            ? "${controller.user.value.firstName} ${controller.user.value.lastName}"
-                            : "",
-                        style: TextStyle(
-                          color: Color(0xFF000000),
-                          fontSize: 24,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      SizedBox(height: reSize(30)),
-                      Column(
-                        children: [
-                          Container(
-                            width: 80,
-                            height: 80,
-                            child: TextButton(
-                              onPressed: _createSession,
-                              style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                  Theme.of(context).accentColor,
-                                ),
-                                overlayColor: MaterialStateProperty.all(
-                                  Color(0xFF000000).withOpacity(0.1),
-                                ),
-                                shape: MaterialStateProperty.all<
-                                    RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(150),
-                                  ),
+                      if (controller.certificate.value != null)
+                        Expanded(
+                          flex: 3,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                child: SvgPicture.asset(
+                                  'assets/images/121.svg',
                                 ),
                               ),
-                              child: Center(
-                                child: Icon(
-                                  Icons.add,
-                                  size: 45,
-                                  color: Color(0xFFFFFFFF),
+                            ],
+                          ),
+                        ),
+                      Expanded(
+                        flex: controller.notary.value == null
+                            ? 11
+                            : controller.certificate.value == null
+                                ? 4
+                                : 8,
+                        child: Column(
+                          children: [
+                            SizedBox(height: reSize(80)),
+                            SizedBox(
+                              height: reSize(19),
+                              child: Text(
+                                "Welcome,",
+                                style: TextStyle(
+                                  color: Theme.of(context).accentColor,
+                                  fontSize: 16,
                                 ),
                               ),
                             ),
-                          ),
-                          SizedBox(height: 30),
-                          Text(
-                            "New Session",
-                            style: TextStyle(
-                              color: Theme.of(context).accentColor,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
+                            SizedBox(height: reSize(5)),
+                            Text(
+                              controller.user.value != null
+                                  ? "${controller.user.value.firstName} ${controller.user.value.lastName}"
+                                  : "",
+                              style: TextStyle(
+                                color: Color(0xFF000000),
+                                fontSize: 24,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
-                          )
-                        ],
-                      )
+                            SizedBox(height: reSize(30)),
+                            controller.notary.value == null
+                                ? Column(
+                                    children: [
+                                      Container(
+                                        width: reSize(96),
+                                        height: reSize(96),
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context).primaryColor,
+                                          borderRadius:
+                                              BorderRadius.circular(50),
+                                        ),
+                                        child: Center(
+                                          child: SvgPicture.asset(
+                                              "assets/images/76.svg"),
+                                        ),
+                                      ),
+                                      SizedBox(height: reSize(30)),
+                                      Container(
+                                        child: Text(
+                                          "Before we begin, we require some\nadditional information",
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            color: Color(0xFF000000),
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: reSize(30)),
+                                      Container(
+                                        child: ButtonPrimaryOutline(
+                                          text: "Add",
+                                          callback: () => Get.to(
+                                            () => NotaryEdit(),
+                                          ),
+                                          width: 232,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : controller.certificate.value == null
+                                    ? CertificateUpload()
+                                    : Column(
+                                        children: [
+                                          Container(
+                                            width: 80,
+                                            height: 80,
+                                            child: TextButton(
+                                              onPressed: _createSession,
+                                              style: ButtonStyle(
+                                                backgroundColor:
+                                                    MaterialStateProperty.all(
+                                                  Theme.of(context).accentColor,
+                                                ),
+                                                overlayColor:
+                                                    MaterialStateProperty.all(
+                                                  Color(0xFF000000)
+                                                      .withOpacity(0.1),
+                                                ),
+                                                shape:
+                                                    MaterialStateProperty.all<
+                                                        RoundedRectangleBorder>(
+                                                  RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            150),
+                                                  ),
+                                                ),
+                                              ),
+                                              child: Center(
+                                                child: Icon(
+                                                  Icons.add,
+                                                  size: 45,
+                                                  color: Color(0xFFFFFFFF),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(height: 30),
+                                          Text(
+                                            "New Session",
+                                            style: TextStyle(
+                                              color:
+                                                  Theme.of(context).accentColor,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16,
+                                            ),
+                                          )
+                                        ],
+                                      )
+                          ],
+                        ),
+                      ),
                     ],
-                  );
-                },
-              ),
-            ),
+                  ),
+                  if (controller.user.value == null)
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.height,
+                          child: Center(
+                            child: Loading(),
+                          ),
+                          decoration: BoxDecoration(
+                            color: Color(0xFFFFFFFF).withOpacity(0.4),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ));
+            }),
             BottomNavigator(
               widget: GetX<SessionController>(builder: (controller) {
                 return controller.session.value != null &&
                         controller.session.value.state != "CANCELLED" &&
-                        controller.session.value.state != "FINISHED" &&
+                        // controller.session.value.state != "FINISHED" &&
                         controller.session.value.state != "FAILED"
                     ? Column(
                         children: [
@@ -154,10 +237,16 @@ class _HomePageState extends State<HomePage> {
                           ),
                           ButtonPrimary(
                             text: 'Resume',
-                            callback: () => Get.to(
-                              () => DocumentSetting(),
-                              transition: Transition.noTransition,
-                            ),
+                            callback:
+                                controller.session.value.state == "FINISHED"
+                                    ? () => Get.offAll(
+                                          () => Download(),
+                                          transition: Transition.noTransition,
+                                        )
+                                    : () => Get.to(
+                                          () => DocumentSetting(),
+                                          transition: Transition.noTransition,
+                                        ),
                           ),
                           SizedBox(
                             height: reSize(35),

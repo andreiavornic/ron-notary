@@ -65,6 +65,7 @@ class RecipientController extends GetxController {
       email: dataRecipient['email'],
       type: dataRecipient['type'],
       color: colors[_recipients.length],
+      states: List<String>.from(extracted['data']['states']).map((state) => state).toList(),
     );
     _recipients.add(newRecipient);
     update();

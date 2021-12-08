@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 import 'package:notary/methods/resize_formatting.dart';
+import 'package:notary/views/journal.dart';
+import 'package:notary/views/settings_menu.dart';
 
 class BottomNavigator extends StatefulWidget {
   final Widget widget;
@@ -16,7 +19,6 @@ class _BottomNavigatorState extends State<BottomNavigator> {
   void initState() {
     super.initState();
   }
-
 
   //_session != null &&
   //                         _session.state != "CANCELLED" &&
@@ -61,7 +63,7 @@ class _BottomNavigatorState extends State<BottomNavigator> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 TextButton(
-                  onPressed: () => null,
+                  onPressed: () => Get.to(() => Journal()),
                   style: ButtonStyle(
                     overlayColor: MaterialStateProperty.all(
                       Color(0xFF000000).withOpacity(0.2),
@@ -85,7 +87,7 @@ class _BottomNavigatorState extends State<BottomNavigator> {
                   ),
                 ),
                 TextButton(
-                  onPressed: () => null,
+                  onPressed: () => Get.to(() => SettingsMenu()),
                   style: ButtonStyle(
                     overlayColor: MaterialStateProperty.all(
                       Color(0xFF000000).withOpacity(0.2),
@@ -109,9 +111,8 @@ class _BottomNavigatorState extends State<BottomNavigator> {
               ],
             ),
             SizedBox(
-                height: MediaQuery.of(context).size.height < 670
-                    ? 20
-                    : reSize(40)),
+                height:
+                    MediaQuery.of(context).size.height < 670 ? 20 : reSize(40)),
           ],
         ),
       ),
