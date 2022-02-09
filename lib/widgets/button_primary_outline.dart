@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:notary/methods/resize_formatting.dart';
 
 class ButtonPrimaryOutline extends StatelessWidget {
@@ -21,7 +22,7 @@ class ButtonPrimaryOutline extends StatelessWidget {
         overlayColor: MaterialStateProperty.all(
           color != null
               ? color.withOpacity(0.2)
-              : Theme.of(context).accentColor.withOpacity(0.2),
+              : Theme.of(context).colorScheme.secondary.withOpacity(0.2),
         ),
         shape: MaterialStateProperty.all<RoundedRectangleBorder>(
           RoundedRectangleBorder(
@@ -30,7 +31,7 @@ class ButtonPrimaryOutline extends StatelessWidget {
               color: callback != null
                   ? color != null
                       ? color
-                      : Theme.of(context).accentColor
+                      : Theme.of(context).colorScheme.secondary
                   : Color(0xFFD1D1D1),
               width: 1,
             ),
@@ -38,7 +39,7 @@ class ButtonPrimaryOutline extends StatelessWidget {
         ),
         textStyle: MaterialStateProperty.all(
           TextStyle(
-            color: color != null ? color : Theme.of(context).accentColor,
+            color: color != null ? color : Theme.of(context).colorScheme.secondary,
             fontSize: 16,
             fontWeight: FontWeight.w700,
           ),
@@ -50,7 +51,7 @@ class ButtonPrimaryOutline extends StatelessWidget {
       onPressed: callback,
       child: SizedBox(
         height:  reSize(51),
-        width: width != null ? width : MediaQuery.of(context).size.width - 40,
+        width: width != null ? width : Get.width - 40,
         child: Center(
           child: Text(
             text,
@@ -61,7 +62,7 @@ class ButtonPrimaryOutline extends StatelessWidget {
               color: callback != null
                   ? color != null
                       ? color
-                      : Theme.of(context).accentColor
+                      : Theme.of(context).colorScheme.secondary
                   : Color(0xFFD1D1D1),
             ),
           ),

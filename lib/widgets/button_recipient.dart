@@ -32,7 +32,7 @@ class _ButtonRecipientState extends State<ButtonRecipient> {
                 EdgeInsets.zero,
               ),
               overlayColor: MaterialStateProperty.all(
-                Theme.of(context).accentColor.withOpacity(0.1),
+                Theme.of(context).colorScheme.secondary.withOpacity(0.1),
               ),
               backgroundColor: MaterialStateProperty.all(
                 Color(0xFFF5F6F9),

@@ -15,7 +15,7 @@ class BtnSign extends StatelessWidget {
       height: 42,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(50),
-        color: isSigned ? Color(0xFFF5F6F9) : Theme.of(context).accentColor,
+        color: isSigned ? Color(0xFFF5F6F9) : Theme.of(context).colorScheme.secondary,
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(50),
@@ -25,7 +25,7 @@ class BtnSign extends StatelessWidget {
               EdgeInsets.zero,
             ),
             overlayColor: MaterialStateProperty.all(
-              Theme.of(context).accentColor.withOpacity(0.05),
+              Theme.of(context).colorScheme.secondary.withOpacity(0.05),
             ),
           ),
           child: Container(

@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/src/simple/get_state.dart';
 import 'package:notary/controllers/point.dart';
 import 'package:notary/controllers/recipient.dart';
+import 'package:notary/controllers/session.dart';
 import 'package:notary/controllers/user.dart';
 import 'package:notary/methods/resize_formatting.dart';
+import 'package:notary/methods/show_error.dart';
 import 'package:notary/models/point.dart';
 import 'package:notary/models/recipient.dart';
 import 'package:notary/models/user.dart';
-import 'package:notary/views/errors/error_page.dart';
 import 'package:notary/views/tags/document_body.dart';
 import 'package:notary/views/tags/document_tag.dart';
 import 'package:notary/widgets/button_primary.dart';
 import 'package:notary/widgets/edit_intput.widget.dart';
+import 'package:notary/widgets/loading_page.dart';
 import 'package:notary/widgets/modals/modal_container.dart';
 import 'package:notary/widgets/recipient/recipient_list.dart';
 import 'package:notary/widgets/title_page.dart';
@@ -30,21 +31,24 @@ class _TagsState extends State<Tags> {
   UserController _userController = Get.put(UserController());
   RecipientController _recipientController = Get.put(RecipientController());
   PointController _pointController = Get.put(PointController());
+  SessionController _sessionController = Get.put(SessionController());
   Recipient _userRecipient;
   String _typeSignature;
   String _text;
   bool _canContinue;
+  bool _loading;
 
   @override
   initState() {
     _typeSignature = "SIGNATURE";
     _canContinue = false;
-    getUserData();
+    _loading = true;
+    _getUserData();
+    _getData();
     super.initState();
   }
 
-  getUserData() {
-    _recipientController.fetchRecipients();
+  _getUserData() {
     User _user = _userController.user.value;
     _userRecipient = new Recipient(
       id: _user.id,
@@ -55,6 +59,18 @@ class _TagsState extends State<Tags> {
       color: Color(0xFFFFC700),
     );
     _recipientController.addUserRecipient(_userRecipient);
+  }
+
+  _getData() async {
+    try {
+      await _pointController.getPoints();
+      _checkContinue();
+    } catch (err) {
+      print(err);
+      _loading = false;
+      setState(() {});
+      //  showError(err);
+    }
   }
 
   _addPoint(TapUpDetails details, int page, double wPage) {
@@ -88,6 +104,31 @@ class _TagsState extends State<Tags> {
     setState(() {});
   }
 
+  void _checkContinue() {
+    List<Point> _points = _pointController.points;
+    bool stampExist = _points.any((element) => element.type == "STAMP");
+
+    List<Recipient> signers = _recipientController.recipientsForTag
+        .where((element) => element.type == "SIGNER")
+        .toList();
+    List<Point> recipePoints =
+        _points.where((point) => point.ownerType == 'RECIPIENT').toList();
+    int nrPoints = 0;
+
+    signers.forEach((signer) {
+      if (recipePoints.any((point) => point.ownerId == signer.id)) {
+        nrPoints += 1;
+      }
+    });
+
+    bool notarySignExist = _points.any(
+        (element) => element.ownerType == "NOTARY" && element.type != "STAMP");
+    bool pointSignersExist = signers.length == nrPoints;
+    _canContinue = stampExist && pointSignersExist && notarySignExist;
+    _loading = false;
+    setState(() {});
+  }
+
   _getValue(Recipient activeRecipient) {
     String txt = "${activeRecipient.firstName} ${activeRecipient.lastName}";
     if (_typeSignature == "DATE") {
@@ -113,30 +154,30 @@ class _TagsState extends State<Tags> {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<RecipientController>(
-      init: RecipientController(),
-      builder: (_recipientController) {
-        return Scaffold(
-          body: Column(
-            children: [
-              TitlePage(
-                title: 'Tags',
-                description: 'Select a participant to set tags',
-                needNav: true,
-                needHelp: true,
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: RecipientList(() {
-                  _typeSignature = "SIGNATURE";
-                  setState(() {});
-                }),
-              ),
-              SizedBox(height: reSize(10)),
+    return LoadingPage(
+        _loading,
+        Column(
+          children: [
+            TitlePage(
+              title: 'Tags',
+              description: 'Select a participant to set tags',
+              needNav: true,
+              needHelp: true,
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: RecipientList(() {
+                _typeSignature = "SIGNATURE";
+                setState(() {});
+              }),
+            ),
+            SizedBox(height: reSize(10)),
+            if (_recipientController.recipientsForTag.length != 0)
               DocumentBody(
                 changeTypeSignature: _changeTypeSignature,
                 activeRecipient: _recipientController.recipientsForTag
-                    .firstWhere((element) => element.isActive),
+                    .firstWhere((element) => element.isActive,
+                        orElse: () => null),
                 typeSignature: _typeSignature,
                 editPoint: _editPoint,
                 cancelEdit: _pointController.cancelEdit,
@@ -151,49 +192,19 @@ class _TagsState extends State<Tags> {
                   checkPoint: _pointController.activatePoint,
                 ),
               ),
-              SizedBox(height: reSize(20)),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Container(
-                  child: ButtonPrimary(
-                    callback: _canContinue ? _addTagsAndContinue : null,
-                    text: 'Continue',
-                  ),
+            SizedBox(height: reSize(20)),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Container(
+                child: ButtonPrimary(
+                  callback: _canContinue ? _addTagsAndContinue : null,
+                  text: 'Continue',
                 ),
               ),
-              SizedBox(
-                  height: MediaQuery.of(context).size.height < 670
-                      ? 20
-                      : reSize(40)),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  void _checkContinue() {
-    List<Point> _points = _pointController.points;
-    bool stampExist = _points.any((element) => element.type == "STAMP");
-
-    List<Recipient> signers = _recipientController.recipientsForTag
-        .where((element) => element.type == "SIGNER")
-        .toList();
-    List<Point> recipePoints =
-        _points.where((point) => point.ownerType == 'RECIPIENT').toList();
-    int nrPoints = 0;
-
-    signers.forEach((signer) {
-      if (recipePoints.any((point) => point.ownerId == signer.id)) {
-        nrPoints += 1;
-      }
-    });
-
-    bool notarySignExist = _points.any(
-        (element) => element.ownerType == "NOTARY" && element.type != "STAMP");
-    bool pointSignersExist = signers.length == nrPoints;
-    _canContinue = stampExist && pointSignersExist && notarySignExist;
-    setState(() {});
+            ),
+            SizedBox(height: Get.height < 670 ? 20 : reSize(40)),
+          ],
+        ));
   }
 
   _editPoint() {
@@ -215,19 +226,20 @@ class _TagsState extends State<Tags> {
 
   Future<void> _addTagsAndContinue() async {
     try {
+      _loading = true;
+      setState(() {});
       await _pointController.addPoints();
+      _sessionController.updateStageByString("INVITE");
       Get.to(
         () => Invite(),
         transition: Transition.noTransition,
       );
+      _loading = false;
+      setState(() {});
     } catch (err) {
-      Get.to(
-        () => ErrorPage(
-          errorMessage: err.toString(),
-          callback: () => Get.back(),
-        ),
-        transition: Transition.noTransition,
-      );
+      _loading = false;
+      setState(() {});
+      showError(err);
     }
   }
 
@@ -245,7 +257,7 @@ class _TagsState extends State<Tags> {
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w700,
-              color: Theme.of(context).accentColor,
+              color: Theme.of(context).colorScheme.secondary,
             ),
           ),
           SizedBox(height: 15),

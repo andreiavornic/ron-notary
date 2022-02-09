@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 import 'package:notary/methods/resize_formatting.dart';
 
 class BtnTags extends StatelessWidget {
@@ -51,7 +52,7 @@ class BtnTags extends StatelessWidget {
                   ),
             SizedBox(height: reSize(2)),
             Container(
-              width: MediaQuery.of(context).size.width,
+              width: Get.width,
               child: Text(
                 text,
                 softWrap: true,

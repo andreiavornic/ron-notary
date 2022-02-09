@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:notary/methods/resize_formatting.dart';
+import 'package:notary/widgets/stages.dart';
 
 import 'back_arrow_button.dart';
 
@@ -21,7 +23,7 @@ class TitlePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery.of(context).size.width,
+      width: Get.width,
       child: Row(
         children: [
           Expanded(
@@ -30,7 +32,7 @@ class TitlePage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 SizedBox(
-                    height: MediaQuery.of(context).size.height < 670
+                    height: Get.height < 670
                         ? reSize(50)
                         : reSize(70)),
                 Padding(
@@ -79,8 +81,8 @@ class TitlePage extends StatelessWidget {
           ),
           needHelp != null && needHelp
               ? Container(
-           // child: Stages(),
-          )
+                  child: Stages(),
+                )
               : Container()
         ],
       ),

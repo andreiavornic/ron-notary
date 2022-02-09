@@ -1,28 +1,37 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:notary/methods/show_error.dart';
 import 'package:notary/models/point.dart';
-import 'package:notary/services/point.dart';
+
+import 'package:dio/dio.dart' as dio;
+import 'package:notary/services/dio_service.dart';
 
 class PointController extends GetxController {
-  PointService _pointService = new PointService();
   RxList<Point> _points = RxList<Point>([]);
 
   RxList<Point> get points => _points;
 
   @override
   void onInit() {
+    // getPoints();
     super.onInit();
-    getPoints();
+  }
+
+  reset() {
+    _points.clear();
+    update();
   }
 
   getPoints() async {
     try {
-      Response response = await _pointService.getPoints();
-      var extracted = response.body;
+      dio.Response resDio = await makeRequest('point', "GET", null);
+      var extracted = resDio.data;
+      if (extracted == null) {
+        return;
+      }
       if (!extracted['success']) {
         throw extracted['message'];
       }
+      _points.clear();
       extracted['data'].forEach(
         (json) => addPoint(
           new Point.fromJson(json),
@@ -35,8 +44,17 @@ class PointController extends GetxController {
 
   addPoints() async {
     try {
-      Response response = await _pointService.addPoints(_points);
-      var extracted = response.body;
+      List<Map<String, dynamic>> data = [];
+      points.forEach((element) {
+        data.add(element.toJson());
+      });
+      dio.Response resDio = await makeRequest('point', 'POST', data);
+      var extracted = resDio.data;
+      if (extracted == null) {
+        return;
+      }
+
+      print("extracted $extracted");
       if (!extracted['success']) {
         throw extracted['message'];
       }
@@ -49,37 +67,8 @@ class PointController extends GetxController {
       _points = pointsResult;
       update();
     } catch (err) {
+      print(err);
       throw err;
-    }
-  }
-
-  addSign() async {
-    try {
-      Response response = await _pointService.updatePoints("ALL");
-      var extracted = response.body;
-      if (!extracted['success']) {
-        throw extracted['message'];
-      }
-      extracted['data'].forEach(
-        (json) => updateSignPoint(json),
-      );
-    } catch (err) {
-      showError(err);
-    }
-  }
-
-  addStamp() async {
-    try {
-      Response response = await _pointService.updatePoints("STAMP");
-      var extracted = response.body;
-      if (!extracted['success']) {
-        throw extracted['message'];
-      }
-      extracted['data'].forEach(
-            (json) => updateSignPoint(json),
-      );
-    } catch (err) {
-      showError(err);
     }
   }
 
@@ -91,6 +80,16 @@ class PointController extends GetxController {
 
   addPoint(Point point) {
     _points.add(point);
+    update();
+  }
+
+  updatePoints(data) {
+    data.forEach((element) {
+      int index = _points.indexWhere((point) => point.id == element['id']);
+      if (index >= 0) {
+        _points[index].isSigned = element['isSigned'];
+      }
+    });
     update();
   }
 

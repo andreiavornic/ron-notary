@@ -20,17 +20,17 @@ class RecipientItem extends StatelessWidget {
           ),
           ItemData(
             'Address:',
-            "recipient.addressStreet1",
+            recipient.email,
             false,
           ),
           ItemData(
             'KBA:',
-            "recipient.addressStreet1",
+            recipient.kba != null &&  recipient.kba ? "Passed" : "Failed",
             false,
           ),
           ItemData(
             'Identity Status:',
-            "recipient.addressStreet1",
+            recipient.idenfy != null &&  recipient.idenfy  ? "Passed" : "Failed",
             false,
           ),
         ],

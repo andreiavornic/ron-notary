@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -6,6 +7,8 @@ import 'package:notary/methods/resize_formatting.dart';
 import 'package:notary/methods/show_error.dart';
 import 'package:notary/widgets/button_primary.dart';
 import 'package:notary/widgets/edit_intput.widget.dart';
+import 'package:notary/widgets/loading_page.dart';
+import 'package:notary/widgets/modals/modal_container.dart';
 import 'package:notary/widgets/title_page.dart';
 
 class NotaryEdit extends StatefulWidget {
@@ -21,11 +24,12 @@ class _NotaryEditState extends State<NotaryEdit> {
   String _address;
   String _addressSecond;
   String _city;
-  String _state;
   String _zip;
+  bool _loading;
 
   @override
   void initState() {
+    _loading = false;
     super.initState();
   }
 
@@ -34,199 +38,205 @@ class _NotaryEditState extends State<NotaryEdit> {
     return GetBuilder<UserController>(
         init: UserController(),
         builder: (_controller) {
-          return Scaffold(
-            body: SingleChildScrollView(
-              child: Container(
-                height: Get.height,
-                child: Column(
-                  children: [
-                    TitlePage(
-                      title: "Notary Credentials",
-                      description: "Must match your notary commission",
-                      needNav: true,
-                    ),
-                    SizedBox(height: reSize(15)),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Container(
-                        child: Form(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Commissioned Notary in ${_controller.user.value.longState}',
-                                style: TextStyle(
-                                  color: Theme.of(context).accentColor,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              Text(
-                                'Commission state can be changed in settings',
-                                style: TextStyle(
-                                  color: Color(0xFF999999),
-                                  fontSize: 14,
-                                ),
-                              ),
-                              SizedBox(height: 30),
-                              Column(
-                                children: [
-                                  EditInput(
-                                    onChanged: (value) {
-                                      _company = value;
-                                      setState(() {});
-                                    },
-                                    labelText: "Company",
-                                    initialValue: null,
+          return LoadingPage(
+            _loading,
+            Container(
+              height: Get.height,
+              child: SingleChildScrollView(
+                child: Container(
+                  child: Column(
+                    children: [
+                      TitlePage(
+                        title: "Notary Credentials",
+                        description: "Must match your notary commission",
+                        needNav: true,
+                      ),
+                      SizedBox(height: reSize(15)),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Container(
+                          child: Form(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Commissioned Notary in ${_controller.user.value.longState}',
+                                  style: TextStyle(
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
                                   ),
-                                  SizedBox(height: 15),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Expanded(
-                                        child: EditInput(
-                                          onChanged: (value) {
-                                            _ronLicense = value;
-                                            setState(() {});
-                                          },
-                                          validate: (String value) {
-                                            if (value.trim().isEmpty) {
-                                              return "RON is required";
-                                            }
-                                            return null;
-                                          },
-                                          labelText: "RON Commission Number",
-                                          initialValue: null,
-                                        ),
-                                      ),
-                                      SizedBox(width: 20),
-                                      Expanded(
-                                          child: InkWell(
-                                        onTap: _selectRonExpire,
-                                        child: Container(
-                                          height: 44,
-                                          decoration: BoxDecoration(
-                                              border: Border(
-                                            bottom: BorderSide(
-                                                width: 1.0,
-                                                color: Color(0xFFEDEDED)),
-                                          )),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Expiration Date',
-                                                style: TextStyle(
-                                                  fontSize: 10,
-                                                  color: Color(0xFF161617),
-                                                ),
-                                              ),
-                                              SizedBox(height: 4),
-                                              Text(
-                                                DateFormat('MM / dd / yyyy')
-                                                    .format(_ronExpire),
-                                                style: TextStyle(
-                                                    color: _ronExpire == null
-                                                        ? Color(0xFFADAEAF)
-                                                        : Color(0xFF161617),
-                                                    fontSize: 16),
-                                              ),
-                                            ],
+                                ),
+                                Text(
+                                  'Commission state can be changed in settings',
+                                  style: TextStyle(
+                                    color: Color(0xFF999999),
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                SizedBox(height: 30),
+                                Column(
+                                  children: [
+                                    EditInput(
+                                      onChanged: (value) {
+                                        _company = value;
+                                        setState(() {});
+                                      },
+                                      labelText: "Company",
+                                      initialValue: null,
+                                    ),
+                                    SizedBox(height: 15),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Expanded(
+                                          child: EditInput(
+                                            onChanged: (value) {
+                                              _ronLicense = value;
+                                              setState(() {});
+                                            },
+                                            validate: (String value) {
+                                              if (value.trim().isEmpty) {
+                                                return "RON is required";
+                                              }
+                                              return null;
+                                            },
+                                            labelText: "RON Commission Number",
+                                            initialValue: null,
                                           ),
                                         ),
-                                      )),
-                                    ],
-                                  ),
-                                  SizedBox(height: 15),
-                                  EditInput(
-                                    onChanged: (value) {
-                                      _address = value;
-                                      setState(() {});
-                                    },
-                                    validate: (String value) {
-                                      if (value.trim().isEmpty) {
-                                        return "Address is required";
-                                      }
-                                      return null;
-                                    },
-                                    labelText: "Address",
-                                    initialValue: null,
-                                  ),
-                                  SizedBox(height: 15),
-                                  EditInput(
-                                    onChanged: (value) {
-                                      _addressSecond = value;
-                                      setState(() {});
-                                    },
-                                    labelText: "Address 2 (Optional)",
-                                    initialValue: null,
-                                  ),
-                                  SizedBox(height: 15),
-                                  EditInput(
-                                    onChanged: (value) {
-                                      _city = value;
-                                      setState(() {});
-                                    },
-                                    validate: (String value) {
-                                      if (value.trim().isEmpty) {
-                                        return "City is required";
-                                      }
-                                      return null;
-                                    },
-                                    labelText: "City",
-                                    initialValue: null,
-                                  ),
-                                  SizedBox(height: 15),
-                                  EditInput(
-                                    onChanged: (value) {
-                                      _zip = value;
-                                      setState(() {});
-                                    },
-                                    keyboardType: TextInputType.number,
-                                    validate: (String value) {
-                                      if (value.trim().isEmpty) {
-                                        return "ZIP is required";
-                                      } else if (value.length < 5 ||
-                                          value.length > 6) {
-                                        return "ZIP is not match";
-                                      }
-                                      return null;
-                                    },
-                                    labelText: "Zip Code",
-                                    initialValue: null,
-                                    action: TextInputAction.done,
-                                  ),
-                                  SizedBox(height: reSize(15)),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'By selecting Continue, I confirm the above information is true\nand correct',
-                                    style: TextStyle(
-                                        color: Color(0xFF999999), fontSize: 12),
-                                    //textAlign: TextAlign.center,
-                                  ),
-                                  SizedBox(height: reSize(15)),
-                                  Container(
-                                    child: ButtonPrimary(
-                                      callback:
-                                          !_checkData() ? null : _addNotary,
-                                      text: "Continue",
+                                        SizedBox(width: 20),
+                                        Expanded(
+                                            child: InkWell(
+                                          onTap: _selectRonExpire,
+                                          child: Container(
+                                            height: 44,
+                                            decoration: BoxDecoration(
+                                                border: Border(
+                                              bottom: BorderSide(
+                                                  width: 1.0,
+                                                  color: Color(0xFFEDEDED)),
+                                            )),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  'Expiration Date',
+                                                  style: TextStyle(
+                                                    fontSize: 10,
+                                                    color: Color(0xFF161617),
+                                                  ),
+                                                ),
+                                                SizedBox(height: 4),
+                                                Text(
+                                                  DateFormat('MM / dd / yyyy')
+                                                      .format(_ronExpire),
+                                                  style: TextStyle(
+                                                      color: _ronExpire == null
+                                                          ? Color(0xFFADAEAF)
+                                                          : Color(0xFF161617),
+                                                      fontSize: 16),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        )),
+                                      ],
                                     ),
-                                  ),
-                                ],
-                              )
-                            ],
+                                    SizedBox(height: 15),
+                                    EditInput(
+                                      onChanged: (value) {
+                                        _address = value;
+                                        setState(() {});
+                                      },
+                                      validate: (String value) {
+                                        if (value.trim().isEmpty) {
+                                          return "Address is required";
+                                        }
+                                        return null;
+                                      },
+                                      labelText: "Address",
+                                      initialValue: null,
+                                    ),
+                                    SizedBox(height: 15),
+                                    EditInput(
+                                      onChanged: (value) {
+                                        _addressSecond = value;
+                                        setState(() {});
+                                      },
+                                      labelText: "Address 2 (Optional)",
+                                      initialValue: null,
+                                    ),
+                                    SizedBox(height: 15),
+                                    EditInput(
+                                      onChanged: (value) {
+                                        _city = value;
+                                        setState(() {});
+                                      },
+                                      validate: (String value) {
+                                        if (value.trim().isEmpty) {
+                                          return "City is required";
+                                        }
+                                        return null;
+                                      },
+                                      labelText: "City",
+                                      initialValue: null,
+                                    ),
+                                    SizedBox(height: 15),
+                                    EditInput(
+                                      onChanged: (value) {
+                                        _zip = value;
+                                        setState(() {});
+                                      },
+                                      keyboardType: TextInputType.number,
+                                      validate: (String value) {
+                                        if (value.trim().isEmpty) {
+                                          return "ZIP is required";
+                                        } else if (value.length < 5 ||
+                                            value.length > 6) {
+                                          return "ZIP is not match";
+                                        }
+                                        return null;
+                                      },
+                                      labelText: "Zip Code",
+                                      initialValue: null,
+                                      action: TextInputAction.done,
+                                    ),
+                                    SizedBox(height: reSize(15)),
+                                  ],
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'By selecting Continue, I confirm the above information is true\nand correct',
+                                      style: TextStyle(
+                                          color: Color(0xFF999999),
+                                          fontSize: 12),
+                                      //textAlign: TextAlign.center,
+                                    ),
+                                    SizedBox(height: reSize(15)),
+                                    Container(
+                                      child: ButtonPrimary(
+                                        callback:
+                                            !_checkData() ? null : _addNotary,
+                                        text: "Continue",
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -254,6 +264,8 @@ class _NotaryEditState extends State<NotaryEdit> {
   }
 
   _addNotary() async {
+    _loading = true;
+    setState(() {});
     try {
       await _userController.editNotary({
         "company": _company,
@@ -264,11 +276,52 @@ class _NotaryEditState extends State<NotaryEdit> {
         "city": _city,
         "zip": _zip,
       });
+      _loading = false;
+      setState(() {});
       Get.back();
     } catch (err) {
+      _loading = false;
+      setState(() {});
       showError(err);
     }
   }
 
-  _selectRonExpire() {}
+  _selectRonExpire() async {
+    print("Click!");
+    await modalContainer(
+      Container(
+        height: Get.height / 2,
+        color: Color(0xFFFFFFFF),
+        child: Column(
+          children: [
+            Container(
+              height: Get.height / 2 - reSize(100),
+              child: CupertinoDatePicker(
+                mode: CupertinoDatePickerMode.date,
+                minimumYear: DateTime.now().year,
+                minimumDate: DateTime.now(),
+                initialDateTime: DateTime.now(),
+                onDateTimeChanged: (val) {
+                  _ronExpire = val;
+                  setState(() {});
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
+              ),
+              child: ButtonPrimary(
+                text: 'Select expire date',
+                callback: () {
+                  Get.back();
+                  FocusScope.of(context).requestFocus(new FocusNode());
+                },
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
 }

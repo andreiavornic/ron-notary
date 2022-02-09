@@ -12,7 +12,6 @@ class RecipientStatus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(recipient);
     return InkWell(
       highlightColor: Color(0xFFFFFFFF),
       splashColor: Color(0xFFFFFFFF),
@@ -46,7 +45,7 @@ class RecipientStatus extends StatelessWidget {
                   ),
                 ),
               ),
-          //    recipient?.states?.last == "LOGGED" ? CheckIcon() : Container(),
+              recipient?.states?.last == "LOGGED" ? CheckIcon() : Container(),
             ],
           ),
           SizedBox(height: reSize(8)),
@@ -55,7 +54,7 @@ class RecipientStatus extends StatelessWidget {
             child: Text(
               '${recipient.firstName} ${recipient.lastName}',
               style: TextStyle(
-                color: Theme.of(context).accentColor,
+                color: Theme.of(context).colorScheme.secondary,
                 fontSize: reSize(14),
               ),
               overflow: TextOverflow.ellipsis,
@@ -76,7 +75,7 @@ class RecipientStatus extends StatelessWidget {
 
   String _formattingState() {
     switch (recipient.states.last.toUpperCase()) {
-      case ("CONNECTED"):
+      case ("CONNECTIVITY"):
         return "Connected";
       case ("PERSONAL_DATA"):
         return "Connectivity";

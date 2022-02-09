@@ -28,8 +28,8 @@ class _LoadingPageState extends State<LoadingPage> {
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
                     child: Container(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height,
+                      width: Get.width,
+                      height: Get.height,
                       child: Center(
                         child: Loading(),
                       ),

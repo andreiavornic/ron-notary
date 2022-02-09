@@ -112,7 +112,7 @@ class _BottomNavigatorState extends State<BottomNavigator> {
             ),
             SizedBox(
                 height:
-                    MediaQuery.of(context).size.height < 670 ? 20 : reSize(40)),
+                    Get.height < 670 ? 20 : reSize(40)),
           ],
         ),
       ),

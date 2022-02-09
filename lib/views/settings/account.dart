@@ -5,6 +5,7 @@ import 'package:notary/controllers/user.dart';
 import 'package:notary/methods/resize_formatting.dart';
 import 'package:notary/methods/show_error.dart';
 import 'package:notary/widgets/button_primary.dart';
+import 'package:notary/widgets/delete_account.dart';
 import 'package:notary/widgets/edit_intput.widget.dart';
 import 'package:notary/widgets/title_page.dart';
 
@@ -126,7 +127,7 @@ class _AccountState extends State<Account> {
                                 color: Color(0xFFADAEAF),
                               ),
                             ),
-                            //  DeleteAccount(),
+                            DeleteAccount(),
                           ],
                         ),
                       ),

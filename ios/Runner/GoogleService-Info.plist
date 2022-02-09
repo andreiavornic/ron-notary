@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>638015560823-dvp1i3tf538u9v4vqvlce0ddqa0r0pes.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.638015560823-dvp1i3tf538u9v4vqvlce0ddqa0r0pes</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>638015560823-sjej5vql5gfr5pj82438tmoffeoq3rv9.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyC3wgZaNR9SZVPCKW_tvjIdQpehPJe1GgA</string>
+	<key>GCM_SENDER_ID</key>
+	<string>638015560823</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.ronary.notary-app</string>
+	<key>PROJECT_ID</key>
+	<string>notar-4dde5</string>
+	<key>STORAGE_BUCKET</key>
+	<string>notar-4dde5.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:638015560823:ios:22badf9cbc871cc3603a72</string>
+</dict>
+</plist>

@@ -41,7 +41,7 @@ class RecipientItem extends StatelessWidget {
                 Text(
                    "${recipient.firstName} ${recipient.lastName}",
                   style: TextStyle(
-                    color: Theme.of(context).accentColor,
+                    color: Theme.of(context).colorScheme.secondary,
                     fontWeight: FontWeight.w400,
                     fontSize: 16,
                   ),

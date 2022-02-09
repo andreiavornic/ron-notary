@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
+import 'package:notary/controllers/session.dart';
+import 'package:notary/controllers/user.dart';
 import 'package:notary/models/point.dart';
 
 import 'get_stamp.dart';
@@ -20,6 +23,9 @@ class TouchTagPart extends StatefulWidget {
 }
 
 class _TouchTagPartState extends State<TouchTagPart> {
+  UserController _userController = Get.put(UserController());
+  SessionController _sessionController = Get.put(SessionController());
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -31,7 +37,9 @@ class _TouchTagPartState extends State<TouchTagPart> {
                     "${widget.point.value}",
                     style: TextStyle(
                       fontSize: 6,
-                      fontFamily: widget.point.fontFamily.fontFamily,
+                      fontFamily: widget.point.ownerType == "NOTARY"
+                          ? _userController.getTypeFont().fontFamily
+                          : _sessionController.getTypeFont(widget.point.ownerId).fontFamily,
                     ),
                   )
                 : Container(

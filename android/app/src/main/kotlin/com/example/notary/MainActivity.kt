@@ -1,4 +1,4 @@
-package com.example.notary
+package com.ronary.notary_app
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -2,7 +2,7 @@ class Font {
   String id;
   String fontFamily;
 
-  Font();
+  Font(this.id, this.fontFamily);
 
   Font.fromJson(Map<String, dynamic> json)
       : id = json['id'],

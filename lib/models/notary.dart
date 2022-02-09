@@ -1,8 +1,3 @@
-import 'package:flutter/material.dart';
-
-import 'package:notary/methods/hex_color.dart';
-import 'package:notary/models/font_family.dart';
-
 class Notary {
   String id;
   String title;

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:notary/models/recipient.dart';
-import 'package:notary/services/recipient.dart';
 import 'package:notary/methods/hex_color.dart';
+import 'package:dio/dio.dart' as dio;
+import 'package:notary/services/dio_service.dart';
 
 List<Color> colors = [
   Color(0xFF3E65C9),
@@ -13,7 +14,6 @@ List<Color> colors = [
 ];
 
 class RecipientController extends GetxController {
-  RecipientService _recipientService = new RecipientService();
   var _recipients = <Recipient>[].obs;
   var _recipientsForTag = <Recipient>[].obs;
 
@@ -23,14 +23,16 @@ class RecipientController extends GetxController {
 
   @override
   void onInit() {
+    // getRecipients();
+    // fetchRecipients();
     super.onInit();
-    getRecipients();
   }
 
   Future<void> getRecipients() async {
     try {
-      Response response = await _recipientService.getRecipients();
-      var extracted = response.body;
+      dio.Response resDio = await makeRequest('recipient', "GET", null);
+      var extracted = resDio.data;
+
       if (!extracted['success']) {
         throw extracted['message'];
       }
@@ -48,9 +50,11 @@ class RecipientController extends GetxController {
 
   Future<void> addRecipient(Map<String, dynamic> dataRecipient) async {
     dataRecipient['color'] = colors[_recipients.length].toHex();
-    Response response = await _recipientService.createRecipient(dataRecipient);
-
-    var extracted = response.body;
+    dio.Response resDio = await makeRequest('recipient', 'POST', dataRecipient);
+    var extracted = resDio.data;
+    if (extracted == null) {
+      return;
+    }
     if (!extracted['success']) {
       throw extracted['message'];
     }
@@ -65,7 +69,9 @@ class RecipientController extends GetxController {
       email: dataRecipient['email'],
       type: dataRecipient['type'],
       color: colors[_recipients.length],
-      states: List<String>.from(extracted['data']['states']).map((state) => state).toList(),
+      states: List<String>.from(extracted['data']['states'])
+          .map((state) => state)
+          .toList(),
     );
     _recipients.add(newRecipient);
     update();
@@ -73,9 +79,13 @@ class RecipientController extends GetxController {
 
   Future<void> updateRecipient(Recipient recipient) async {
     try {
-      Response response = await _recipientService.updateRecipient(
-          recipient.toJson(), recipient.id);
-      var extracted = response.body;
+      dio.Response resDio = await makeRequest(
+        'recipient/${recipient.id}',
+        'PUT',
+        recipient.toJson(),
+      );
+      var extracted = resDio.data;
+
       if (!extracted['success']) {
         throw extracted['message'];
       }
@@ -90,8 +100,9 @@ class RecipientController extends GetxController {
 
   Future<void> deleteRecipient(String id) async {
     try {
-      Response response = await _recipientService.deleteRecipient(id);
-      var extracted = response.body;
+      dio.Response resDio = await makeRequest('recipient/$id', "DELETE", null);
+      var extracted = resDio.data;
+
       if (!extracted['success']) {
         throw extracted['message'];
       }
@@ -108,6 +119,7 @@ class RecipientController extends GetxController {
     _recipients.forEach((element) {
       _recipientsForTag.add(element);
     });
+
     update();
   }
 
@@ -129,6 +141,5 @@ class RecipientController extends GetxController {
       return;
     }
     _recipientsForTag.insert(0, recipient);
-    update();
   }
 }

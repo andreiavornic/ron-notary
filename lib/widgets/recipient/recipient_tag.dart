@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_getx_widget.dart';
 import 'package:notary/controllers/recipient.dart';
 import 'package:notary/methods/resize_formatting.dart';
 import 'package:notary/models/recipient.dart';
@@ -85,7 +84,7 @@ class _RecipientTagState extends State<RecipientTag> {
                     child: Text(
                       "${widget.recipient.firstName} ${widget.recipient.lastName}",
                       style: TextStyle(
-                        color: Theme.of(context).accentColor,
+                        color: Theme.of(context).colorScheme.secondary,
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
                       ),

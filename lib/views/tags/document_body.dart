@@ -44,9 +44,15 @@ class _DocumentBodyState extends State<DocumentBody> {
         child: GetBuilder<PointController>(
           init: PointController(),
           builder: (_pointController) {
-            _baseColor = _recipientController.recipientsForTag
-                .firstWhere((element) => element.isActive)
-                .color;
+            Recipient _recipe = _recipientController.recipientsForTag
+                .firstWhere((element) => element.isActive, orElse: () => null);
+
+            if (_recipe != null) {
+              _baseColor = _recipe.color;
+            } else {
+              _baseColor = Theme.of(context).primaryColor;
+            }
+
             return Container(
               decoration: BoxDecoration(
                 color: Color(0xFFF1F1F1),

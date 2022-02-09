@@ -62,7 +62,7 @@ class _DocumentTagState extends State<DocumentTag> {
     return _recipients.length > 0
         ? GetBuilder<PointController>(
             init: PointController(),
-            builder: (_pointController) {
+            builder: (_controller) {
               return Container(
                 child: Center(
                   child: Stack(
@@ -86,7 +86,7 @@ class _DocumentTagState extends State<DocumentTag> {
                                 transformationController:
                                     _transformationController,
                                 child: SingleChildScrollView(
-                                  physics: _pointController.points.any((element) => element.isChecked)
+                                  physics: _controller.points.any((element) => element.isChecked)
                                       ? NeverScrollableScrollPhysics()
                                       : ScrollPhysics(),
                                   child: Column(
@@ -97,7 +97,7 @@ class _DocumentTagState extends State<DocumentTag> {
                                             widget.addPoint(details, i, wPage);
                                           },
                                           child: _getImageAndPoints(
-                                            _pointController.points,
+                                            _controller.points,
                                             _images[i],
                                             i,
                                           ),

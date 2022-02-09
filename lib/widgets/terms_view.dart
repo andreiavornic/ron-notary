@@ -12,7 +12,7 @@ class TermsView extends StatelessWidget {
           children: [
             SizedBox(height: 90),
             Container(
-              width: MediaQuery.of(context).size.width,
+              width: Get.width,
               child: Padding(
                 padding: EdgeInsets.all(20),
                 child: Column(

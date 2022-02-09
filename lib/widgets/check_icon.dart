@@ -21,7 +21,7 @@ class CheckIcon extends StatelessWidget {
           child: Icon(
             Icons.check,
             size: 8,
-            color: Theme.of(context).accentColor,
+            color: Theme.of(context).colorScheme.secondary,
           ),
         ),
       ),

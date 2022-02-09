@@ -46,7 +46,7 @@ class ConfirmDelete extends StatelessWidget {
                   Text(
                     'Are you sure?',
                     style: TextStyle(
-                      color: Theme.of(context).accentColor,
+                      color: Theme.of(context).colorScheme.secondary,
                       fontSize: 28,
                       fontWeight: FontWeight.w700,
                     ),

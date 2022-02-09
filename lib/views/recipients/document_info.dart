@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:notary/controllers/session.dart';
 import 'package:notary/methods/resize_formatting.dart';
+import 'package:notary/widgets/document_pop_up.dart';
 
 class DocumentInfo extends StatefulWidget {
   @override
@@ -41,7 +42,7 @@ class _DocumentInfoState extends State<DocumentInfo> {
                         style: ButtonStyle(
                           padding: MaterialStateProperty.all(EdgeInsets.zero),
                         ),
-                        onPressed: () => null,
+                        onPressed: () => Get.to(()=> DocumentPopUp()),
                         child: Image.memory(
                           base64Decode(
                               _sessionController.session.value.images[0]),

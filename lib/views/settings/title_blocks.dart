@@ -26,7 +26,7 @@ class TitleBlocks extends StatelessWidget {
               Text(
                 title,
                 style: TextStyle(
-                  color: Theme.of(context).accentColor,
+                  color: Theme.of(context).colorScheme.secondary,
                   fontSize: 18,
                   fontWeight: FontWeight.w500,
                 ),
@@ -51,7 +51,7 @@ class TitleBlocks extends StatelessWidget {
                   EdgeInsets.zero,
                 ),
                 overlayColor: MaterialStateProperty.all(
-                  Theme.of(context).accentColor.withOpacity(0.02),
+                  Theme.of(context).colorScheme.secondary.withOpacity(0.02),
                 ),
               ),
               child: Container(
@@ -60,7 +60,7 @@ class TitleBlocks extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(2),
                   border: Border.all(
-                    color: Theme.of(context).accentColor,
+                    color: Theme.of(context).colorScheme.secondary,
                     width: 1,
                   ),
                 ),
@@ -68,7 +68,7 @@ class TitleBlocks extends StatelessWidget {
                     child: Text(
                       actionText,
                       style: TextStyle(
-                        color: Theme.of(context).accentColor,
+                        color: Theme.of(context).colorScheme.secondary,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),

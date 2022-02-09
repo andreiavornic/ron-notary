@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -64,9 +65,9 @@ class _NotaryState extends State<Notary> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        height: Get.height,
         child: SingleChildScrollView(
           child: Container(
-            height: Get.height,
             child: Column(
               children: [
                 TitlePage(
@@ -204,6 +205,7 @@ class _NotaryState extends State<Notary> {
                                     setState(() {});
                                     Get.back();
                                   },
+                                  isSetting: true,
                                 ),
                               ),
                               // showModal(
@@ -242,8 +244,7 @@ class _NotaryState extends State<Notary> {
                                   SizedBox(height: 6),
                                   Container(
                                     color: Color(0xFFEDEDED),
-                                    width:
-                                        MediaQuery.of(context).size.width - 40,
+                                    width: Get.width - 40,
                                     height: 1,
                                   )
                                 ],
@@ -358,5 +359,42 @@ class _NotaryState extends State<Notary> {
     Get.back();
   }
 
-  _selectRonExpire() {}
+  _selectRonExpire() async {
+    print("Click!");
+    await modalContainer(
+      Container(
+        height: Get.height / 2,
+        color: Color(0xFFFFFFFF),
+        child: Column(
+          children: [
+            Container(
+              height: Get.height / 2 - reSize(100),
+              child: CupertinoDatePicker(
+                mode: CupertinoDatePickerMode.date,
+                minimumYear: DateTime.now().year,
+                minimumDate: DateTime.now(),
+                initialDateTime: DateTime.now(),
+                onDateTimeChanged: (val) {
+                  _ronExpire = val;
+                  setState(() {});
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
+              ),
+              child: ButtonPrimary(
+                text: 'Select expire date',
+                callback: () {
+                  Get.back();
+                  FocusScope.of(context).requestFocus(new FocusNode());
+                },
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
 }

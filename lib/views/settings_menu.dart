@@ -9,6 +9,7 @@ import 'package:notary/views/settings/bottom_navigator.dart';
 import 'package:notary/views/settings/digital_certificate.dart';
 import 'package:notary/views/settings/notary.dart';
 import 'package:notary/views/settings/signature_seal.dart';
+import 'package:notary/widgets/network_connection.dart';
 import 'package:notary/widgets/title_page.dart';
 
 class SettingsMenu extends StatefulWidget {
@@ -29,8 +30,8 @@ class _SettingsMenuState extends State<SettingsMenu> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
+    return NetworkConnection(
+      widget: Container(
         height: Get.height,
         child: SingleChildScrollView(
           child: Container(
@@ -98,7 +99,7 @@ class _SettingsMenuState extends State<SettingsMenu> {
                                           ? 'Enabled'
                                           : 'Disabled',
                                       style: TextStyle(
-                                          color: Theme.of(context).accentColor,
+                                          color: Theme.of(context).colorScheme.secondary,
                                           fontSize: 14,
                                           fontWeight: FontWeight.w400),
                                     ),
@@ -114,7 +115,7 @@ class _SettingsMenuState extends State<SettingsMenu> {
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(9),
                                   color: _isIntro
-                                      ? Theme.of(context).accentColor
+                                      ? Theme.of(context).colorScheme.secondary
                                       : Color(0xFFEEEEEE),
                                 ),
                                 child: AnimatedAlign(

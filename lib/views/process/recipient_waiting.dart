@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:notary/controllers/recipient.dart';
+import 'package:notary/controllers/session.dart';
 import 'package:notary/models/recipient.dart';
 import 'package:notary/views/process/recipient_progress.dart';
 import 'package:steps_indicator/steps_indicator.dart';
@@ -15,8 +15,8 @@ class RecipientWaiting extends StatefulWidget {
 }
 
 class _RecipientWaitingState extends State<RecipientWaiting> {
-  RecipientController _recipientController = Get.put(
-    RecipientController(),
+  SessionController _sessionController = Get.put(
+    SessionController(),
   );
 
   Recipient _recipient;
@@ -25,7 +25,7 @@ class _RecipientWaitingState extends State<RecipientWaiting> {
   @override
   initState() {
     _selectedItem = 0;
-    _recipient = _recipientController.recipients
+    _recipient = _sessionController.recipients
         .firstWhere((element) => element.id == widget.recipientId);
     super.initState();
   }
@@ -73,7 +73,7 @@ class _RecipientWaitingState extends State<RecipientWaiting> {
           Text(
             '${_recipient.firstName} ${_recipient.lastName}',
             style: TextStyle(
-              color: Theme.of(context).accentColor,
+              color: Theme.of(context).colorScheme.secondary,
               fontSize: 18,
               fontWeight: FontWeight.w500,
             ),
@@ -113,7 +113,7 @@ class _RecipientWaitingState extends State<RecipientWaiting> {
           ),
           SizedBox(height: 30),
           Container(
-            width: MediaQuery.of(context).size.width,
+            width: Get.width,
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
               child: Column(
@@ -125,7 +125,7 @@ class _RecipientWaitingState extends State<RecipientWaiting> {
                     nbSteps: 4,
                     doneLineColor: Theme.of(context).primaryColor,
                     undoneLineColor: Color(0xFF29292D).withOpacity(0.08),
-                    lineLength: MediaQuery.of(context).size.width / 7,
+                    lineLength: Get.width / 7,
                     selectedStepWidget: Container(
                       width: 30,
                       height: 30,

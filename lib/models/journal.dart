@@ -5,6 +5,8 @@ import 'package:notary/models/session.dart';
 class Journal {
   String id;
   String name;
+  String stepPdf;
+  String videoStatus;
   int fee;
   List<Recipient> recipients;
   List<Point> points;
@@ -15,6 +17,9 @@ class Journal {
       : id = json['id'],
         name = json['name'],
         fee = json['fee'],
+        stepPdf = json['stepPdf'],
+        videoStatus = json['videoStatus'],
+
         created = DateTime.parse(json['createdAt']).toLocal(),
         recipients = List<Map<String, dynamic>>.from(json['recipients'])
             .map((recipient) => new Recipient.fromJson(recipient))

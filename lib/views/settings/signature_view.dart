@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:notary/controllers/user.dart';
 import 'package:notary/methods/resize_formatting.dart';
+import 'package:notary/widgets/modals/modal_container.dart';
+import 'package:notary/widgets/signature_list.dart';
 
 class SignatureView extends StatefulWidget {
   @override
@@ -11,8 +13,6 @@ class SignatureView extends StatefulWidget {
 }
 
 class _SignatureViewState extends State<SignatureView> {
-  int indexSelected = 0;
-
   @override
   Widget build(BuildContext context) {
     return GetBuilder<UserController>(
@@ -28,7 +28,7 @@ class _SignatureViewState extends State<SignatureView> {
                 style: TextStyle(
                   fontWeight: FontWeight.w500,
                   fontSize: 18,
-                  color: Theme.of(context).accentColor,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
               SizedBox(height: reSize(15)),
@@ -44,11 +44,11 @@ class _SignatureViewState extends State<SignatureView> {
                 height: reSize(30),
               ),
               TextButton(
-                onPressed: () => null,
+                onPressed: () => modalContainer(SignatureList()),
                 style: ButtonStyle(
                   padding: MaterialStateProperty.all(EdgeInsets.zero),
                   overlayColor: MaterialStateProperty.all(
-                    Theme.of(context).accentColor.withOpacity(0.1),
+                    Theme.of(context).colorScheme.secondary.withOpacity(0.1),
                   ),
                   textStyle: MaterialStateProperty.all(
                     TextStyle(
@@ -58,7 +58,7 @@ class _SignatureViewState extends State<SignatureView> {
                   ),
                 ),
                 child: Container(
-                    width: MediaQuery.of(context).size.width - 40,
+                    width: Get.width - 40,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -84,10 +84,10 @@ class _SignatureViewState extends State<SignatureView> {
                                   Text(
                                     "${_controller.user.value.firstName} ${_controller.user.value.lastName}, ${_controller.user.value.firstName[0]}.${_controller.user.value.lastName[0]}.",
                                     style: GoogleFonts.getFont(
-                                      _controller.signatures[indexSelected].textFont,
+                                      _controller.user.value.fontFamily.fontFamily,
                                       fontSize: 15,
                                       //    fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).accentColor,
+                                      color: Theme.of(context).colorScheme.secondary,
                                     ),
                                   ),
                                   SvgPicture.asset(

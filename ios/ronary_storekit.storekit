@@ -1,0 +1,114 @@
+{
+  "identifier" : "DD799FC8",
+  "nonRenewingSubscriptions" : [
+    {
+      "displayPrice" : "24.99",
+      "familyShareable" : false,
+      "internalID" : "1B424A61",
+      "localizations" : [
+        {
+          "description" : "Extra notarization",
+          "displayName" : "Extra notarization",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "rons.ronary.com",
+      "referenceName" : "Extra Notarization",
+      "type" : "NonRenewingSubscription"
+    }
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_askToBuyEnabled" : true,
+    "_billingIssuesEnabled" : true,
+    "_compatibilityTimeRate" : 6,
+    "_timeRate" : 15
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "5B3368BD",
+      "localizations" : [
+
+      ],
+      "name" : "ronary-subscription",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "displayPrice" : "229.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "55508856",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Best offer for bussines notaries",
+              "displayName" : "Basic",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "basic.ronary.com",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Basic",
+          "subscriptionGroupID" : "5B3368BD",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "displayPrice" : "329.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "F732AD46",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Most popular plan for your business",
+              "displayName" : "Business",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "business.ronary.com",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Business",
+          "subscriptionGroupID" : "5B3368BD",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "displayPrice" : "429.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "2B276C01",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Best offer for bussines notaries",
+              "displayName" : "Pro",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "pro.ronary.com",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Pro",
+          "subscriptionGroupID" : "5B3368BD",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "subscriptionOffersKeyPair" : {
+    "id" : "26DB6269",
+    "privateKey" : "MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgISWH5sCfZAmXID63DYzgcb/li/zKL5wyDJbQ46/Il3agCgYIKoZIzj0DAQehRANCAATiZYzynAFDNWoEa4ymISIjWudffXBO4lkNo2VqvL7vXkrMXkVw/3SdLjUygQ2hPEyQPbziypA//XFVOzskjOfC"
+  },
+  "version" : {
+    "major" : 1,
+    "minor" : 1
+  }
+}

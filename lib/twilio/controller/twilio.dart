@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:notary/methods/show_error.dart';
 import 'package:notary/twilio/views/participant.dart';
 import 'package:twilio_programmable_video/twilio_programmable_video.dart';
 import 'package:uuid/uuid.dart';
@@ -51,10 +50,10 @@ class TwilioController extends GetxController {
         _room.onParticipantDisconnected.listen(_onParticipantDisconnected));
     _completer.complete(_room);
     final localParticipant = room.localParticipant;
+    print("localParticipant ${localParticipant.identity}");
     if (localParticipant == null) {
       return;
     }
-    print("localParticipant ${localParticipant.identity}");
 
     _participants.add(
       new ParticipantWidget(
@@ -68,15 +67,10 @@ class TwilioController extends GetxController {
         isRemote: false,
       ),
     );
+
+    print("_participants.length ${_participants.length}");
+
     update();
-    // for (final remoteParticipant in room.remoteParticipants) {
-    //   var participant = _participantsResult.firstWhere(
-    //       (participant) => participant.id == remoteParticipant.identity,
-    //       orElse: () => null);
-    //   if (participant == null) {
-    //     _addRemoteParticipantListeners(remoteParticipant);
-    //   }
-    // }
   }
 
   void _onConnectFailure(RoomConnectFailureEvent event) {
@@ -94,7 +88,10 @@ class TwilioController extends GetxController {
     try {
       var trackId = Uuid().v4();
       var accessToken = getToken();
-
+      var cameraSources = await CameraSource.getSources();
+      var cameraCapturer = CameraCapturer(
+        cameraSources.firstWhere((source) => source.isFrontFacing),
+      );
 
       var connectOptions = ConnectOptions(
         accessToken,
@@ -107,9 +104,7 @@ class TwilioController extends GetxController {
             DataTrackOptions(name: 'data_track-$trackId'),
           )
         ],
-        videoTracks: ([
-          LocalVideoTrack(true, CameraCapturer(CameraSource.FRONT_CAMERA))
-        ]),
+        videoTracks: ([LocalVideoTrack(true, cameraCapturer)]),
         enableNetworkQuality: true,
         networkQualityConfiguration: NetworkQualityConfiguration(
           remote: NetworkQualityVerbosity.NETWORK_QUALITY_VERBOSITY_MINIMAL,
@@ -117,14 +112,10 @@ class TwilioController extends GetxController {
         enableDominantSpeaker: true,
       );
       _room = await TwilioProgrammableVideo.connect(connectOptions);
-      _streamSubscriptions.add(
-        _room.onConnected.listen(_onConnected),
-      );
-      _streamSubscriptions
-          .add(_room.onConnectFailure.listen(_onConnectFailure));
+      _room.onConnected.listen(_onConnected);
+      _room.onConnectFailure.listen(_onConnectFailure);
       return _completer.future;
     } catch (err) {
-      print("Is error: $err");
       throw err;
     }
   }
@@ -151,6 +142,7 @@ class TwilioController extends GetxController {
   }
 
   void _onParticipantConnected(RoomParticipantConnectedEvent event) {
+    print(event);
     _addRemoteParticipantListeners(event.remoteParticipant);
   }
 
@@ -165,31 +157,18 @@ class TwilioController extends GetxController {
     print("remoteParticipant $remoteParticipant");
   }
 
-  ParticipantWidget _buildParticipant({
-    @required Widget child,
-    @required String id,
-    @required bool audioEnabled,
-    @required bool videoEnabled,
-    @required NetworkQualityLevel networkQualityLevel,
-    @required Stream<NetworkQualityLevelChangedEvent> onNetworkQualityChanged,
-    RemoteParticipant remoteParticipant,
-  }) {
-    return ParticipantWidget(
-      id: remoteParticipant?.identity,
-      isRemote: remoteParticipant != null,
-      audioEnabled: audioEnabled,
-      videoEnabled: videoEnabled,
-      networkQualityLevel: networkQualityLevel,
-      onNetworkQualityChanged: onNetworkQualityChanged,
-      toggleMute: () => toggleMute(remoteParticipant),
-      child: child,
-      isActive: false,
-    );
-  }
+
 
   ParticipantWidget getParticipant(String id) {
     return _participants.firstWhere((element) => element.id == id,
-        orElse: () => null);
+        orElse: () => new ParticipantWidget(
+            child: Container(),
+            audioEnabled: true,
+            videoEnabled: true,
+            isActive: false,
+            id: id,
+            isRemote: true));
+    // return _participants[0];
   }
 
   Future<void> toggleMute(RemoteParticipant remoteParticipant) async {

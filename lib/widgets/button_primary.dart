@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:notary/methods/resize_formatting.dart';
 
 class ButtonPrimary extends StatelessWidget {
@@ -22,7 +23,7 @@ class ButtonPrimary extends StatelessWidget {
           backgroundColor: callback != null
               ? MaterialStateProperty.all(activeBtn != null && activeBtn
                   ? Theme.of(context).primaryColor
-                  : Theme.of(context).accentColor)
+                  : Theme.of(context).colorScheme.secondary)
               : MaterialStateProperty.all(
                   Color(0xFFD1D1D1),
                 ),
@@ -44,14 +45,14 @@ class ButtonPrimary extends StatelessWidget {
         onPressed: callback,
         child: SizedBox(
           height: reSize(51),
-          width: width != null ? width : MediaQuery.of(context).size.width - 40,
+          width: width != null ? width : Get.width - 40,
           child: Center(
             child: Text(
               text,
               style: TextStyle(
                   fontSize: 16,
                   color: activeBtn != null && activeBtn
-                      ? Theme.of(context).accentColor
+                      ? Theme.of(context).colorScheme.secondary
                       : Color(0xFFFFFFFF)),
             ),
           ),

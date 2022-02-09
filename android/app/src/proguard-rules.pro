@@ -3,3 +3,8 @@
 -keep class com.twilio.common.** { *; }
 -keep class com.shockwave.**
 -keepattributes InnerClasses
+-keep class com.amazon.** {*;}
+-keep class com.dooboolab.** { *; }
+-keep class com.android.vending.billing.**
+-dontwarn com.amazon.**
+-keepattributes *Annotation*

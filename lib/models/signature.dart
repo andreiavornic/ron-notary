@@ -8,4 +8,9 @@ class Signature {
     this.textFont,
     this.isChecked,
   );
+
+  @override
+  String toString() {
+    return 'Signature{id: $id, textFont: $textFont, isChecked: $isChecked}';
+  }
 }

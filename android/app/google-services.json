@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "638015560823",
+    "project_id": "notar-4dde5",
+    "storage_bucket": "notar-4dde5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:638015560823:android:683e701844911204603a72",
+        "android_client_info": {
+          "package_name": "com.ronary.notary_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "638015560823-sjej5vql5gfr5pj82438tmoffeoq3rv9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ronary.notary_app",
+            "certificate_hash": "aecdb59e24fe6b00abee9fe078d4b9d2cc11c1a1"
+          }
+        },
+        {
+          "client_id": "638015560823-8c7kvku415n127i39g0mj2n3nkr77qmu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDI8t9LxADgJ9PFicsFD4pud8vlR-Zy90"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "638015560823-8c7kvku415n127i39g0mj2n3nkr77qmu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "638015560823-o9c090ahbuemrcn8pe01dusoappverg1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ronary.notary-app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

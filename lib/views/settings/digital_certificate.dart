@@ -4,10 +4,14 @@ import 'package:get/get.dart';
 import 'package:notary/controllers/user.dart';
 import 'package:notary/methods/resize_formatting.dart';
 import 'package:notary/methods/show_error.dart';
+import 'package:notary/views/process/confirm_delete.dart';
 import 'package:notary/widgets/button_primary.dart';
 import 'package:notary/widgets/button_primary_outline.dart';
 import 'package:notary/widgets/edit_intput.widget.dart';
+import 'package:notary/widgets/modals/modal_container.dart';
 import 'package:notary/widgets/title_page.dart';
+
+import '../start.dart';
 
 class DigitalCertificate extends StatefulWidget {
   @override
@@ -15,6 +19,8 @@ class DigitalCertificate extends StatefulWidget {
 }
 
 class _DigitalCertificateState extends State<DigitalCertificate> {
+  UserController _userController = Get.put(UserController());
+
   bool _hidePassword;
   bool _savePassword;
   String _password;
@@ -104,7 +110,7 @@ class _DigitalCertificateState extends State<DigitalCertificate> {
                                             borderRadius:
                                                 BorderRadius.circular(50),
                                             color:
-                                                Theme.of(context).accentColor,
+                                                Theme.of(context).colorScheme.secondary,
                                           ),
                                           child: Center(
                                             child: SvgPicture.asset(
@@ -124,7 +130,19 @@ class _DigitalCertificateState extends State<DigitalCertificate> {
                                         ),
                                         SizedBox(height: reSize(15)),
                                         ButtonPrimaryOutline(
-                                          callback: () => null,
+                                          callback: () => modalContainer(
+                                            ConfirmDelete(
+                                              callback: _removePassword,
+                                              description: Text(
+                                                "The password is used for digital certificate\ndocuments",
+                                                style: TextStyle(
+                                                  color: Color(0xFF161617),
+                                                  fontSize: 14,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ),
+                                          ),
                                           text: 'Remove Password',
                                           width: reSize(230),
                                         )
@@ -147,7 +165,7 @@ class _DigitalCertificateState extends State<DigitalCertificate> {
                                                 ? Icons.visibility_off
                                                 : Icons.visibility,
                                             color:
-                                                Theme.of(context).accentColor,
+                                                Theme.of(context).colorScheme.secondary,
                                             size: reSize(16),
                                           ),
                                           onPressed: () {
@@ -195,7 +213,7 @@ class _DigitalCertificateState extends State<DigitalCertificate> {
                                               "I authorize Ronary to store my Password\nCertificate",
                                               style: TextStyle(
                                                 color: Theme.of(context)
-                                                    .accentColor,
+                                                    .colorScheme.secondary,
                                                 fontSize: 14,
                                               ),
                                             ),
@@ -208,7 +226,19 @@ class _DigitalCertificateState extends State<DigitalCertificate> {
                               children: [
                                 SizedBox(height: reSize(20)),
                                 InkWell(
-                                  onTap: () => null,
+                                  onTap: () => modalContainer(
+                                    ConfirmDelete(
+                                      callback: _removeCertificate,
+                                      description: Text(
+                                        "Without the digital certificate you will not be able to perform sessions",
+                                        style: TextStyle(
+                                          color: Color(0xFF161617),
+                                          fontSize: 14,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ),
                                   child: Text(
                                     "Remove Certificate",
                                     style: TextStyle(
@@ -254,7 +284,30 @@ class _DigitalCertificateState extends State<DigitalCertificate> {
   }
 
   _addPassword() async {
-    try {} catch (err) {
+    try {
+      await _userController.addCertificatePassword(_password);
+    } catch (err) {
+      showError(err);
+    }
+  }
+
+  _removePassword() async {
+    try {
+      await _userController.removePassword();
+      Get.back();
+    } catch (err) {
+      showError(err);
+    }
+  }
+
+  _removeCertificate() async {
+    try {
+      await _userController.removeCertificate();
+      Get.offAll(
+        () => Start(),
+        transition: Transition.noTransition,
+      );
+    } catch (err) {
       showError(err);
     }
   }

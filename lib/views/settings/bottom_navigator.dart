@@ -17,7 +17,7 @@ class ButtonNavigator extends StatelessWidget {
       style: ButtonStyle(
         padding: MaterialStateProperty.all(EdgeInsets.zero),
         overlayColor: MaterialStateProperty.all(
-            Theme.of(context).accentColor.withOpacity(0.04)),
+            Theme.of(context).colorScheme.secondary.withOpacity(0.04)),
       ),
       child: Container(
         decoration: BoxDecoration(

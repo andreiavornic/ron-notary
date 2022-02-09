@@ -33,7 +33,7 @@ class InfoJournal extends StatelessWidget {
                   eJournal.name,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: Theme.of(context).accentColor,
+                    color: Theme.of(context).colorScheme.secondary,
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
                   ),
@@ -81,7 +81,7 @@ class InfoJournal extends StatelessWidget {
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w500,
-                color: Theme.of(context).accentColor,
+                color: Theme.of(context).colorScheme.secondary,
               ),
             ),
           ),
@@ -109,7 +109,7 @@ class InfoJournal extends StatelessWidget {
           width: 59,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(2),
-            color: Theme.of(context).accentColor,
+            color: Theme.of(context).colorScheme.secondary,
           ),
           child: Center(
             child: Text(

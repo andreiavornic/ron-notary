@@ -5,7 +5,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:notary/controllers/user.dart';
 import 'package:notary/methods/show_error.dart';
 import 'package:notary/widgets/button_primary_outline.dart';
 
@@ -17,7 +16,6 @@ class CertificateUpload extends StatefulWidget {
 }
 
 class _CertificateUploadState extends State<CertificateUpload> {
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -54,15 +52,16 @@ class _CertificateUploadState extends State<CertificateUpload> {
     try {
       var result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['p12'],
+        allowedExtensions: ['p12', 'pfx'],
       );
       if (result != null) {
         PlatformFile file = result.files.first;
-        if (file.extension != 'p12') {
+        if (file.extension != 'p12' && file.extension != 'pfx') {
           setState(() {});
           return;
         }
         Uint8List bytes = await _readFileByte(file.path);
+        print(bytes);
         Get.to(
           () => CertificatePassword(bytes, Path.basename(file.path)),
           transition: Transition.noTransition,
@@ -77,12 +76,12 @@ class _CertificateUploadState extends State<CertificateUpload> {
     Uri myUri = Uri.parse(filePath);
     File certificate = new File.fromUri(myUri);
     Uint8List bytes;
-    await certificate.readAsBytes().then((value) {
+    try {
+      var value = await certificate.readAsBytes();
       bytes = Uint8List.fromList(value);
-    }).catchError((onError) {
-      print('Exception Error while reading audio from path:' +
-          onError.toString());
-    });
-    return bytes;
+      return bytes;
+    } catch (err) {
+      throw err;
+    }
   }
 }

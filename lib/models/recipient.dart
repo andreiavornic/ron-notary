@@ -2,6 +2,8 @@ import 'dart:ui';
 
 import 'package:notary/methods/hex_color.dart';
 
+import 'font_family.dart';
+
 class Recipient {
   String id;
   String user;
@@ -16,6 +18,9 @@ class Recipient {
   String type;
   List<String> states;
   bool isActive = false;
+  bool idenfy;
+  bool kba;
+  Font fontFamily;
 
   Recipient({
     this.id,
@@ -31,6 +36,9 @@ class Recipient {
     this.type,
     this.states,
     this.isActive,
+    this.idenfy,
+    this.kba,
+    this.fontFamily,
   });
 
   Recipient.fromJson(Map<String, dynamic> json)
@@ -45,8 +53,14 @@ class Recipient {
         email = json['email'],
         color = HexColor.fromHex(json['color']),
         type = json['type'],
+        idenfy = json['idenfy'],
+        kba = json['kba'],
         states =
-            List<String>.from(json['states']).map((state) => state).toList();
+            List<String>.from(json['states']).map((state) => state).toList(),
+        fontFamily = json['fontFamily'] == null ||
+                json['fontFamily'].runtimeType == String
+            ? new Font("605b3fff5280c69b901d6c89", "Montserrat")
+            : Font.fromJson(json['fontFamily']);
 
   Map<String, dynamic> toJson() => {
         'firstName': firstName,

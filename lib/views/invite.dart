@@ -3,11 +3,12 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:notary/controllers/recipient.dart';
 import 'package:notary/controllers/session.dart';
+import 'package:notary/controllers/user.dart';
 import 'package:notary/methods/resize_formatting.dart';
 import 'package:notary/methods/show_error.dart';
 import 'package:notary/views/recipients/document_info.dart';
 import 'package:notary/views/recipients/recipient_item.dart';
-import 'package:notary/views/session_process.dart';
+import 'package:notary/views/start.dart';
 import 'package:notary/widgets/button_primary.dart';
 import 'package:notary/widgets/title_page.dart';
 
@@ -15,10 +16,14 @@ class Invite extends StatelessWidget {
   final RecipientController _recipientController = Get.put(
     RecipientController(),
   );
-
   final SessionController _sessionController = Get.put(
     SessionController(),
   );
+  final UserController _userController = Get.put(
+    UserController(),
+  );
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -121,8 +126,9 @@ class Invite extends StatelessWidget {
   _inviteParticipants() async {
     try {
       await _sessionController.startSession();
-      Get.to(
-        () => SessionProcess(),
+      await _userController.updatePayment(0);
+      Get.offAll(
+        () => Start(),
         transition: Transition.noTransition,
       );
     } catch (err) {
@@ -133,9 +139,7 @@ class Invite extends StatelessWidget {
   Widget _getDoc() {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        return Container(
-          child: DocumentInfo(),
-        );
+        return DocumentInfo();
       },
     );
   }

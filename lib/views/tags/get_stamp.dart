@@ -14,15 +14,20 @@ class GetStamp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int stamp = 1;
+    int stamp = _userController?.user?.value?.stamp;
     return point.isSigned
         ? Container(
             width: stamp > 2 ? _calcThirdStampWidth() : _calcFirstStampWidth(),
             height:
                 stamp > 2 ? _calcThirdStampWidth() : _calcFirstStampHeight(),
-            child: Image.memory(base64Decode(
-              _userController.stamp.value,
-            )))
+            child: _userController.stamp.value != null
+                ? Image.memory(
+                    base64Decode(
+                      _userController.stamp.value,
+                    ),
+                  )
+                : Container(),
+          )
         : stamp > 2
             ? Container(
                 width: _calcThirdStampWidth(),

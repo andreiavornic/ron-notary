@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:notary/methods/resize_formatting.dart';
 import 'package:notary/models/type_notarization.dart';
 
@@ -40,7 +40,7 @@ class _SelectTypeNotarizationState extends State<SelectTypeNotarization> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height / 3,
+      height: Get.height / 3,
       child: Column(
         children: [
           Text(

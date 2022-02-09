@@ -1,9 +1,10 @@
 import 'dart:convert';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:notary/controllers/session.dart';
 import 'package:notary/models/session.dart';
+
+import 'document_pop_up.dart';
 
 class DocumentView extends StatefulWidget {
   @override
@@ -31,7 +32,7 @@ class _DocumentViewState extends State<DocumentView> {
                       Color(0xFFFFFFFF),
                     ),
                   ),
-                  onPressed: () => null,
+                  onPressed: () => Get.to(()=> DocumentPopUp()),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(

@@ -46,7 +46,7 @@ class RecipeItem extends StatelessWidget {
                         Text(
                           "${recipient.firstName} ${recipient.lastName}",
                           style: TextStyle(
-                            color: Theme.of(context).accentColor,
+                            color: Theme.of(context).colorScheme.secondary,
                             fontSize: 14,
                           ),
                           overflow: TextOverflow.ellipsis,

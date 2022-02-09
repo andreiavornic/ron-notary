@@ -6,7 +6,6 @@ import 'package:notary/controllers/recipient.dart';
 import 'package:notary/methods/resize_formatting.dart';
 import 'package:notary/methods/show_error.dart';
 import 'package:notary/models/recipient.dart';
-import 'package:notary/views/errors/error_page.dart';
 import 'package:notary/widgets/button_primary_outline.dart';
 
 import '../button_primary.dart';
@@ -103,202 +102,204 @@ class _EditRecipientState extends State<EditRecipient> {
             children: [
               Container(
                 color: Color(0xFFFFFFFF),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TitleModal(
-                        'Edit Participant',
-                        'Enter information and set role',
-                      ),
-                      SizedBox(height: reSize(20)),
-                      Form(
-                        key: _formKey,
-                        autovalidateMode: AutovalidateMode.disabled,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Column(
-                              children: [
-                                EditInput(
-                                  onChanged: (value) {
-                                    _recipient?.firstName = value.trim();
-                                    setState(() {});
-                                  },
-                                  autofocus: true,
-                                  validate: (String value) {
-                                    if (value.trim().isEmpty) {
-                                      return "Please enter first name";
-                                    }
-                                    return null;
-                                  },
-                                  initialValue: _recipient?.firstName,
-                                  labelText: "First Name",
-                                ),
-                                EditInput(
-                                  onChanged: (value) {
-                                    _recipient?.lastName = value.trim();
-                                    setState(() {});
-                                  },
-                                  validate: (String value) {
-                                    if (value.trim().isEmpty) {
-                                      return "Please enter last name";
-                                    }
-                                    return null;
-                                  },
-                                  initialValue: _recipient?.lastName,
-                                  labelText: "Last Name",
-                                ),
-                                EditInput(
-                                  keyboardType: TextInputType.emailAddress,
-                                  onChanged: (value) {
-                                    _recipient?.email = value;
-                                    setState(() {});
-                                  },
-                                  validate: (String value) {
-                                    if (value.isEmpty &&
-                                        _recipient?.phone == null) {
-                                      return "Email is required!";
-                                    } else if (!value.contains("@") &&
-                                        _recipient?.phone == null) {
-                                      return "Please add a valid email";
-                                    }
-                                    return null;
-                                  },
-                                  initialValue: _recipient?.email,
-                                  noCapitalize: true,
-                                  labelText: "Email",
-                                ),
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Stack(
-                                      children: [
-                                        EditInput(
-                                          labelText: "Phone",
-                                          inputFormatters: [_phoneFormatter],
-                                          initialValue:
-                                              _recipient?.phone != null
-                                                  ? _recipient?.phone
-                                                  : '+1',
-                                          prefix: Container(
-                                            width: reSize(40),
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TitleModal(
+                          'Edit Participant',
+                          'Enter information and set role',
+                        ),
+                        SizedBox(height: reSize(20)),
+                        Form(
+                          key: _formKey,
+                          autovalidateMode: AutovalidateMode.disabled,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Column(
+                                children: [
+                                  EditInput(
+                                    onChanged: (value) {
+                                      _recipient?.firstName = value.trim();
+                                      setState(() {});
+                                    },
+                                    autofocus: true,
+                                    validate: (String value) {
+                                      if (value.trim().isEmpty) {
+                                        return "Please enter first name";
+                                      }
+                                      return null;
+                                    },
+                                    initialValue: _recipient?.firstName,
+                                    labelText: "First Name",
+                                  ),
+                                  EditInput(
+                                    onChanged: (value) {
+                                      _recipient?.lastName = value.trim();
+                                      setState(() {});
+                                    },
+                                    validate: (String value) {
+                                      if (value.trim().isEmpty) {
+                                        return "Please enter last name";
+                                      }
+                                      return null;
+                                    },
+                                    initialValue: _recipient?.lastName,
+                                    labelText: "Last Name",
+                                  ),
+                                  EditInput(
+                                    keyboardType: TextInputType.emailAddress,
+                                    onChanged: (value) {
+                                      _recipient?.email = value;
+                                      setState(() {});
+                                    },
+                                    validate: (String value) {
+                                      if (value.isEmpty &&
+                                          _recipient?.phone == null) {
+                                        return "Email is required!";
+                                      } else if (!value.contains("@") &&
+                                          _recipient?.phone == null) {
+                                        return "Please add a valid email";
+                                      }
+                                      return null;
+                                    },
+                                    initialValue: _recipient?.email,
+                                    noCapitalize: true,
+                                    labelText: "Email",
+                                  ),
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Stack(
+                                        children: [
+                                          EditInput(
+                                            labelText: "Phone",
+                                            inputFormatters: [_phoneFormatter],
+                                            initialValue:
+                                                _recipient?.phone != null
+                                                    ? _recipient?.phone
+                                                    : '+1',
+                                            prefix: Container(
+                                              width: reSize(40),
+                                            ),
+                                            keyboardType: TextInputType.phone,
+                                            hintText: "+1 (234) 567-8901",
+                                            validate: (String value) {
+                                              return null;
+                                            },
+                                            onChanged: (String value) async {
+                                              _recipient?.phone = value;
+                                              setState(() {});
+                                            },
                                           ),
-                                          keyboardType: TextInputType.phone,
-                                          hintText: "+1 (234) 567-8901",
-                                          validate: (String value) {
-                                            return null;
-                                          },
-                                          onChanged: (String value) async {
-                                            _recipient?.phone = value;
-                                            setState(() {});
-                                          },
-                                        ),
-                                        Positioned(
-                                            bottom: 17,
-                                            left: 0,
-                                            child: Center(
-                                              child: Row(
-                                                children: [
-                                                  Container(
-                                                    child: SvgPicture.asset(
-                                                        "assets/images/97.svg"),
-                                                  ),
-                                                  SizedBox(width: 10),
-                                                  Container(
-                                                    width: 1,
-                                                    height: 10,
-                                                    color: Color(0xFFEDEDED),
-                                                  ),
-                                                  SizedBox(width: reSize(10)),
-                                                ],
-                                              ),
-                                            ))
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: reSize(15)),
-                                Row(
-                                  children: [
-                                    ButtonRecipient(
-                                      isActive: _recipient?.type ==
-                                          TypeRecipient.values[0]
-                                              .toString()
-                                              .split('.')
-                                              .last,
-                                      txt: 'Signer',
-                                      icon: 102,
-                                      callback: () => _selectTypeRecipient(0),
-                                    ),
-                                    SizedBox(width: 10),
-                                    ButtonRecipient(
-                                      isActive: _recipient?.type ==
-                                          TypeRecipient.values[1]
-                                              .toString()
-                                              .split('.')
-                                              .last,
-                                      txt: 'Witness',
-                                      icon: 103,
-                                      callback: () => _selectTypeRecipient(1),
-                                    ),
-                                    SizedBox(width: 10),
-                                    ButtonRecipient(
-                                      isActive: _recipient?.type ==
-                                          TypeRecipient.values[2]
-                                              .toString()
-                                              .split('.')
-                                              .last,
-                                      txt: 'Observer',
-                                      icon: 104,
-                                      callback: () => _selectTypeRecipient(2),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: reSize(10)),
-                                _dropdownError != null
-                                    ? Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 16.0,
-                                          vertical: 10,
-                                        ),
-                                        child: Text(
-                                          _dropdownError ?? "",
-                                          style: TextStyle(
-                                            color: Color(0xFFFF4E4E),
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w500,
+                                          Positioned(
+                                              bottom: 17,
+                                              left: 0,
+                                              child: Center(
+                                                child: Row(
+                                                  children: [
+                                                    Container(
+                                                      child: SvgPicture.asset(
+                                                          "assets/images/97.svg"),
+                                                    ),
+                                                    SizedBox(width: 10),
+                                                    Container(
+                                                      width: 1,
+                                                      height: 10,
+                                                      color: Color(0xFFEDEDED),
+                                                    ),
+                                                    SizedBox(width: reSize(10)),
+                                                  ],
+                                                ),
+                                              ))
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: reSize(15)),
+                                  Row(
+                                    children: [
+                                      ButtonRecipient(
+                                        isActive: _recipient?.type ==
+                                            TypeRecipient.values[0]
+                                                .toString()
+                                                .split('.')
+                                                .last,
+                                        txt: 'Signer',
+                                        icon: 102,
+                                        callback: () => _selectTypeRecipient(0),
+                                      ),
+                                      SizedBox(width: 10),
+                                      ButtonRecipient(
+                                        isActive: _recipient?.type ==
+                                            TypeRecipient.values[1]
+                                                .toString()
+                                                .split('.')
+                                                .last,
+                                        txt: 'Witness',
+                                        icon: 103,
+                                        callback: () => _selectTypeRecipient(1),
+                                      ),
+                                      SizedBox(width: 10),
+                                      ButtonRecipient(
+                                        isActive: _recipient?.type ==
+                                            TypeRecipient.values[2]
+                                                .toString()
+                                                .split('.')
+                                                .last,
+                                        txt: 'Observer',
+                                        icon: 104,
+                                        callback: () => _selectTypeRecipient(2),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: reSize(10)),
+                                  _dropdownError != null
+                                      ? Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 16.0,
+                                            vertical: 10,
                                           ),
-                                        ),
-                                      )
-                                    : SizedBox(),
-                              ],
-                            ),
-                          ],
+                                          child: Text(
+                                            _dropdownError ?? "",
+                                            style: TextStyle(
+                                              color: Color(0xFFFF4E4E),
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        )
+                                      : SizedBox(),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      SizedBox(
-                        height: reSize(0),
-                      ),
-                      Container(
-                        child: ButtonPrimaryOutline(
-                          text: 'Delete',
-                          callback: _confirmPopUp,
+                        SizedBox(
+                          height: reSize(0),
                         ),
-                      ),
-                      SizedBox(
-                        height: reSize(15),
-                      ),
-                      Container(
-                        child: ButtonPrimary(
-                          text: 'Confirm',
-                          callback: _editRecipient,
+                        Container(
+                          child: ButtonPrimaryOutline(
+                            text: 'Delete',
+                            callback: _confirmPopUp,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: reSize(40)),
-                    ],
+                        SizedBox(
+                          height: reSize(15),
+                        ),
+                        Container(
+                          child: ButtonPrimary(
+                            text: 'Confirm',
+                            callback: _editRecipient,
+                          ),
+                        ),
+                        SizedBox(height: reSize(40)),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -338,7 +339,7 @@ class _EditRecipientState extends State<EditRecipient> {
                           style: TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.w700,
-                              color: Theme.of(context).accentColor),
+                              color: Theme.of(context).colorScheme.secondary),
                         ),
                         SizedBox(height: reSize(15)),
                         Text(

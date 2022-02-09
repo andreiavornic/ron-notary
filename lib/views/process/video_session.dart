@@ -1,26 +1,24 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:notary/controllers/point.dart';
-import 'package:notary/controllers/recipient.dart';
 import 'package:notary/controllers/session.dart';
 import 'package:notary/controllers/user.dart';
 import 'package:notary/methods/resize_formatting.dart';
 import 'package:notary/methods/show_error.dart';
 import 'package:notary/models/recipient.dart';
-import 'package:notary/twilio/controller/twilio.dart';
-import 'package:notary/twilio/views/participant.dart';
-import 'package:notary/views/tags/document_tag.dart';
-import 'package:notary/widgets/black_loading.dart';
+import 'package:notary/services/socket_service.dart';
+import 'package:notary/twilio/controller/conference_room.dart';
+import 'package:notary/views/process/widgets/ready_recipient.dart';
+import 'package:notary/views/process/widgets/waiting_recipient.dart';
 import 'package:notary/widgets/btn_sign.dart';
 import 'package:notary/widgets/button_primary.dart';
-import 'package:notary/widgets/loading.dart';
 import 'package:notary/widgets/title_page.dart';
 import 'package:avatar_glow/avatar_glow.dart';
 
 import '../encrypt.dart';
+import 'document_tag_session.dart';
 
 class VideoSession extends StatefulWidget {
   @override
@@ -29,10 +27,10 @@ class VideoSession extends StatefulWidget {
 
 class _VideoSessionState extends State<VideoSession> {
   SessionController _sessionController = Get.put(SessionController());
-  RecipientController _recipientController = Get.put(RecipientController());
-  PointController _pointController = Get.put(PointController());
   UserController _userController = Get.put(UserController());
-  TwilioController _twilioController = Get.put(TwilioController());
+  final SocketService _socketService = Get.find<SocketService>();
+  ConferenceRoom _conferenceRoom;
+  StreamSubscription _onConferenceRoomException;
 
   bool _documentIsActive;
 
@@ -41,40 +39,184 @@ class _VideoSessionState extends State<VideoSession> {
     _documentIsActive = true;
     _connectToTwilio();
     super.initState();
+
+    _socketService.socket.on(
+      'UPDATE_POINT',
+      (data) {
+        print("UPDATE_POINT $data");
+        _sessionController.updatePoints(data);
+      },
+    );
+  }
+
+  void _conferenceRoomUpdated() {
+    setState(() {});
   }
 
   _connectToTwilio() async {
     try {
       await _sessionController.processSession();
       String roomName = _sessionController.session.value.twilioRoomName;
-      await _twilioController.connectToRoom(roomName);
+      final conferenceRoom = ConferenceRoom(
+        name: roomName,
+        identity: _userController.user.value.id,
+      );
+      await conferenceRoom.connect();
+      setState(() {
+        _conferenceRoom = conferenceRoom;
+        _onConferenceRoomException =
+            conferenceRoom.onException.listen((err) async {
+          await showError(err);
+        });
+        conferenceRoom.addListener(_conferenceRoomUpdated);
+      });
     } catch (err) {
-      Get.showSnackbar(
-        new GetBar(
-          icon: SvgPicture.asset(
-            'assets/images/89.svg',
-          ),
-          titleText: Text(
-            "Error",
-            style: TextStyle(
-              fontSize: 14,
-              color: Color(0xFF161616),
-              fontWeight: FontWeight.w600,
+      print("err $err");
+    }
+  }
+
+  void dispose() async {
+    if (_conferenceRoom != null) {
+      await _conferenceRoom?.disconnect();
+      await _onConferenceRoomException.cancel();
+    }
+    super.dispose();
+  }
+
+  _getRecipe(Recipient recipient) {
+    if (_conferenceRoom == null || _conferenceRoom.participants.length == 0) {
+      return WaitingRecipient(color: recipient.color);
+    }
+    if (recipient.id == _userController.user.value.id) {
+      return ReadyRecipient(
+        callback: () => _activateParticipant(recipient),
+        child: _conferenceRoom.participants
+            .firstWhere((element) => !element.isRemote)
+            .child,
+        color: recipient.color,
+      );
+    }
+    int index = _conferenceRoom.participants
+        .indexWhere((element) => element.id == recipient.id);
+    if (index == -1) {
+      return WaitingRecipient(color: recipient.color);
+    } else {
+      return ReadyRecipient(
+        callback: () => _activateParticipant(recipient),
+        child: _conferenceRoom.participants[index].child,
+        color: recipient.color,
+      );
+    }
+  }
+
+  _getRecipeActive(Recipient recipient) {
+    if (_conferenceRoom == null || _conferenceRoom.participants.length == 0) {
+      return WaitingRecipient(color: recipient.color);
+    }
+    if (recipient.id == _userController.user.value.id) {
+      return Stack(
+        children: [
+          _conferenceRoom.participants
+              .firstWhere((element) => !element.isRemote)
+              .child,
+          Positioned(
+            left: 0,
+            bottom: 0,
+            child: Container(
+              width: Get.width - 40,
+              height: reSize(100),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  stops: [0.0, 1.0],
+                  colors: [
+                    Colors.black.withOpacity(0),
+                    Colors.black.withOpacity(1),
+                  ],
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "${recipient.firstName} ${recipient.lastName}",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    SizedBox(height: 3),
+                    Text(
+                      "${recipient.type}",
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    )
+                  ],
+                ),
+              ),
             ),
-          ),
-          messageText: Text(
-            err.toString(),
-            style: TextStyle(fontSize: 12, color: Color(0xFF161616)),
-          ),
-          margin: EdgeInsets.symmetric(vertical: 20),
-          maxWidth: Get.width - 40,
-          padding: EdgeInsets.all(20),
-          borderRadius: 5,
-          backgroundColor: Color(0xFFF5F6F9),
-          duration: Duration(
-            seconds: 3,
-          ),
-        ),
+          )
+        ],
+      );
+    }
+    int index = _conferenceRoom.participants
+        .indexWhere((element) => element.id == recipient.id);
+    if (index == -1) {
+      return WaitingRecipient(color: recipient.color);
+    } else {
+      return Stack(
+        children: [
+          _conferenceRoom.participants[index].child,
+          Positioned(
+            left: 0,
+            bottom: 0,
+            child: Container(
+              width: Get.width - 40,
+              height: reSize(100),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  stops: [0.0, 1.0],
+                  colors: [
+                    Colors.black.withOpacity(0),
+                    Colors.black.withOpacity(1),
+                  ],
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "${recipient.firstName} ${recipient.lastName}",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    SizedBox(height: 3),
+                    Text(
+                      "${recipient.type}",
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          )
+        ],
       );
     }
   }
@@ -124,20 +266,18 @@ class _VideoSessionState extends State<VideoSession> {
                               _documentIsActive
                                   ? Center(
                                       child: Padding(
-                                        padding: _documentIsActive
-                                            ? const EdgeInsets.only(top: 80)
-                                            : const EdgeInsets.only(top: 0),
-                                        child: DocumentTag(
-                                          addPoint: null,
-                                          updatePoint: null,
-                                          checkPoint: null,
-                                        ),
-                                      ),
+                                          padding: _documentIsActive
+                                              ? const EdgeInsets.only(top: 80)
+                                              : const EdgeInsets.only(top: 0),
+                                          child: DocumentTagSession()),
                                     )
                                   : Container(
                                       width: Get.width - 40,
                                       child: Center(
-                                        child: Loading(),
+                                        child: _getRecipeActive(
+                                            _sessionController.recipientVideo
+                                                .firstWhere((element) =>
+                                                    element.isActive)),
                                       ),
                                     ),
                               Positioned(
@@ -154,20 +294,18 @@ class _VideoSessionState extends State<VideoSession> {
                                       ),
                                       child: Container(
                                         height: reSize(81),
-                                        width:
-                                            MediaQuery.of(context).size.width -
-                                                reSize(60),
+                                        width: Get.width - reSize(60),
                                         child: Row(
                                           children: [
                                             SizedBox(width: reSize(15)),
                                             _getDoc(),
                                             SizedBox(width: reSize(15)),
-                                            _getRecipients(),
+                                            _listRecipients(_sessionController
+                                                .recipientVideo)
                                           ],
                                         ),
                                       ),
-                                      width: MediaQuery.of(context).size.width -
-                                          40,
+                                      width: Get.width - 40,
                                     ),
                                     _documentIsActive
                                         ? Container(
@@ -178,8 +316,8 @@ class _VideoSessionState extends State<VideoSession> {
                                   ],
                                 ),
                               ),
-                              _getStamp(),
-                              _getSign(),
+                              if (_documentIsActive) _getStamp(),
+                              if (_documentIsActive) _getSign(),
                             ],
                           ),
                         ),
@@ -190,13 +328,19 @@ class _VideoSessionState extends State<VideoSession> {
               ),
             ),
             SizedBox(height: reSize(15)),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: ButtonPrimary(
-                callback: _finishSession,
-                text: "Finish",
-              ),
-            ),
+            GetBuilder<SessionController>(builder: (_controller) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: ButtonPrimary(
+                  callback: _controller.points.length == 0
+                      ? null
+                      : _controller.points.every((point) => point.isSigned)
+                          ? _finishSession
+                          : null,
+                  text: "Finish",
+                ),
+              );
+            }),
             SizedBox(height: Get.height < 670 ? 20 : reSize(40)),
           ],
         ),
@@ -205,13 +349,49 @@ class _VideoSessionState extends State<VideoSession> {
   }
 
   Widget _getStamp() {
-    var notarySigns = _pointController.points.where((element) =>
-        element.ownerId == _userController.user.value.id &&
-        element.type == "STAMP");
-    bool active = notarySigns.every((element) => !element.isSigned);
-    return Positioned(
+    return GetBuilder<SessionController>(builder: (_controller) {
+      var notarySigns = _controller.points.where((element) =>
+          element.ownerId == _userController.user.value.id &&
+          element.type == "STAMP");
+      var recipientsSigns =
+          _controller.points.where((element) => element.ownerType != "NOTARY");
+
+      bool active = recipientsSigns.every((element) => element.isSigned)
+          ? notarySigns.every((element) => !element.isSigned)
+          : false;
+      return Positioned(
+          right: 0,
+          bottom: 60,
+          child: AvatarGlow(
+            endRadius: 42.0,
+            glowColor: Theme.of(context).primaryColor,
+            showTwoGlows: false,
+            animate: active,
+            duration: Duration(milliseconds: 2500),
+            child: BtnSign(
+              icon: "69",
+              callback: active ? _controller.addStamp : null,
+              isSigned: !active,
+            ),
+          ));
+    });
+  }
+
+  Widget _getSign() {
+    return GetBuilder<SessionController>(builder: (_controller) {
+      var notarySigns = _controller.points.where((element) =>
+          element.ownerId == _userController.user.value.id &&
+          element.type != "STAMP");
+
+      var recipientsSigns =
+          _controller.points.where((element) => element.ownerType != "NOTARY");
+
+      bool active = recipientsSigns.every((element) => element.isSigned)
+          ? notarySigns.every((element) => !element.isSigned)
+          : false;
+      return Positioned(
         right: 0,
-        bottom: 60,
+        bottom: 0,
         child: AvatarGlow(
           endRadius: 42.0,
           glowColor: Theme.of(context).primaryColor,
@@ -219,33 +399,37 @@ class _VideoSessionState extends State<VideoSession> {
           animate: active,
           duration: Duration(milliseconds: 2500),
           child: BtnSign(
-            icon: "69",
-            callback: active ? _pointController.addStamp : null,
+            icon: "70",
+            callback: recipientsSigns.every((element) => !element.isSigned)
+                ? null
+                : active
+                    ? _controller.addSign
+                    : null,
             isSigned: !active,
           ),
-        ));
+        ),
+      );
+    });
   }
 
-  Widget _getSign() {
-    var notarySigns = _pointController.points.where((element) =>
-        element.ownerId == _userController.user.value.id &&
-        element.type != "STAMP");
-    bool active = notarySigns.every((element) => !element.isSigned);
-    return Positioned(
-      right: 0,
-      bottom: 0,
-      child: AvatarGlow(
-        endRadius: 42.0,
-        glowColor: Theme.of(context).primaryColor,
-        showTwoGlows: false,
-        animate: active,
-        duration: Duration(milliseconds: 2500),
-        child: BtnSign(
-          icon: "70",
-          callback: active ? _pointController.addSign : null,
-          isSigned: !active,
-        ),
-      ),
+  Widget _listRecipients(List<Recipient> recipients) {
+    return Expanded(
+      child: ListView.separated(
+          padding: EdgeInsets.zero,
+          shrinkWrap: true,
+          scrollDirection: Axis.horizontal,
+          itemCount: _sessionController.recipientVideo.length,
+          separatorBuilder: (BuildContext context, int index) =>
+              SizedBox(width: reSize(15)),
+          itemBuilder: (context, index) {
+            return Center(
+              child: _conferenceRoom != null
+                  ? _getRecipe(recipients[index])
+                  : WaitingRecipient(
+                      color: recipients[index].color,
+                    ),
+            );
+          }),
     );
   }
 
@@ -273,61 +457,16 @@ class _VideoSessionState extends State<VideoSession> {
               color: Color(0xFFFFFFFF),
               borderRadius: BorderRadius.circular(30),
             ),
-            child: Image.memory(
-              base64Decode(
-                _sessionController.session.value.images[0],
-              ),
-            ),
+            child: _sessionController.session.value != null &&
+                    _sessionController.session.value.images.length > 0
+                ? Image.memory(
+                    base64Decode(
+                      _sessionController.session?.value?.images[0],
+                    ),
+                  )
+                : Container(),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _getRecipients() {
-    return Expanded(
-      child: ListView.separated(
-        padding: EdgeInsets.zero,
-        shrinkWrap: true,
-        scrollDirection: Axis.horizontal,
-        itemCount: _recipientController.recipientsForTag.length,
-        separatorBuilder: (BuildContext context, int index) =>
-            SizedBox(width: reSize(15)),
-        itemBuilder: (context, index) {
-          return Center(
-            child: Container(
-              width: reSize(58),
-              height: reSize(58),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: _recipientController.recipientsForTag[index].color,
-                  width: 2.5,
-                ),
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Center(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(30),
-                  child: Container(
-                    width: reSize(49),
-                    height: reSize(49),
-                    decoration: BoxDecoration(
-                      color: Color(0xFFE6E8EE),
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: Stack(
-                      children: [
-                        _getParticipant(
-                          _recipientController.recipientsForTag[index],
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
       ),
     );
   }
@@ -339,7 +478,7 @@ class _VideoSessionState extends State<VideoSession> {
         children: [
           TextButton(
             onPressed: () async {
-              await _twilioController.onHangup();
+              await _conferenceRoom?.disconnect();
               Get.back();
             },
             style: ButtonStyle(
@@ -377,7 +516,7 @@ class _VideoSessionState extends State<VideoSession> {
 
   _activateParticipant(Recipient recipient) {
     _documentIsActive = false;
-    _recipientController.activateRecipient(recipient);
+    _sessionController.activateRecipient(recipient);
     setState(() {});
   }
 
@@ -386,35 +525,11 @@ class _VideoSessionState extends State<VideoSession> {
     setState(() {});
   }
 
-  _getParticipant(Recipient recipient) {
-    ParticipantWidget participant =
-        _twilioController.getParticipant(recipient.id);
-    if (participant != null) {
-      return participant;
-    } else {
-      return InkWell(
-        onTap: () => _activateParticipant(recipient),
-        child: Container(
-          width: reSize(49),
-          height: reSize(49),
-          decoration: BoxDecoration(
-            color: recipient.color,
-            borderRadius: BorderRadius.circular(30),
-          ),
-          child: Center(
-            child: BlackLoading(),
-          ),
-        ),
-      );
-    }
-  }
-
   _finishSession() async {
     try {
-      print("here");
-      await _twilioController.onHangup();
+      _socketService.socket.disconnect();
       await _sessionController.finishSession();
-      Get.to(
+      Get.offAll(
         () => Encryption(),
         transition: Transition.noTransition,
       );

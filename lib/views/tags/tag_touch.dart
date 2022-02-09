@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:notary/models/point.dart';
-import 'package:flutter/gestures.dart';
 import 'package:notary/views/tags/tag_touch_part.dart';
 
 class TagTouch extends StatefulWidget {

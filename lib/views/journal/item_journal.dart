@@ -19,7 +19,7 @@ class ItemJournal extends StatelessWidget {
           EdgeInsets.zero,
         ),
         overlayColor: MaterialStateProperty.all(
-          Theme.of(context).accentColor.withOpacity(0.02),
+          Theme.of(context).colorScheme.secondary.withOpacity(0.02),
         ),
       ),
       child: InfoJournal(eJournal: eJournal, icon: true),
