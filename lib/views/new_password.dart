@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/controllers/user.dart';
 import 'package:notary/methods/show_error.dart';
+import 'package:notary/utils/navigate.dart';
 import 'package:notary/widgets/button_primary.dart';
 import 'package:notary/widgets/confirm_password_reset.dart';
-import 'package:notary/widgets/edit_intput.widget.dart';
+import 'package:notary/widgets/edit_input.widget.dart';
 import 'package:notary/widgets/loading_page.dart';
 import 'package:notary/widgets/title_page.dart';
+import 'package:provider/provider.dart';
 
 import 'auth.dart';
 
@@ -20,7 +22,7 @@ class NewPassword extends StatefulWidget {
 }
 
 class _NewPasswordState extends State<NewPassword> {
-  UserController _userController = Get.put(UserController());
+
   bool _isLoading;
   bool _hidePassword;
   bool _hideConfirmPassword;
@@ -39,17 +41,14 @@ class _NewPasswordState extends State<NewPassword> {
     _isLoading = true;
     setState(() {});
     try {
-      await _userController.addNewPassword(_password, widget.token);
-      Get.offAll(
-        () => ConfirmPasswordReset(),
-        transition: Transition.noTransition,
-      );
+      await Provider.of<UserController>(context, listen: false).addNewPassword(_password, widget.token);
+      StateM(context).navOff(ConfirmPasswordReset());
       _isLoading = false;
       setState(() {});
     } catch (err) {
       _isLoading = false;
       setState(() {});
-      showError(err);
+      showError(err, context);
     }
   }
 
@@ -59,7 +58,7 @@ class _NewPasswordState extends State<NewPassword> {
         _isLoading,
         SingleChildScrollView(
           child: Container(
-            height: Get.height,
+            height: StateM(context).height(),
             child: Column(
               children: [
                 TitlePage(
@@ -87,7 +86,10 @@ class _NewPasswordState extends State<NewPassword> {
                                     _hidePassword
                                         ? Icons.visibility_off
                                         : Icons.visibility,
-                                    color: Theme.of(context).colorScheme.secondary,
+                                    color: Theme
+                                        .of(context)
+                                        .colorScheme
+                                        .secondary,
                                     size: 16,
                                   ),
                                   onPressed: () {
@@ -114,12 +116,15 @@ class _NewPasswordState extends State<NewPassword> {
                                     _hideConfirmPassword
                                         ? Icons.visibility_off
                                         : Icons.visibility,
-                                    color: Theme.of(context).colorScheme.secondary,
+                                    color: Theme
+                                        .of(context)
+                                        .colorScheme
+                                        .secondary,
                                     size: 16,
                                   ),
                                   onPressed: () {
                                     _hideConfirmPassword =
-                                        !_hideConfirmPassword;
+                                    !_hideConfirmPassword;
                                     setState(() {});
                                   },
                                 ),
@@ -132,8 +137,8 @@ class _NewPasswordState extends State<NewPassword> {
                             ButtonPrimary(
                               text: 'Confirm',
                               callback: _password == null ||
-                                      _password.isEmpty ||
-                                      _password != _confirmPassword
+                                  _password.isEmpty ||
+                                  _password != _confirmPassword
                                   ? null
                                   : _resetPassword,
                             ),
@@ -150,10 +155,7 @@ class _NewPasswordState extends State<NewPassword> {
                                   ),
                                 ),
                                 GestureDetector(
-                                  onTap: () => Get.offAll(
-                                    () => Auth(),
-                                    transition: Transition.noTransition,
-                                  ),
+                                  onTap: () =>  StateM(context).navOff(Auth()),
                                   child: Text(
                                     'Login Now',
                                     style: TextStyle(

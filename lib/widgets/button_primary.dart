@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/methods/resize_formatting.dart';
+import 'package:notary/utils/navigate.dart';
 
 class ButtonPrimary extends StatelessWidget {
   final Function callback;
@@ -44,8 +45,8 @@ class ButtonPrimary extends StatelessWidget {
         ),
         onPressed: callback,
         child: SizedBox(
-          height: reSize(51),
-          width: width != null ? width : Get.width - 40,
+          height: reSize(context, 51),
+          width: width != null ? width : StateM(context).width() - 40,
           child: Center(
             child: Text(
               text,

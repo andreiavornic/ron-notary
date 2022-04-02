@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 import 'package:notary/controllers/user.dart';
 import 'package:notary/methods/resize_formatting.dart';
+import 'package:notary/utils/navigate.dart';
+import 'package:provider/provider.dart';
 
 import 'button_primary.dart';
 
@@ -14,13 +16,12 @@ class SignatureList extends StatefulWidget {
 class _SignatureListState extends State<SignatureList> {
   @override
   Widget build(BuildContext context) {
-    return GetX<UserController>(
-      init: UserController(),
-      builder: (controller) {
+    return Consumer<UserController>(
+      builder: (context, controller, _) {
         return Container(
           color: Color(0xFFFFFFFF),
-          height: Get.height / 2,
-          width: Get.width,
+          height: StateM(context).height() / 2,
+          width: StateM(context).width(),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
@@ -36,7 +37,7 @@ class _SignatureListState extends State<SignatureList> {
                     letterSpacing: -1,
                   ),
                 ),
-                SizedBox(height: reSize(2)),
+                SizedBox(height: reSize(context, 2)),
                 Text(
                   "Select preferred style",
                   style: TextStyle(
@@ -45,14 +46,14 @@ class _SignatureListState extends State<SignatureList> {
                     fontWeight: FontWeight.w400,
                   ),
                 ),
-                SizedBox(height: reSize(30)),
+                SizedBox(height: reSize(context, 30)),
                 Expanded(
                   child: ListView.separated(
                     padding: const EdgeInsets.all(0),
                     itemCount: controller.signatures.length,
                     separatorBuilder: (BuildContext context, int index) =>
                         Container(
-                      height: reSize(1),
+                      height: reSize(context, 1),
                       decoration: BoxDecoration(
                           gradient: LinearGradient(
                         begin: Alignment.topRight,
@@ -75,13 +76,13 @@ class _SignatureListState extends State<SignatureList> {
                           padding: MaterialStateProperty.all(EdgeInsets.zero),
                         ),
                         child: Container(
-                          height: reSize(56),
+                          height: reSize(context, 56),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Expanded(
                                 child: Text(
-                                  "${controller.user.value.firstName} ${controller.user.value.lastName}, ${controller.user.value.firstName[0]}.${controller.user.value.lastName[0]}.",
+                                  "${controller.user.firstName} ${controller.user.lastName}, ${controller.user.firstName[0]}.${controller.user.lastName[0]}.",
                                   style: GoogleFonts.getFont(
                                     controller.signatures[index].textFont,
                                     fontSize: 15,
@@ -92,8 +93,8 @@ class _SignatureListState extends State<SignatureList> {
                               ),
                               controller.signatures[index].isChecked
                                   ? Container(
-                                      width: reSize(14),
-                                      height: reSize(14),
+                                      width: reSize(context, 14),
+                                      height: reSize(context, 14),
                                       decoration: BoxDecoration(
                                         color: Theme.of(context).primaryColor,
                                         borderRadius: BorderRadius.circular(7),
@@ -119,8 +120,8 @@ class _SignatureListState extends State<SignatureList> {
                                       ),
                                     )
                                   : Container(
-                                      width: reSize(14),
-                                      height: reSize(14),
+                                      width: reSize(context, 14),
+                                      height: reSize(context, 14),
                                     ),
                             ],
                           ),
@@ -129,15 +130,15 @@ class _SignatureListState extends State<SignatureList> {
                     },
                   ),
                 ),
-                SizedBox(height: reSize(20)),
+                SizedBox(height: reSize(context, 20)),
                 ButtonPrimary(
                   text: "Confirm",
                   callback: () {
                     controller.saveSignature();
-                    Get.back();
+                    Navigator.pop(context);
                   },
                 ),
-                SizedBox(height: reSize(40)),
+                SizedBox(height: reSize(context, 40)),
               ],
             ),
           ),

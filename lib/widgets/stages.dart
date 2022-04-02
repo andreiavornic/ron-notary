@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/controllers/session.dart';
 import 'package:notary/enum/stage_enum.dart';
 import 'package:notary/methods/resize_formatting.dart';
+import 'package:notary/utils/navigate.dart';
 import 'package:notary/views/title_stage.dart';
 import 'package:notary/widgets/stages_item.dart';
+import 'package:provider/provider.dart';
 
 import 'contact.dart';
 
@@ -21,7 +23,7 @@ class _StagesState extends State<Stages> {
       children: [
         Column(
           children: [
-            SizedBox(height: reSize(40)),
+            SizedBox(height: reSize(context, 40)),
             TextButton(
                 onPressed: () {
                   showGeneralDialog(
@@ -35,8 +37,8 @@ class _StagesState extends State<Stages> {
                       return Align(
                         alignment: Alignment.centerRight,
                         child: Container(
-                          height: Get.height,
-                          width: Get.width - reSize(55),
+                          height: StateM(context).height(),
+                          width: StateM(context).width() - reSize(context, 55),
                           child: Scaffold(
                             backgroundColor: Color(0xFFFFFFFF),
                             body: Padding(
@@ -51,10 +53,10 @@ class _StagesState extends State<Stages> {
                                     child: Column(
                                       children: [
                                         TitleStage(),
-                                        SizedBox(height: reSize(10)),
+                                        SizedBox(height: reSize(context, 10)),
                                         Padding(
                                           padding: EdgeInsets.only(
-                                              right: reSize(30)),
+                                              right: reSize(context, 30)),
                                           child: Column(
                                             children: [
                                               StageItem(
@@ -90,7 +92,7 @@ class _StagesState extends State<Stages> {
                                               ),
                                               StageItem(
                                                 needStage: Stage.INVITE,
-                                                title: 'Invite',
+                                                title: 'Add Participants',
                                                 description:
                                                     'Last step to begin session. Just send invite link to your recipients',
                                                 item: 5,
@@ -102,7 +104,7 @@ class _StagesState extends State<Stages> {
                                       ],
                                     ),
                                   ),
-                                  SizedBox(height: reSize(50)),
+                                  SizedBox(height: reSize(context, 50)),
                                   Contact()
                                 ],
                               ),
@@ -128,27 +130,27 @@ class _StagesState extends State<Stages> {
                   minimumSize: Size(50, 20),
                   alignment: Alignment.centerRight,
                 ),
-                child: GetBuilder<SessionController>(builder: (_controller) {
+                child: Consumer<SessionController>(builder: (context, _controller, _) {
                   return Row(
                     children: [
                       Text(
-                        _controller.session.value == null
+                        _controller.session == null
                             ? ""
-                            : '${(_controller.session.value.stage?.index) != null ? (_controller.session.value.stage.index + 1) : 1} / 5',
+                            : '${(_controller.session.stage?.index) != null ? (_controller.session.stage.index + 1) : 1} / 5',
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.secondary,
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      SizedBox(width: reSize(5)),
+                      SizedBox(width: reSize(context, 5)),
                       SvgPicture.asset('assets/images/82.svg'),
                     ],
                   );
                 })),
           ],
         ),
-        SizedBox(width: reSize(30)),
+        SizedBox(width: reSize(context, 30)),
       ],
     );
   }

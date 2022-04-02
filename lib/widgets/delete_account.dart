@@ -10,7 +10,7 @@ class DeleteAccount extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: reSize(15)),
+        SizedBox(height: reSize(context, 15)),
         Row(
           children: [
             TextButton(
@@ -22,8 +22,9 @@ class DeleteAccount extends StatelessWidget {
                   Color(0xFFFF5454).withOpacity(0.2),
                 ),
               ),
-              onPressed: () => modalContainer(
+              onPressed: () => modalContainerSimple(
                 DeleteUser(),
+                  context
               ),
               child: Padding(
                 padding: const EdgeInsets.symmetric(

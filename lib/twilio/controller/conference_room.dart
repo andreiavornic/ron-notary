@@ -1,18 +1,22 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:collection/collection.dart' show IterableExtension;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:notary/twilio/views/participant.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:twilio_programmable_video/twilio_programmable_video.dart';
 import 'package:uuid/uuid.dart';
 
+class RecipientList {
+  Widget child;
+  String id;
+
+  RecipientList({this.child, this.id});
+}
+
 class ConferenceRoom with ChangeNotifier {
-  final String name;
   String token;
-  final String identity;
 
   final StreamController<bool> _onAudioEnabledStreamController =
       StreamController<bool>.broadcast();
@@ -32,7 +36,7 @@ class ConferenceRoom with ChangeNotifier {
 
   final Completer<Room> _completer = Completer<Room>();
 
-  final List<ParticipantWidget> _participants = [];
+  List<ParticipantWidget> _participants = [];
   final List<ParticipantBuffer> _participantBuffer = [];
   final List<StreamSubscription> _streamSubscriptions = [];
   final List<RemoteDataTrack> _dataTracks = [];
@@ -40,15 +44,27 @@ class ConferenceRoom with ChangeNotifier {
 
   CameraCapturer _cameraCapturer;
   Room _room;
-  Timer _timer;
 
   bool flashEnabled = false;
   var trackId;
 
-  ConferenceRoom({
-    @required this.name,
-    @required this.identity,
-  }) {
+  Future<void> disconnect() async {
+    print('ConferenceRoom.disconnect()');
+
+    await TwilioProgrammableVideo.disableAudioSettings();
+    if (_room != null) {
+      await _room.disconnect();
+    }
+  }
+
+  @override
+  void dispose() {
+    print('ConferenceRoom.dispose()');
+    _disposeStreamsAndSubscriptions();
+    super.dispose();
+  }
+
+  ConferenceRoom() {
     onAudioEnabled = _onAudioEnabledStreamController.stream;
     onVideoEnabled = _onVideoEnabledStreamController.stream;
     _flashStateStreamController =
@@ -65,7 +81,8 @@ class ConferenceRoom with ChangeNotifier {
   }
 
   Future<Room> connect() async {
-    // print('ConferenceRoom.connect()');
+    print('ConferenceRoom.connect()');
+    _participants = [];
     try {
       await TwilioProgrammableVideo.debug(dart: true, native: true);
       _streamSubscriptions
@@ -81,8 +98,9 @@ class ConferenceRoom with ChangeNotifier {
       );
 
       trackId = Uuid().v4();
-      final _box = GetStorage();
-      token = _box.read('TWILIO_TOKEN');
+      final prefs = await SharedPreferences.getInstance();
+      token = prefs.getString('TWILIO_TOKEN');
+      String name = prefs.getString('TWILIO_ROOM');
 
       var connectOptions = ConnectOptions(
         token,
@@ -116,23 +134,8 @@ class ConferenceRoom with ChangeNotifier {
 
       return _completer.future;
     } catch (err) {
-      print(err);
-      rethrow;
+      throw err;
     }
-  }
-
-  Future<void> disconnect() async {
-    print('ConferenceRoom.disconnect()');
-    _timer.cancel();
-    await TwilioProgrammableVideo.disableAudioSettings();
-    await _room.disconnect();
-  }
-
-  @override
-  void dispose() {
-    print('ConferenceRoom.dispose()');
-    _disposeStreamsAndSubscriptions();
-    super.dispose();
   }
 
   Future<void> _disposeStreamsAndSubscriptions() async {
@@ -148,27 +151,6 @@ class ConferenceRoom with ChangeNotifier {
 
   Future<List<StatsReport>> getStats() async {
     return await TwilioProgrammableVideo.getStats();
-  }
-
-  Future<void> sendMessage(String message) async {
-    final tracks = _room.localParticipant?.localDataTracks ?? [];
-    final localDataTrack = tracks.isEmpty ? null : tracks[0].localDataTrack;
-    if (localDataTrack == null || _messages.isNotEmpty) {
-      print(
-          'ConferenceRoom.sendMessage => Track is not available yet, buffering message.');
-      _messages.add(message);
-      return;
-    }
-    await localDataTrack.send(message);
-  }
-
-  Future<void> sendBufferMessage(ByteBuffer message) async {
-    final tracks = _room.localParticipant?.localDataTracks ?? [];
-    final localDataTrack = tracks.isEmpty ? null : tracks[0].localDataTrack;
-    if (localDataTrack == null) {
-      return;
-    }
-    await localDataTrack.sendBuffer(message);
   }
 
   Future<void> toggleVideoEnabled() async {
@@ -295,12 +277,11 @@ class ConferenceRoom with ChangeNotifier {
 
   void _onDisconnected(RoomDisconnectedEvent event) {
     print('ConferenceRoom._onDisconnected');
-    _timer.cancel();
+    _room = null;
   }
 
   void _onReconnecting(RoomReconnectingEvent room) {
     print('ConferenceRoom._onReconnecting');
-    _timer.cancel();
   }
 
   void _onConnected(Room room) {
@@ -348,17 +329,6 @@ class ConferenceRoom with ChangeNotifier {
         .listen(_onLocalDataTrackPublished));
     notifyListeners();
     _completer.complete(room);
-
-    _timer = Timer.periodic(const Duration(minutes: 1), (_) {
-      // Let's see if we can send some data over the DataTrack API
-      sendMessage('And another minute has passed since I connected...');
-      // Also try the ByteBuffer way of sending data
-      final list =
-          'This data has been sent over the ByteBuffer channel of the DataTrack API'
-              .codeUnits;
-      var bytes = Uint8List.fromList(list);
-      sendBufferMessage(bytes.buffer);
-    });
   }
 
   void _onLocalDataTrackPublished(LocalDataTrackPublishedEvent event) {
@@ -441,7 +411,6 @@ class ConferenceRoom with ChangeNotifier {
       videoEnabled: videoEnabled,
       networkQualityLevel: networkQualityLevel,
       onNetworkQualityChanged: onNetworkQualityChanged,
-      toggleMute: () => toggleMute(remoteParticipant),
       child: child,
       isActive: false,
     );
@@ -476,8 +445,8 @@ class ConferenceRoom with ChangeNotifier {
     _streamSubscriptions.add(remoteParticipant.onDataTrackUnsubscribed
         .listen(_onDataTrackUnsubscribed));
 
-    _streamSubscriptions.add(remoteParticipant.onNetworkQualityLevelChanged
-        .listen(_onNetworkQualityChanged));
+    // _streamSubscriptions.add(remoteParticipant.onNetworkQualityLevelChanged
+    //     .listen(_onNetworkQualityChanged));
 
     _streamSubscriptions.add(
         remoteParticipant.onVideoTrackDisabled.listen(_onVideoTrackDisabled));
@@ -581,11 +550,6 @@ class ConferenceRoom with ChangeNotifier {
   void _onDataTrackUnsubscribed(RemoteDataTrackSubscriptionEvent event) {
     print(
         'ConferenceRoom._onDataTrackUnsubscribed(), ${event.remoteParticipant.identity}, ${event.remoteDataTrack.sid}');
-  }
-
-  void _onNetworkQualityChanged(RemoteNetworkQualityLevelChangedEvent event) {
-    print(
-        'ConferenceRoom._onNetworkQualityChanged(), ${event.remoteParticipant.identity}, ${event.networkQualityLevel}');
   }
 
   void _onVideoTrackDisabled(RemoteVideoTrackEvent event) {
@@ -720,5 +684,31 @@ class ConferenceRoom with ChangeNotifier {
       }
       notifyListeners();
     }
+  }
+
+  activateParticipant(String id, bool isLocal, bool isDoc) {
+    print(id);
+    _participants.forEach((element) {
+      int index = _participants.indexOf(element);
+      _participants[index] = _participants[index].copyWith(isActive: false);
+    });
+
+    if (isDoc) {
+      return;
+    }
+
+    if (isLocal) {
+      ParticipantWidget _participantLocal =
+          _participants.firstWhere((element) => !element.isRemote);
+      int index = _participants.indexOf(_participantLocal);
+      _participants[index] = _participants[index].copyWith(isActive: true);
+    } else {
+      ParticipantWidget _participantRemote =
+          _participants.firstWhere((element) => element.id == id);
+      int index = _participants.indexOf(_participantRemote);
+      _participants[index] = _participants[index].copyWith(isActive: true);
+    }
+
+    notifyListeners();
   }
 }

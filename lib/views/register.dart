@@ -1,19 +1,20 @@
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
+
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:notary/controllers/authentication.dart';
 import 'package:notary/methods/show_error.dart';
+import 'package:notary/utils/navigate.dart';
 import 'package:notary/views/policy.dart';
 import 'package:notary/views/settings/state_select.dart';
 import 'package:notary/widgets/button_primary.dart';
-import 'package:notary/widgets/edit_intput.widget.dart';
+import 'package:notary/widgets/edit_input.widget.dart';
 import 'package:notary/widgets/loading_page.dart';
 import 'package:notary/widgets/modals/modal_container.dart';
 import 'package:notary/widgets/terms_view.dart';
 import 'package:notary/widgets/title_page.dart';
+import 'package:provider/provider.dart';
 
 import 'confirm_registration.dart';
 
@@ -32,8 +33,6 @@ class _RegisterPageState extends State<RegisterPage> {
   String _longState;
   String _password;
   String _confirmPassword;
-  AuthenticationController _authController =
-      Get.put(AuthenticationController());
   bool _loading;
   bool _hidePassword;
   bool _hideConfirmPassword;
@@ -85,7 +84,8 @@ class _RegisterPageState extends State<RegisterPage> {
     _loading = true;
     setState(() {});
     try {
-      await _authController.register(
+      await Provider.of<AuthenticationController>(context, listen: false)
+          .register(
         _firstName,
         _lastName,
         _email,
@@ -94,16 +94,13 @@ class _RegisterPageState extends State<RegisterPage> {
         _state,
         _longState,
       );
-      Get.to(
-        () => ConfirmRegistration(),
-        transition: Transition.noTransition,
-      );
+      StateM(context).navTo(ConfirmRegistration());
       _loading = false;
       setState(() {});
     } catch (err) {
-      showError(err);
       _loading = true;
       setState(() {});
+      showError(err, context);
     }
   }
 
@@ -113,7 +110,7 @@ class _RegisterPageState extends State<RegisterPage> {
         _loading,
         SingleChildScrollView(
           child: Container(
-            height: Get.height,
+            height: StateM(context).height(),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
@@ -180,19 +177,20 @@ class _RegisterPageState extends State<RegisterPage> {
                                 },
                               ),
                               Container(
-                                width: Get.width - 40,
+                                width: StateM(context).width() - 40,
                                 child: InkWell(
                                   onTap: () => modalContainer(
-                                    StateSelect(
-                                      changeState: (abbrevCity, selectedCity) {
-                                        _state = abbrevCity;
-                                        _longState = selectedCity;
-                                        setState(() {});
-                                        Get.back();
-                                      },
-                                      isSetting: false,
-                                    ),
-                                  ),
+                                      StateSelect(
+                                        changeState:
+                                            (abbrevCity, selectedCity) {
+                                          _state = abbrevCity;
+                                          _longState = selectedCity;
+                                          setState(() {});
+                                          Navigator.pop(context);
+                                        },
+                                        isSetting: false,
+                                      ),
+                                      context),
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -217,7 +215,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                       SizedBox(height: 4),
                                       Container(
                                         color: Color(0xFFEDEDED),
-                                        width: Get.width - 40,
+                                        width: StateM(context).width() - 40,
                                         height: 1,
                                       )
                                     ],
@@ -268,7 +266,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                     _hidePassword
                                         ? Icons.visibility_off
                                         : Icons.visibility,
-                                    color: Theme.of(context).colorScheme.secondary,
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
                                     size: 16,
                                   ),
                                   onPressed: () {
@@ -280,6 +279,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                 validate: (String value) {
                                   if (value.trim().isEmpty) {
                                     return "Password is required!";
+                                  }
+                                  if (value.trim().length < 4) {
+                                    return "Password must be longer than 3 characters";
                                   }
                                   return null;
                                 },
@@ -298,7 +300,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                     _hideConfirmPassword
                                         ? Icons.visibility_off
                                         : Icons.visibility,
-                                    color: Theme.of(context).colorScheme.secondary,
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
                                     size: 16,
                                   ),
                                   onPressed: () {
@@ -357,10 +360,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                   color: Color(0xFF20303C),
                                   decoration: TextDecoration.underline),
                               recognizer: TapGestureRecognizer()
-                                ..onTap = () => Get.to(
-                                      () => TermsView(),
-                                      transition: Transition.noTransition,
-                                    ),
+                                ..onTap =
+                                    () => StateM(context).navTo(TermsView()),
                             ),
                             TextSpan(
                               text: ' and ',
@@ -371,10 +372,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                   color: Color(0xFF20303C),
                                   decoration: TextDecoration.underline),
                               recognizer: TapGestureRecognizer()
-                                ..onTap = () => Get.to(
-                                      () => PolicyView(),
-                                      transition: Transition.noTransition,
-                                    ),
+                                ..onTap =
+                                    () => StateM(context).navTo(PolicyView()),
                             ),
                           ],
                         ),

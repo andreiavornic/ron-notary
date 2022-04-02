@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/methods/resize_formatting.dart';
 import 'package:notary/models/type_notarization.dart';
+import 'package:notary/utils/navigate.dart';
 
 import 'button_primary.dart';
 
@@ -40,7 +41,7 @@ class _SelectTypeNotarizationState extends State<SelectTypeNotarization> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: Get.height / 3,
+      height: StateM(context).height() / 3,
       child: Column(
         children: [
           Text(
@@ -51,9 +52,9 @@ class _SelectTypeNotarizationState extends State<SelectTypeNotarization> {
               fontWeight: FontWeight.w700,
             ),
           ),
-          SizedBox(height: reSize(15)),
+          SizedBox(height: reSize(context, 15)),
           Text('Choose type of document'),
-          SizedBox(height: reSize(20)),
+          SizedBox(height: reSize(context, 20)),
           Expanded(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
@@ -73,7 +74,7 @@ class _SelectTypeNotarizationState extends State<SelectTypeNotarization> {
                 ),
                 children: widget.sortedTypeDocuments.map((item) {
                   return Container(
-                    height: reSize(52),
+                    height: reSize(context, 52),
                     child: Center(
                       child: Text(
                         item.name,
@@ -93,7 +94,7 @@ class _SelectTypeNotarizationState extends State<SelectTypeNotarization> {
               ),
             ),
           ),
-          SizedBox(height: reSize(20)),
+          SizedBox(height: reSize(context, 20)),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: ButtonPrimary(
@@ -101,7 +102,7 @@ class _SelectTypeNotarizationState extends State<SelectTypeNotarization> {
               callback: _selectNotarization,
             ),
           ),
-          SizedBox(height: reSize(40)),
+          SizedBox(height: reSize(context, 40)),
         ],
       ),
     );

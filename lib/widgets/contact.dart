@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/methods/resize_formatting.dart';
+import 'package:notary/utils/navigate.dart';
 
 import 'contact_page.dart';
 
@@ -14,13 +15,13 @@ class _ContactState extends State<Contact> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => Get.to(()=> ContactPage()),
+      onTap: () => StateM(context).navTo(ContactPage()),
       child: Container(
         child: Row(
           children: [
             Container(
-              width: reSize(44),
-              height: reSize(44),
+              width: reSize(context, 44),
+              height: reSize(context, 44),
               decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.secondary,
                   borderRadius: BorderRadius.circular(22)),
@@ -28,7 +29,7 @@ class _ContactState extends State<Contact> {
                 child: SvgPicture.asset('assets/images/84.svg'),
               ),
             ),
-            SizedBox(width: reSize(12),),
+            SizedBox(width: reSize(context, 12),),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

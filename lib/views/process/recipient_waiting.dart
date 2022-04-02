@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/controllers/session.dart';
+import 'package:notary/methods/resize_formatting.dart';
 import 'package:notary/models/recipient.dart';
+import 'package:notary/utils/navigate.dart';
 import 'package:notary/views/process/recipient_progress.dart';
+import 'package:notary/widgets/button_primary.dart';
+import 'package:provider/provider.dart';
+import 'package:share/share.dart';
 import 'package:steps_indicator/steps_indicator.dart';
 
 class RecipientWaiting extends StatefulWidget {
@@ -15,18 +20,17 @@ class RecipientWaiting extends StatefulWidget {
 }
 
 class _RecipientWaitingState extends State<RecipientWaiting> {
-  SessionController _sessionController = Get.put(
-    SessionController(),
-  );
-
   Recipient _recipient;
   int _selectedItem;
+  SessionController _sessionController;
 
   @override
   initState() {
     _selectedItem = 0;
-    _recipient = _sessionController.recipients
+    _recipient = Provider.of<SessionController>(context, listen: false)
+        .recipients
         .firstWhere((element) => element.id == widget.recipientId);
+    _sessionController = Provider.of<SessionController>(context, listen: false);
     super.initState();
   }
 
@@ -43,12 +47,12 @@ class _RecipientWaitingState extends State<RecipientWaiting> {
         case ("PERSONAL_DATA"):
           _selectedItem = 1;
           return "Connectivity";
-        case ("KBA"):
-          _selectedItem = 2;
-          return "KBA";
         case ("DOCUMENT_IDENTIFY"):
-          _selectedItem = 3;
+          _selectedItem = 2;
           return "Identity";
+        case ("KBA"):
+          _selectedItem = 3;
+          return "KBA";
         case ("LOGGED"):
           _selectedItem = 4;
           return "Ready";
@@ -58,7 +62,7 @@ class _RecipientWaitingState extends State<RecipientWaiting> {
     }
 
     return Container(
-      width: Get.width,
+      width: StateM(context).width(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -113,7 +117,7 @@ class _RecipientWaitingState extends State<RecipientWaiting> {
           ),
           SizedBox(height: 30),
           Container(
-            width: Get.width,
+            width: StateM(context).width(),
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
               child: Column(
@@ -125,7 +129,7 @@ class _RecipientWaitingState extends State<RecipientWaiting> {
                     nbSteps: 4,
                     doneLineColor: Theme.of(context).primaryColor,
                     undoneLineColor: Color(0xFF29292D).withOpacity(0.08),
-                    lineLength: Get.width / 7,
+                    lineLength: StateM(context).width() / 7,
                     selectedStepWidget: Container(
                       width: 30,
                       height: 30,
@@ -223,7 +227,7 @@ class _RecipientWaitingState extends State<RecipientWaiting> {
                       ),
                       Expanded(
                         child: Text(
-                          'KBA',
+                          'Identity',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Color(0xFFADAEAF),
@@ -233,7 +237,7 @@ class _RecipientWaitingState extends State<RecipientWaiting> {
                       ),
                       Expanded(
                         child: Text(
-                          'Identity',
+                          'KBA',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Color(0xFFADAEAF),
@@ -247,9 +251,53 @@ class _RecipientWaitingState extends State<RecipientWaiting> {
               ),
             ),
           ),
-          SizedBox(height: 40),
+          SizedBox(height: reSize(context, 20)),
+          Container(
+            width: StateM(context).width() - 40,
+            decoration: BoxDecoration(
+                color: Color(0xFFF5F6F9),
+                borderRadius: BorderRadius.circular(6)),
+            child: Padding(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  Text(
+                    "This Code was sent to all participants.\nYou may share it again",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Color(0xFF999999),
+                      fontSize: 12,
+                    ),
+                  ),
+                  SizedBox(height: reSize(context, 20)),
+                  Text(
+                    _sessionController.session.sessionToken,
+                    style: TextStyle(
+                      color: Color(0xFF161617),
+                      fontSize: 24,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 5
+                    ),
+                  ),
+                  SizedBox(height: reSize(context, 20)),
+                  ButtonPrimary(
+                    text: "Share",
+                    callback: _shareToken,
+                  )
+                ],
+              ),
+            ),
+          ),
+          SizedBox(height: reSize(context, 20)),
         ],
       ),
+    );
+  }
+
+  _shareToken() {
+    Share.share(
+      'Please enter session code: ${_sessionController.session.sessionToken}',
+      subject: 'Session Token',
     );
   }
 }

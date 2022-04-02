@@ -1,23 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_inapp_purchase/modules.dart';
-import 'package:get/get.dart';
-import 'package:intl/intl.dart';
-import 'package:notary/controllers/plan.dart';
-import 'package:notary/methods/date_format.dart';
+
 import 'package:notary/methods/resize_formatting.dart';
 import 'package:notary/models/plan.dart';
+import 'package:notary/utils/navigate.dart';
 
 class Invoices extends StatefulWidget {
-  final PurchasedItem item;
 
-  Invoices(this.item);
 
   @override
   _InvoicesState createState() => _InvoicesState();
 }
 
 class _InvoicesState extends State<Invoices> {
-  PlanController _planController = Get.put(PlanController());
+ // PlanController Provider.of<PlanController>(context, listen: false) = Get.put(PlanController());
   Plan _plan;
 
   initState() {
@@ -26,7 +21,7 @@ class _InvoicesState extends State<Invoices> {
   }
 
   getPlanById() {
-    _plan = _planController.getPlanById(widget.item.productId);
+  //  _plan = Provider.of<PlanController>(context, listen: false).getPlanById(widget.item.productId);
     setState(() {});
   }
 
@@ -36,7 +31,7 @@ class _InvoicesState extends State<Invoices> {
       child: Column(
         children: [
           Container(
-            width: Get.width - 40,
+            width: StateM(context).width() - 40,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 5),
               child: Column(
@@ -57,13 +52,13 @@ class _InvoicesState extends State<Invoices> {
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600),
                           ),
-                          Text(
-                            "${DateFormat('dd MMM, yyyy kk:mm').format(widget.item.transactionDate)}",
-                            // formatDateHourSimple(
-                            //     snapshot.data[i].created),
-                            style: TextStyle(
-                                color: Color(0xFF494949), fontSize: 12),
-                          ),
+                          // Text(
+                          //   "${DateFormat('dd MMM, yyyy kk:mm').format(widget.item.transactionDate)}",
+                          //   // formatDateHourSimple(
+                          //   //     snapshot.data[i].created),
+                          //   style: TextStyle(
+                          //       color: Color(0xFF494949), fontSize: 12),
+                          // ),
                         ],
                       ),
                       Column(
@@ -96,7 +91,7 @@ class _InvoicesState extends State<Invoices> {
           Padding(
             padding: EdgeInsets.symmetric(vertical: 10),
             child: Container(
-              height: reSize(1),
+              height: reSize(context, 1),
               color: (Color(0xFF000000).withOpacity(0.1)),
             ),
           )

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:notary/controllers/point.dart';
 import 'package:notary/models/recipient.dart';
+import 'package:provider/provider.dart';
 
 import 'btn_tags.dart';
 
@@ -28,13 +28,12 @@ class _NavigatorTagsState extends State<NavigatorTags> {
     super.initState();
   }
 
-  // _pointController.points.any((element) => element.type == "STAMP")
+  // Provider.of<PointController>(context, listen: false).points.any((element) => element.type == "STAMP")
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<PointController>(
-      init: PointController(),
-      builder: (_pointController) {
+    return Consumer<PointController>(
+      builder: (context, _pointController, _) {
         return Row(
           children: [
             BtnTags(
@@ -46,7 +45,7 @@ class _NavigatorTagsState extends State<NavigatorTags> {
             ),
             widget.selectedRecipient != null &&
                     widget.selectedRecipient.type == 'NOTARY' &&
-                    !_pointController.points
+                    !Provider.of<PointController>(context, listen: false).points
                         .any((element) => element.type == "STAMP")
                 ? BtnTags(
                     baseColor: widget.baseColor,

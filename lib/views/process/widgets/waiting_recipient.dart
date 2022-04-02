@@ -10,8 +10,8 @@ class WaitingRecipient extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: reSize(58),
-      height: reSize(58),
+      width: reSize(context, 58),
+      height: reSize(context, 58),
       decoration: BoxDecoration(
         border: Border.all(
           color: color,
@@ -23,8 +23,8 @@ class WaitingRecipient extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(30),
           child: Container(
-            width: reSize(49),
-            height: reSize(49),
+            width: reSize(context, 49),
+            height: reSize(context, 49),
             decoration: BoxDecoration(
               color: color,
               borderRadius: BorderRadius.circular(30),

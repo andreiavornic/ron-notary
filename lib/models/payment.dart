@@ -8,6 +8,7 @@ class Payment {
   List<Card> cards;
   String created;
   String customer;
+  String status;
   String subscription;
   int ronAmount;
   bool paid;
@@ -21,6 +22,7 @@ class Payment {
     this.cards,
     this.created,
     this.customer,
+    this.status,
     this.subscription,
     this.ronAmount,
     this.paid,
@@ -34,6 +36,7 @@ class Payment {
         this.ronAmount = json['ronAmount'],
         this.startPeriod = json['startPeriod'],
         this.endPeriod = json['endPeriod'],
+        this.status = json['status'],
         this.paid = json['paid'],
         this.plan = json['plan'] != null ?  Plan.fromJson(json['plan']) : null;
 

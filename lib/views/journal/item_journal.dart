@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/models/journal.dart';
+import 'package:notary/utils/navigate.dart';
 
 import 'info_journal.dart';
 import 'journal_detail.dart';
@@ -13,7 +14,7 @@ class ItemJournal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      onPressed: () => Get.to(() => JournalDetail(eJournal.id)),
+      onPressed: () => StateM(context).navTo(JournalDetail(eJournal.id)),
       style: ButtonStyle(
         padding: MaterialStateProperty.all(
           EdgeInsets.zero,

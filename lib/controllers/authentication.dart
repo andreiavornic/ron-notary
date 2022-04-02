@@ -1,42 +1,30 @@
-import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
+import 'package:flutter/material.dart';
 import 'package:notary/services/dio_service.dart';
-
-import 'package:notary/views/auth.dart';
 import 'package:dio/dio.dart' as dio;
+import 'package:shared_preferences/shared_preferences.dart';
 
-class AuthenticationController extends GetxController with CacheManager {
-  final isLogged = false.obs;
+class AuthenticationController with ChangeNotifier {
+  bool isLogged = false;
 
-  void logOut() {
-    isLogged.value = false;
+  Future<void> logOut() async {
+    isLogged = false;
     removeToken();
-    update();
-    Get.offAll(
-      () => Auth(),
-      transition: Transition.noTransition,
-    );
+    notifyListeners();
   }
 
   Future<void> login(data) async {
     try {
       dio.Response resDio = await makeRequest('auth/login', 'POST', data);
       var extracted = resDio.data;
-      print(extracted);
 
       if (!extracted['success']) {
         throw extracted["message"];
       }
       String token = extracted['data']['token'];
 
-      if (data['remember']) {
-        // todo: logout after expire
-        print(extracted['data']['expiresIn']);
-      }
-
       await saveToken(token);
-      isLogged.value = true;
-      update();
+      isLogged = true;
+      notifyListeners();
     } catch (err) {
       throw err;
     }
@@ -53,21 +41,19 @@ class AuthenticationController extends GetxController with CacheManager {
       }
       String token = extracted['data']['token'];
       await saveToken(token);
-      isLogged.value = true;
-      update();
+      isLogged = true;
+      notifyListeners();
     } catch (err) {
-      print(err);
       throw err;
     }
   }
 
-  bool checkLoginStatus() {
-    final token = getToken();
+  Future<bool> checkLoginStatus() async {
+    final token = await getToken();
     if (token != null) {
-      isLogged.value = true;
-      update();
+      isLogged = true;
     }
-    return isLogged.value;
+    return isLogged;
   }
 
   register(
@@ -98,24 +84,21 @@ class AuthenticationController extends GetxController with CacheManager {
       throw err;
     }
   }
-}
 
-mixin CacheManager {
   Future<bool> saveToken(String token) async {
-    print("token $token");
-    final box = GetStorage();
-    await box.write('TOKEN', token);
+    final pref = await SharedPreferences.getInstance();
+    await pref.setString('TOKEN', token);
     return true;
   }
 
-  String getToken() {
-    final box = GetStorage();
-    return box.read("TOKEN");
+  Future<String> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString("TOKEN");
   }
 
   Future<void> removeToken() async {
-    final box = GetStorage();
-    await box.remove("SOCKET_ROOM");
-    await box.remove("TOKEN");
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove("SOCKET_ROOM");
+    await prefs.remove("TOKEN");
   }
 }

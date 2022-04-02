@@ -1,10 +1,11 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:notary/utils/navigate.dart';
 import 'package:path/path.dart' as Path;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/methods/show_error.dart';
 import 'package:notary/widgets/button_primary_outline.dart';
 
@@ -50,25 +51,23 @@ class _CertificateUploadState extends State<CertificateUpload> {
 
   _uploadCertificate() async {
     try {
-      var result = await FilePicker.platform.pickFiles(
+      FilePickerResult result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['p12', 'pfx'],
       );
       if (result != null) {
-        PlatformFile file = result.files.first;
-        if (file.extension != 'p12' && file.extension != 'pfx') {
+        File file = File(result.files.single.path);
+        var extension = Path.extension(file.path);
+        if (extension != '.p12' && extension != '.pfx') {
           setState(() {});
           return;
         }
         Uint8List bytes = await _readFileByte(file.path);
-        print(bytes);
-        Get.to(
-          () => CertificatePassword(bytes, Path.basename(file.path)),
-          transition: Transition.noTransition,
-        );
+        StateM(context).navTo(CertificatePassword(bytes, Path.basename(file.path)));
+
       }
     } catch (err) {
-      showError(err);
+      showError(err, context);
     }
   }
 

@@ -1,13 +1,8 @@
-import 'package:get/get.dart';
-
+import 'package:flutter/material.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:notary/services/dio_service.dart';
 
-class SupportController extends GetxController {
-  @override
-  void onInit() {
-    super.onInit();
-  }
+class SupportController extends ChangeNotifier {
 
   addMessage(Map<String, dynamic> data) async {
     try {

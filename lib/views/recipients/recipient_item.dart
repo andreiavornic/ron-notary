@@ -20,8 +20,8 @@ class RecipeItem extends StatelessWidget {
               child: Row(
                 children: [
                   Container(
-                      width: reSize(24),
-                      height: reSize(24),
+                      width: reSize(context, 24),
+                      height: reSize(context, 24),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
                         color: recipient.color,
@@ -37,7 +37,7 @@ class RecipeItem extends StatelessWidget {
                         ),
                       )),
                   SizedBox(
-                    width: reSize(10),
+                    width: reSize(context, 10),
                   ),
                   Expanded(
                     child: Column(

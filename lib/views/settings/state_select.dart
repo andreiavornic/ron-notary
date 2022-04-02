@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/controllers/user.dart';
 import 'package:notary/methods/resize_formatting.dart';
+import 'package:notary/utils/navigate.dart';
 import 'package:notary/widgets/button_primary.dart';
+import 'package:provider/provider.dart';
 import 'package:us_states/us_states.dart';
 
 class StateSelect extends StatefulWidget {
@@ -27,10 +29,9 @@ class _StateSelectState extends State<StateSelect> {
     List<String> citiesAbrv = USStates.getAllAbbreviations();
     int index = 0;
     if (widget.isSetting != null && widget.isSetting) {
-      UserController _userController = Get.put(UserController());
-      if (_userController.notary.value != null) {
+      if (Provider.of<UserController>(context, listen: false).notary != null) {
         index = citiesAbrv.indexWhere(
-            (element) => element == _userController.notary.value.state);
+            (element) => element == Provider.of<UserController>(context, listen: false).notary.state);
       }
     }
 
@@ -48,7 +49,7 @@ class _StateSelectState extends State<StateSelect> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: Get.height / 2,
+      height: StateM(context).height() / 2,
       decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(25),
@@ -64,11 +65,11 @@ class _StateSelectState extends State<StateSelect> {
               fontWeight: FontWeight.w700,
             ),
           ),
-          SizedBox(height: reSize(15)),
+          SizedBox(height: reSize(context, 15)),
           Text(
             'Select the state where is your notarial license.',
           ),
-          SizedBox(height: reSize(20)),
+          SizedBox(height: reSize(context, 20)),
           Expanded(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
@@ -108,7 +109,7 @@ class _StateSelectState extends State<StateSelect> {
               ),
             ),
           ),
-          SizedBox(height: reSize(20)),
+          SizedBox(height: reSize(context, 20)),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: ButtonPrimary(
@@ -116,7 +117,7 @@ class _StateSelectState extends State<StateSelect> {
               callback: _selectState,
             ),
           ),
-          SizedBox(height: Get.height < 670 ? 20 : reSize(40)),
+          SizedBox(height: StateM(context).height() < 670 ? 20 : reSize(context, 40)),
         ],
       ),
     );

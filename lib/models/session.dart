@@ -11,7 +11,6 @@ class Session {
   String sessionFileName;
   String sessionFilePath;
   List<String> images;
-  String socketRoomName;
   int fileSize;
   String twilioRoomName;
 
@@ -33,12 +32,12 @@ class Session {
         sessionFilePath = json['sessionFilePath'],
         images =
             List<String>.from(json['images']).map((image) => image).toList(),
-        socketRoomName = json['socketRoomName'],
+
         fileSize = json['fileSize'],
         twilioRoomName = json['twilioRoomName'];
 
   @override
   String toString() {
-    return 'Session{id: $id, typeNotarization: $typeNotarization, state: $state, stage: $stage, sessionToken: $sessionToken, sessionFileName: $sessionFileName, sessionFilePath: $sessionFilePath, images: $images, socketRoomName: $socketRoomName, fileSize: $fileSize, twilioRoomName: $twilioRoomName}';
+    return 'Session{id: $id, typeNotarization: $typeNotarization, state: $state, stage: $stage, sessionToken: $sessionToken, sessionFileName: $sessionFileName, sessionFilePath: $sessionFilePath, images: $images,  fileSize: $fileSize, twilioRoomName: $twilioRoomName}';
   }
 }

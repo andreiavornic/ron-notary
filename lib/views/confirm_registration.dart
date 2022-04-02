@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/widgets/button_primary_outline.dart';
 import 'package:notary/widgets/copyright.dart';
 import 'package:notary/widgets/recovered.dart';
@@ -67,9 +67,17 @@ class ConfirmRegistration extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Container(
                         child: ButtonPrimaryOutline(
-                          callback: () => Get.to(
-                            () => RecoveredPage(isRegister: true),
-                            transition: Transition.noTransition,
+                          // callback: () => Get.to(
+                          //   () => RecoveredPage(isRegister: true),
+                          //   transition: Transition.noTransition,
+                          // ),
+                          callback: () => Navigator.pushReplacement(
+                            context,
+                            PageRouteBuilder(
+                              pageBuilder: (context, animation1, animation2) =>
+                                  RecoveredPage(isRegister: true),
+                              transitionDuration: Duration(seconds: 0),
+                            ),
                           ),
                           text: 'Enter Code',
                           width: 163,

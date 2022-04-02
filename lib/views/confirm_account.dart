@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
+import 'package:notary/utils/navigate.dart';
 import 'package:notary/widgets/button_primary_outline.dart';
 
 import 'auth.dart';
@@ -20,7 +21,7 @@ class _ConfirmAccountState extends State<ConfirmAccount> {
     return Scaffold(
       backgroundColor: Color(0xFFFFFFFF),
       body: Container(
-        width: Get.width,
+        width: StateM(context).width(),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
@@ -62,10 +63,7 @@ class _ConfirmAccountState extends State<ConfirmAccount> {
               SizedBox(height: 20),
               ButtonPrimaryOutline(
                 text: "My Account",
-                callback: () => Get.offAll(
-                  () => Auth(),
-                  transition: Transition.noTransition,
-                ),
+                callback: () => StateM(context).navOff(Auth()),
                 width: 232,
               )
             ],

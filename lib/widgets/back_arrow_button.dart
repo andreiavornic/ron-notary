@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/methods/resize_formatting.dart';
 
 class BackArrowButton extends StatelessWidget {
@@ -12,8 +12,8 @@ class BackArrowButton extends StatelessWidget {
         InkWell(
           borderRadius: BorderRadius.circular(25),
           child: Container(
-            width: reSize(50),
-            height: reSize(50),
+            width: reSize(context, 50),
+            height: reSize(context, 50),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(50),
             ),
@@ -27,7 +27,7 @@ class BackArrowButton extends StatelessWidget {
               ],
             )),
           ),
-          onTap: () => Get.back(),
+          onTap: () => Navigator.pop(context),
         ),
       ],
     );

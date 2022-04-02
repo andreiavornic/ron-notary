@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/controllers/session.dart';
 import 'package:notary/models/session.dart';
+import 'package:notary/utils/navigate.dart';
+import 'package:provider/provider.dart';
 
 import 'document_pop_up.dart';
 
@@ -16,10 +18,9 @@ class _DocumentViewState extends State<DocumentView> {
   @override
   Widget build(BuildContext context) {
 
-    return GetX<SessionController>(
-        init: SessionController(),
-        builder: (controller) {
-          final Session _session = controller.session.value;
+    return Consumer<SessionController>(
+        builder: (context, _controller, _) {
+          final Session _session = _controller.session;
           return Container(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(14),
@@ -32,7 +33,7 @@ class _DocumentViewState extends State<DocumentView> {
                       Color(0xFFFFFFFF),
                     ),
                   ),
-                  onPressed: () => Get.to(()=> DocumentPopUp()),
+                  onPressed: () => StateM(context).navTo(DocumentPopUp()),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(

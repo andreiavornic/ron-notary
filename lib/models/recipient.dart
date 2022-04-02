@@ -14,6 +14,7 @@ class Recipient {
   bool emailSend;
   String phone;
   String email;
+  String address;
   Color color;
   String type;
   List<String> states;
@@ -32,6 +33,7 @@ class Recipient {
     this.emailSend,
     this.phone,
     this.email,
+    this.address,
     this.color,
     this.type,
     this.states,
@@ -51,6 +53,7 @@ class Recipient {
         emailSend = json['emailSend'],
         phone = json['phone'],
         email = json['email'],
+        address = json['address'],
         color = HexColor.fromHex(json['color']),
         type = json['type'],
         idenfy = json['idenfy'],
@@ -73,6 +76,6 @@ class Recipient {
 
   @override
   String toString() {
-    return 'Recipient{id: $id, user: $user, session: $session, firstName: $firstName, lastName: $lastName, smsSend: $smsSend, emailSend: $emailSend, phone: $phone, email: $email, color: $color, type: $type, states: $states, isActive: $isActive}';
+    return 'Recipient{id: $id, user: $user, session: $session, firstName: $firstName, lastName: $lastName, smsSend: $smsSend, emailSend: $emailSend, phone: $phone, email: $email, address: $address, color: $color, type: $type, states: $states, isActive: $isActive, idenfy: $idenfy, kba: $kba, fontFamily: $fontFamily}';
   }
 }

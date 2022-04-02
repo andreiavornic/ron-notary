@@ -157,13 +157,13 @@ class _EditInputState extends State<EditInput> {
             },
             initialValue:
                 widget.initialValue != null ? widget.initialValue : null,
-            onFieldSubmitted: (value) => widget.onFieldSubmitted != null
-                ? widget.onFieldSubmitted(value)
-                : null,
+            // onFieldSubmitted: (value) => widget.onFieldSubmitted != null
+            //     ? widget.onFieldSubmitted(value)
+            //     : null,
           ),
         ),
         SizedBox(
-          height: reSize(5),
+          height: reSize(context, 5),
         )
       ],
     );

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:notary/controllers/recipient.dart';
 import 'package:notary/widgets/recipient/recipient_tag.dart';
+import 'package:provider/provider.dart';
 
 class RecipientList extends StatefulWidget {
   final Function resetType;
-
 
   RecipientList(this.resetType);
 
@@ -16,9 +15,8 @@ class RecipientList extends StatefulWidget {
 class _RecipientListState extends State<RecipientList> {
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<RecipientController>(
-      init: RecipientController(),
-      builder: (_recipientController) {
+    return Consumer<RecipientController>(
+      builder: (context, _recipientController, _) {
         return Container(
           height: 74,
           child: ListView.builder(

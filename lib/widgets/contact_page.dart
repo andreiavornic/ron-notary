@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/controllers/support.dart';
 import 'package:notary/methods/resize_formatting.dart';
 import 'package:notary/methods/show_error.dart';
+import 'package:notary/utils/navigate.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'button_primary.dart';
 import 'confirm_message.dart';
-import 'edit_intput.widget.dart';
+import 'edit_input.widget.dart';
 
 class ContactPage extends StatefulWidget {
   @override
@@ -16,19 +18,19 @@ class ContactPage extends StatefulWidget {
 }
 
 class _ContactPageState extends State<ContactPage> {
-  SupportController _supportController = Get.put(SupportController());
   String _msg;
   final _formKeyScreen = GlobalKey<FormState>();
 
   Future<void> _sendMessage() async {
     try {
-      await _supportController.addMessage({"request": _msg});
-      Get.to(()=> ConfirmMessage());
+      await Provider.of<SupportController>(context, listen: false)
+          .addMessage({"request": _msg});
+      StateM(context).navTo(ConfirmMessage());
       _msg = null;
       _formKeyScreen.currentState.reset();
       setState(() {});
     } catch (err) {
-      showError(err);
+      showError(err, context);
     }
   }
 
@@ -38,12 +40,12 @@ class _ContactPageState extends State<ContactPage> {
       backgroundColor: Color(0xFFFFFFFF),
       body: SingleChildScrollView(
         child: Container(
-          height: Get.height,
+          height: StateM(context).height(),
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
             child: Column(
               children: [
-                SizedBox(height: reSize(70)),
+                SizedBox(height: reSize(context, 70)),
                 Row(
                   children: [
                     InkWell(
@@ -51,8 +53,8 @@ class _ContactPageState extends State<ContactPage> {
                       child: Row(
                         children: [
                           Container(
-                            width: reSize(24),
-                            height: reSize(24),
+                            width: reSize(context, 24),
+                            height: reSize(context, 24),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(50),
                             ),
@@ -67,7 +69,7 @@ class _ContactPageState extends State<ContactPage> {
                           ),
                         ],
                       ),
-                      onTap: () => Get.back(),
+                      onTap: () => Navigator.pop(context),
                     ),
                   ],
                 ),
@@ -85,7 +87,7 @@ class _ContactPageState extends State<ContactPage> {
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      SizedBox(height: reSize(30)),
+                      SizedBox(height: reSize(context, 30)),
                       Row(
                         children: [
                           Text(
@@ -95,7 +97,7 @@ class _ContactPageState extends State<ContactPage> {
                               fontSize: 16,
                             ),
                           ),
-                          SizedBox(width: reSize(5)),
+                          SizedBox(width: reSize(context, 5)),
                           Text(
                             " Nicolas",
                             style: TextStyle(
@@ -105,15 +107,15 @@ class _ContactPageState extends State<ContactPage> {
                           ),
                         ],
                       ),
-                      SizedBox(height: reSize(30)),
+                      SizedBox(height: reSize(context, 30)),
                       Row(
                         children: [
                           InkWell(
                             onTap: () => launch("tel:+37369385286"),
                             borderRadius: BorderRadius.circular(50),
                             child: Container(
-                              width: reSize(60),
-                              height: reSize(60),
+                              width: reSize(context, 60),
+                              height: reSize(context, 60),
                               decoration: BoxDecoration(
                                 color: Theme.of(context).primaryColor,
                                 borderRadius: BorderRadius.circular(80),
@@ -123,13 +125,13 @@ class _ContactPageState extends State<ContactPage> {
                                       "assets/images/117.svg")),
                             ),
                           ),
-                          SizedBox(width: reSize(20)),
+                          SizedBox(width: reSize(context, 20)),
                           InkWell(
                             onTap: () => launch("sms:+37369385286"),
                             borderRadius: BorderRadius.circular(50),
                             child: Container(
-                              width: reSize(60),
-                              height: reSize(60),
+                              width: reSize(context, 60),
+                              height: reSize(context, 60),
                               decoration: BoxDecoration(
                                 color: Theme.of(context).primaryColor,
                                 borderRadius: BorderRadius.circular(80),
@@ -137,7 +139,7 @@ class _ContactPageState extends State<ContactPage> {
                               child: Center(
                                   child: SvgPicture.asset(
                                 "assets/images/118.svg",
-                                width: reSize(24),
+                                width: reSize(context, 24),
                               )),
                             ),
                           ),
@@ -168,8 +170,8 @@ class _ContactPageState extends State<ContactPage> {
                             _msg = value;
                             setState(() {});
                           },
-                          action: TextInputAction.done,
-                          onFieldSubmitted: () => _sendMessage,
+                          action: TextInputAction.next,
+                          onFieldSubmitted: _sendMessage,
                         ),
                       )
                     ],
@@ -179,7 +181,7 @@ class _ContactPageState extends State<ContactPage> {
                   callback: _msg == null || _msg.isEmpty ? null : _sendMessage,
                   text: "Send Message",
                 ),
-                SizedBox(height: reSize(40)),
+                SizedBox(height: reSize(context, 40)),
               ],
             ),
           ),

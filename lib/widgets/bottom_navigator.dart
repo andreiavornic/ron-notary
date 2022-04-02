@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/methods/resize_formatting.dart';
+import 'package:notary/utils/navigate.dart';
 import 'package:notary/views/journal.dart';
 import 'package:notary/views/settings_menu.dart';
 
@@ -20,34 +21,6 @@ class _BottomNavigatorState extends State<BottomNavigator> {
     super.initState();
   }
 
-  //_session != null &&
-  //                         _session.state != "CANCELLED" &&
-  //                         _session.state != "FINISHED" &&
-  //                         _session.state != "FAILED"
-  //                     ? Column(
-  //                         children: [
-  //                           SizedBox(height: reSize(40)),
-  //                           ButtonPrimaryOutline(
-  //                             text: 'Discard Session',
-  //                             callback: _deleteSession,
-  //                           ),
-  //                           SizedBox(
-  //                             height: reSize(10),
-  //                           ),
-  //                           ButtonPrimary(
-  //                             text: 'Resume',
-  //                             callback: () => Get.to(
-  //                               () => DocumentSetting(),
-  //                               transition: Transition.noTransition,
-  //                             ),
-  //                           ),
-  //                           SizedBox(
-  //                             height: reSize(35),
-  //                           ),
-  //                         ],
-  //                       )
-  //                     : Container()
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -63,7 +36,7 @@ class _BottomNavigatorState extends State<BottomNavigator> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 TextButton(
-                  onPressed: () => Get.to(() => Journal()),
+                  onPressed: () =>  StateM(context).navTo(Journal()),
                   style: ButtonStyle(
                     overlayColor: MaterialStateProperty.all(
                       Color(0xFF000000).withOpacity(0.2),
@@ -73,9 +46,9 @@ class _BottomNavigatorState extends State<BottomNavigator> {
                     children: [
                       SvgPicture.asset(
                         "assets/images/46.svg",
-                        width: reSize(24),
+                        width: reSize(context, 24),
                       ),
-                      SizedBox(width: reSize(10)),
+                      SizedBox(width: reSize(context, 10)),
                       Text(
                         'eJournal',
                         style: TextStyle(
@@ -87,7 +60,7 @@ class _BottomNavigatorState extends State<BottomNavigator> {
                   ),
                 ),
                 TextButton(
-                  onPressed: () => Get.to(() => SettingsMenu()),
+                  onPressed: () =>  StateM(context).navTo(SettingsMenu()),
                   style: ButtonStyle(
                     overlayColor: MaterialStateProperty.all(
                       Color(0xFF000000).withOpacity(0.2),
@@ -96,8 +69,8 @@ class _BottomNavigatorState extends State<BottomNavigator> {
                   child: Row(
                     children: [
                       SvgPicture.asset("assets/images/47.svg",
-                          width: reSize(24)),
-                      SizedBox(width: reSize(10)),
+                          width: reSize(context, 24)),
+                      SizedBox(width: reSize(context, 10)),
                       Text(
                         'Settings',
                         style: TextStyle(
@@ -112,7 +85,7 @@ class _BottomNavigatorState extends State<BottomNavigator> {
             ),
             SizedBox(
                 height:
-                    Get.height < 670 ? 20 : reSize(40)),
+                    StateM(context).height() < 670 ? 20 : reSize(context, 40)),
           ],
         ),
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:notary/utils/navigate.dart';
+
 
 import '../widgets/loading.dart';
 
@@ -12,8 +13,8 @@ class SplashPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Color(0xFFFFFFFF),
       body: Container(
-        width: Get.width,
-        height: Get.height,
+        width: StateM(context).width(),
+        height: StateM(context).height(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,

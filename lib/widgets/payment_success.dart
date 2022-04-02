@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
+
+import 'package:notary/utils/navigate.dart';
 import 'package:notary/views/start.dart';
 
 import 'button_primary_outline.dart';
@@ -11,8 +12,8 @@ class PaymentSuccess extends StatelessWidget {
     return Scaffold(
       backgroundColor: Color(0xFFFFFFFF),
       body: Container(
-        height: Get.height,
-        width: Get.width,
+        height: StateM(context).height(),
+        width: StateM(context).width(),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
@@ -49,7 +50,7 @@ class PaymentSuccess extends StatelessWidget {
               ButtonPrimaryOutline(
                 width: 232,
                 text: 'Homescreen',
-                callback: () => Get.offAll(() => Start(), transition: Transition.noTransition),
+                callback: () => StateM(context).navOff(Start()),
               )
             ],
           ),

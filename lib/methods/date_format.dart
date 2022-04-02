@@ -17,6 +17,6 @@ String formatDateHourSimple(int date) {
 
 String formatDate(int date) {
   final dateTime = DateTime.fromMillisecondsSinceEpoch(date);
-  final format = DateFormat('MMMM dd, yyyy');
+  final format = DateFormat('dd MMM yyyy, hh:mm a');
   return format.format(dateTime);
 }

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/controllers/recipient.dart';
 import 'package:notary/methods/resize_formatting.dart';
 import 'package:notary/models/recipient.dart';
+import 'package:provider/provider.dart';
 
 import '../check_icon.dart';
 
@@ -17,8 +18,6 @@ class RecipientTag extends StatefulWidget {
 }
 
 class _RecipientTagState extends State<RecipientTag> {
-  RecipientController _recipientController = Get.put(RecipientController());
-
   String _reformType(String type) {
     String formatType = type[0].toUpperCase() + type.substring(1).toLowerCase();
     if (type.toUpperCase() == "NOTARY") formatType += " (You)";
@@ -27,7 +26,8 @@ class _RecipientTagState extends State<RecipientTag> {
 
   activateRecipient() {
     widget.resetType();
-    _recipientController.activateRecipient(widget.recipient);
+    Provider.of<RecipientController>(context, listen: false)
+        .activateRecipient(widget.recipient);
   }
 
   @override
@@ -49,8 +49,8 @@ class _RecipientTagState extends State<RecipientTag> {
                       Padding(
                         padding: const EdgeInsets.only(right: 7, bottom: 2),
                         child: Container(
-                          width: reSize(34),
-                          height: reSize(34),
+                          width: reSize(context, 34),
+                          height: reSize(context, 34),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
                             color: widget.recipient.isActive != null &&
@@ -77,7 +77,7 @@ class _RecipientTagState extends State<RecipientTag> {
                     ],
                   ),
                   SizedBox(
-                    height: reSize(7),
+                    height: reSize(context, 7),
                   ),
                   Container(
                     constraints: BoxConstraints(maxWidth: 100),

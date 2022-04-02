@@ -2,8 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart' as dio;
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
+
 import 'package:notary/models/card.dart' as CardModel;
 import 'package:notary/models/font_family.dart';
 import 'package:notary/models/notary.dart';
@@ -14,45 +13,36 @@ import 'package:notary/models/user.dart';
 import 'package:notary/services/dio_service.dart';
 
 import 'package:path/path.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class UserController extends GetxController {
-  final _isAuth = false.obs;
-  Rx<Payment> _payment = Rx<Payment>(null);
-  Rx<User> _user = Rx<User>(null);
-  Rx<Notary> _notary = Rx<Notary>(null);
-  Rx<String> _stamp = Rx<String>(null);
-  final _certificate = Rx<String>(null);
-  final _passwordCertificate = Rx<bool>(false);
-  final _stamps = RxList<Stamp>([]);
-  final _signatures = RxList<Signature>([]);
+class UserController extends ChangeNotifier {
+  bool _isAuth = false;
+  Payment _payment;
+  User _user;
+  Notary _notary;
+  String _stamp;
+  String _certificate;
+  bool _passwordCertificate = false;
+  List<Stamp> _stamps = [];
+  List<Signature> _signatures = [];
 
-  @override
-  void onInit() async {
-    super.onInit();
-  }
+  String get certificate => _certificate;
 
-  @override
-  void onReady() {
-    super.onReady();
-  }
+  bool get passwordCertificate => _passwordCertificate;
 
-  get certificate => _certificate;
+  User get user => _user;
 
-  get passwordCertificate => _passwordCertificate;
+  Notary get notary => _notary;
 
-  Rx<User> get user => _user;
+  List<Stamp> get stamps => _stamps;
 
-  Rx<Notary> get notary => _notary;
+  bool get isAuth => _isAuth;
 
-  RxList<Stamp> get stamps => _stamps;
+  Payment get payment => _payment;
 
-  get isAuth => _isAuth;
+  String get stamp => _stamp;
 
-  Rx<Payment> get payment => _payment;
-
-  get stamp => _stamp;
-
-  RxList<Signature> get signatures => _signatures;
+  List<Signature> get signatures => _signatures;
 
   Future<void> getUser() async {
     try {
@@ -61,19 +51,39 @@ class UserController extends GetxController {
       if (!extracted['success']) {
         throw extracted['message'];
       }
-      _user.value = new User.fromJson(extracted['data']);
-      _notary.value = extracted['data']['notary'] != null
+
+      _user = new User.fromJson(extracted['data']);
+      _notary = extracted['data']['notary'] != null
           ? new Notary.fromJson(extracted['data']['notary'])
           : null;
-      _payment.value = extracted['data']['payment'] != null
+      _payment = extracted['data']['payment'] != null
           ? new Payment.fromJson(extracted['data']['payment'])
           : null;
-      _certificate.value = extracted['data']['certificate'];
-      _passwordCertificate.value = extracted['data']['passwordCertificate'];
-      final prefs = GetStorage();
-      prefs.write("SOCKET_ROOM_SESSION", extracted['data']['roomSession']);
+      _certificate = extracted['data']['certificate'];
+      _passwordCertificate = extracted['data']['passwordCertificate'];
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setString("SOCKET_ROOM_SESSION", extracted['data']['roomSession']);
 
-      update();
+      notifyListeners();
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  Future<void> addTokenNotification(String token) async {
+    String os = Platform.operatingSystem;
+    try {
+      dio.Response resDio = await makeRequest('user/token', "POST", {
+        "token": token,
+        "os": os,
+      });
+      var extracted = resDio.data;
+
+      if (!extracted['success']) {
+        throw extracted['message'];
+      }
+
+      notifyListeners();
     } catch (err) {
       throw err;
     }
@@ -91,10 +101,10 @@ class UserController extends GetxController {
       if (!extracted['success']) {
         throw extracted['message'];
       }
-      _user.value.firstName = data['firstName'];
-      _user.value.lastName = data['lastName'];
-      _user.value.phone = data['phone'];
-      update();
+      _user.firstName = data['firstName'];
+      _user.lastName = data['lastName'];
+      _user.phone = data['phone'];
+      notifyListeners();
     } catch (err) {
       throw err;
     }
@@ -108,8 +118,8 @@ class UserController extends GetxController {
       if (!extracted['success']) {
         throw extracted['message'];
       }
-      _notary.value = new Notary.fromJson(data);
-      update();
+      _notary = new Notary.fromJson(data);
+      notifyListeners();
     } catch (err) {
       throw err;
     }
@@ -117,20 +127,21 @@ class UserController extends GetxController {
 
   Future<void> getStamp() async {
     try {
+      _stamps = [];
       dio.Response resDio = await makeRequest('stamp', 'GET', null);
       var extracted = resDio.data;
 
       if (!extracted['success']) {
         throw extracted['message'];
       }
-      _stamp.value = extracted['data'];
+      _stamp = extracted['data'];
       _stamps.add(
         new Stamp(
           image: Image.asset(
             'assets/images/38.png',
             fit: BoxFit.contain,
           ),
-          isChecked: _user.value.stamp == 1,
+          isChecked: _user.stamp == 1,
         ),
       );
       _stamps.add(
@@ -139,7 +150,7 @@ class UserController extends GetxController {
             'assets/images/39.png',
             fit: BoxFit.contain,
           ),
-          isChecked: _user.value.stamp == 2,
+          isChecked: _user.stamp == 2,
         ),
       );
       _stamps.add(
@@ -148,7 +159,7 @@ class UserController extends GetxController {
             'assets/images/40.png',
             fit: BoxFit.contain,
           ),
-          isChecked: _user.value.stamp == 3,
+          isChecked: _user.stamp == 3,
         ),
       );
       _stamps.add(
@@ -157,10 +168,10 @@ class UserController extends GetxController {
             'assets/images/41.png',
             fit: BoxFit.contain,
           ),
-          isChecked: _user.value.stamp == 4,
+          isChecked: _user.stamp == 4,
         ),
       );
-      update();
+      notifyListeners();
     } catch (err) {
       throw err;
     }
@@ -175,7 +186,7 @@ class UserController extends GetxController {
         throw extracted['message'];
       }
 
-      _signatures.clear();
+      _signatures = [];
       extracted['data'].forEach(
         (json) => _signatures.add(
           new Signature(
@@ -185,7 +196,7 @@ class UserController extends GetxController {
           ),
         ),
       );
-      update();
+      notifyListeners();
     } catch (err) {
       throw err;
     }
@@ -201,18 +212,17 @@ class UserController extends GetxController {
         'password': password,
         'savePassword': savePassword,
       };
-      var resDio = await makeRequest('certificate', 'PSOT', data);
+      var resDio = await makeRequest('certificate', 'POST', data);
       var extracted = resDio.data;
 
       if (!extracted['success']) {
         throw extracted['message'];
       }
-      _certificate.value = extracted['data']['name'];
-      _passwordCertificate.value = savePassword;
+      _certificate = extracted['data']['name'];
+      _passwordCertificate = savePassword;
 
-      update();
+      notifyListeners();
     } catch (err) {
-      print(err);
       throw err;
     }
   }
@@ -226,9 +236,9 @@ class UserController extends GetxController {
         throw extracted['message'];
       }
 
-      _certificate.value = null;
-      _passwordCertificate.value = false;
-      update();
+      _certificate = null;
+      _passwordCertificate = false;
+      notifyListeners();
     } catch (err) {
       throw err;
     }
@@ -246,8 +256,8 @@ class UserController extends GetxController {
       if (!extracted['success']) {
         throw extracted['message'];
       }
-      _passwordCertificate.value = true;
-      update();
+      _passwordCertificate = true;
+      notifyListeners();
     } catch (err) {
       throw err;
     }
@@ -262,8 +272,8 @@ class UserController extends GetxController {
       if (!extracted['success']) {
         throw extracted['message'];
       }
-      _passwordCertificate.value = false;
-      update();
+      _passwordCertificate = false;
+      notifyListeners();
     } catch (err) {
       throw err;
     }
@@ -274,7 +284,7 @@ class UserController extends GetxController {
       element.isChecked = false;
     });
     _signatures[index].isChecked = true;
-    update();
+    notifyListeners();
   }
 
   saveSignature() async {
@@ -293,8 +303,8 @@ class UserController extends GetxController {
       }
       dynamic json = extracted['data'];
 
-      _user.value.fontFamily = new Font.fromJson(json);
-      update();
+      _user.fontFamily = new Font.fromJson(json);
+      notifyListeners();
     } catch (err) {
       throw err;
     }
@@ -313,7 +323,7 @@ class UserController extends GetxController {
         element.isChecked = false;
       });
       _stamps[index].isChecked = true;
-      update();
+      notifyListeners();
     } catch (err) {
       throw err;
     }
@@ -383,61 +393,58 @@ class UserController extends GetxController {
   }
 
   renewPayment(Map<String, dynamic> data) {
-    _payment.value = data != null ? new Payment.fromJson(data) : null;
-    update();
+    _payment = data != null ? new Payment.fromJson(data) : null;
+    notifyListeners();
   }
 
   updatePayment(int extra) {
     if (extra != 0) {
-      _payment.value.ronAmount = _payment.value.ronAmount + extra;
+      _payment.ronAmount = _payment.ronAmount + extra;
     } else {
-      _payment.value.ronAmount = _payment.value.ronAmount - 1;
+      _payment.ronAmount = _payment.ronAmount - 1;
     }
-
-    update();
+    notifyListeners();
   }
 
   updateNewPlanPayment(Map<String, dynamic> data) {
-    _payment.value = data != null ? new Payment.fromJson(data) : null;
-    update();
+    _payment = data != null ? new Payment.fromJson(data) : null;
+    notifyListeners();
   }
 
   deletePayment() {
-    _payment.update((val) {
-      val.paid = false;
-      val.ronAmount = 0;
-      val.subscription = null;
-      val.endPeriod = null;
-      val.startPeriod = null;
-    });
+    _payment.paid = false;
+    _payment.ronAmount = 0;
+    _payment.subscription = null;
+    _payment.endPeriod = null;
+    _payment.startPeriod = null;
+    notifyListeners();
   }
 
   addCard(Map<String, dynamic> json) {
     CardModel.Card card = new CardModel.Card.fromJson(json);
-    _payment.value.cards.add(card);
-    update();
+    _payment.cards.add(card);
+    notifyListeners();
   }
 
   updateCard(String id) {
-    _payment.value.cards.forEach((element) => element.defaultCard = false);
-    _payment.value.cards.firstWhere((element) => element.id == id).defaultCard =
-        true;
-    update();
+    _payment.cards.forEach((element) => element.defaultCard = false);
+    _payment.cards.firstWhere((element) => element.id == id).defaultCard = true;
+    notifyListeners();
   }
 
   deleteCard(String id) {
-    List<CardModel.Card> cards = _payment.value.cards;
+    List<CardModel.Card> cards = _payment.cards;
     cards = cards.where((element) => element.id != id).toList();
-    _payment.value.cards = cards;
-    update();
+    _payment.cards = cards;
+    notifyListeners();
   }
 
   addExtra(int extra) {
-    _payment.value.ronAmount += extra;
-    update();
+    _payment.ronAmount += extra;
+    notifyListeners();
   }
 
   Font getTypeFont() {
-    return _user.value.fontFamily;
+    return _user.fontFamily;
   }
 }

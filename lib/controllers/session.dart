@@ -3,10 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:notary/enum/stage_enum.dart';
 import 'package:notary/methods/find_local.dart';
 import 'package:notary/models/font_family.dart';
@@ -23,46 +20,34 @@ import 'package:share/share.dart';
 import 'package:pdf_render/pdf_render.dart' as Render;
 import 'package:image/image.dart' as imglib;
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:dio/dio.dart' as dio;
 
-class SessionController extends GetxController {
-  final _session = Rx<Session>(null);
-  final _box = GetStorage();
-  final Rx<File> _fileEncrypted = Rx<File>(null);
-  final Rx<String> _journalId = Rx<String>(null);
-  final Rx<String> _sessionId = Rx<String>(null);
-  final _recipients = RxList<Recipient>([]);
-  final _recipientVideo = RxList<Recipient>([]);
-  final _points = RxList<Point>([]);
-  RxList<TypeNotarization> _notarizations = RxList<TypeNotarization>();
+class SessionController extends ChangeNotifier {
+  Session _session;
+  File _fileEncrypted;
 
-  Rx<String> _sessionFileName = Rx<String>(null);
-  Rx<String> _sessionFilePath = Rx<String>(null);
+  List<Recipient> _recipients = [];
+  List<Recipient> _recipientVideo = [];
+  List<Point> _points = [];
+  List<TypeNotarization> _notarizations = [];
 
-  Rx<String> get sessionFileName => _sessionFileName;
+  String _sessionFileName;
+  String _sessionFilePath;
 
-  Rx<Session> get session => _session;
+  String get sessionFileName => _sessionFileName;
 
-  RxList<TypeNotarization> get notarizations => _notarizations;
+  Session get session => _session;
 
-  RxList<Recipient> get recipientVideo => _recipientVideo;
+  List<TypeNotarization> get notarizations => _notarizations;
 
-  RxList<Recipient> get recipients => _recipients;
+  List<Recipient> get recipientVideo => _recipientVideo;
 
-  RxList<Point> get points => _points;
+  List<Recipient> get recipients => _recipients;
 
-  @override
-  void onInit() {
-    // getSession();
-    super.onInit();
-  }
-
-  reset() {
-    _points.clear();
-    update();
-  }
+  List<Point> get points => _points;
 
   getSession() async {
     try {
@@ -74,10 +59,10 @@ class SessionController extends GetxController {
       if (!extracted['success']) {
         throw extracted['message'];
       }
-      _session.value = new Session.fromJson(extracted['data']['session']);
-      _recipients.clear();
-      _recipientVideo.clear();
-      _points.clear();
+      _session = new Session.fromJson(extracted['data']['session']);
+      _recipients = [];
+      _recipientVideo = [];
+      _points = [];
       _getUserData(extracted['data']['user']);
       extracted['data']['session']['recipients'].forEach((json) {
         _recipients.add(new Recipient.fromJson(json));
@@ -86,17 +71,17 @@ class SessionController extends GetxController {
       extracted['data']['session']['points'].forEach((json) {
         _points.add(new Point.fromJson(json));
       });
-      _sessionId.value = _session.value.id;
-      _sessionFileName.value = extracted['data']['session']['sessionFileName'];
-      _sessionFilePath.value = extracted['data']['session']['sessionFilePath'];
-
-      final prefs = GetStorage();
-      prefs.write(
-          "SOCKET_ROOM", extracted['data']['session']['socketRoomName']);
-      update();
+      _sessionFileName = extracted['data']['session']['sessionFileName'];
+      _sessionFilePath = extracted['data']['session']['sessionFilePath'];
+      _fileEncrypted = null;
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setString("SESSION_ID", extracted['data']['session']['id']);
+      prefs.setString(
+          "TWILIO_ROOM", extracted['data']['session']['twilioRoomName']);
+      notifyListeners();
     } catch (err) {
-      _session.value = null;
-      update();
+      _session = null;
+      notifyListeners();
       // throw err;
     }
   }
@@ -116,30 +101,12 @@ class SessionController extends GetxController {
     addUserRecipient(_userRecipient);
   }
 
-  Future<void> createSession(PlatformFile file) async {
+  Future<void> createSession(File file) async {
     try {
-      File fetchedFile = new File(file.path);
-      String originalname = basename(fetchedFile.path);
-      // final form = FormData({
-      //   'file': MultipartFile(fetchedFile, filename: originalname),
-      // });
-      // print(form);
-      //
-      //  dio.Response resDio = await _dioService.postData('session', form);
-      // print(response.status);
-      // print(response.body);
-      // var extracted = resDio.data;
-      // print(extracted);
-      // if (!extracted['success']) {
-      //   throw extracted['message'];
-      // }
-      // _session.value = new Session.fromJson(extracted['data']);
-      // final prefs = GetStorage();
-      // prefs.write("SOCKET_ROOM", extracted['data']['socketRoomName']);
-
-      final box = GetStorage();
+      String originalname = basename(file.path);
       var url = dotenv.env['URL'];
-      var token = box.read("TOKEN");
+      final prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString("TOKEN");
       Map<String, String> headers = {
         "Authorization": "Bearer $token",
         "Content-type": 'multipart/form-data'
@@ -151,36 +118,20 @@ class SessionController extends GetxController {
       )..headers.addAll(headers);
 
       request
-        ..files.add(await http.MultipartFile.fromPath('file', fetchedFile.path,
+        ..files.add(await http.MultipartFile.fromPath('file', file.path,
             filename: originalname,
             contentType: MediaType('application', 'pdf')));
 
       http.StreamedResponse response = await request.send();
       final respStr = await response.stream.bytesToString();
       var extracted = json.decode(respStr) as Map<String, dynamic>;
+
       if (!extracted['success']) {
         throw extracted['message'];
       }
-      _session.value = new Session.fromJson(extracted['data']);
-
-      final prefs = GetStorage();
-      prefs.write("SOCKET_ROOM", extracted['data']['socketRoomName']);
-
-      // var postUri = Uri.parse("http://127.0.0.1:4040/api/v1/session");
-      // var request = new http.MultipartRequest("POST", postUri);
-      // request.fields['user'] = 'blah';
-      // print(Uri.parse(file.path));
-      // request.files.add(new http.MultipartFile.fromBytes(
-      //     'file', await File.fromUri(Uri.parse(file.path)).readAsBytes(),
-      //     contentType: new MediaType('image', 'jpeg')));
-      //
-      // request.send().then((response) {
-      //   print(response);
-      //   if (response.statusCode == 200) print("Uploaded!");
-      // });
-      update();
+      _session = new Session.fromJson(extracted['data']);
+      notifyListeners();
     } catch (err) {
-      print(err);
       throw err;
     }
   }
@@ -200,10 +151,10 @@ class SessionController extends GetxController {
         throw extracted['message'];
       }
 
-      _session.value.typeNotarization =
+      _session.typeNotarization =
           new TypeNotarization.fromJson(extracted['data']['typeNotarization']);
-      _session.value.sessionFileName = extracted['data']['sessionFileName'];
-      update();
+      _session.sessionFileName = extracted['data']['sessionFileName'];
+      notifyListeners();
     } catch (err) {
       throw err;
     }
@@ -212,7 +163,7 @@ class SessionController extends GetxController {
   Future<void> updateStage(String stage) async {
     try {
       dio.Response resDio = await makeRequest(
-        'session/${_session.value.id}',
+        'session/${_session.id}',
         'POST',
         {'stage': stage},
       );
@@ -231,11 +182,8 @@ class SessionController extends GetxController {
   }
 
   updateStageByString(String stage) {
-    _session.update((val) {
-      val.stage =
-          Stage.values.firstWhere((e) => e.toString() == 'Stage.' + stage);
-    });
-    update();
+    _session.stage = Stage.values.firstWhere((element) => element.name == stage);
+    notifyListeners();
   }
 
   Future<void> deleteSession() async {
@@ -248,10 +196,10 @@ class SessionController extends GetxController {
       if (!extracted['success']) {
         throw extracted['message'];
       }
-      _session.value = null;
-      final prefs = GetStorage();
+      _session = null;
+      final prefs = await SharedPreferences.getInstance();
       prefs.remove("SOCKET_ROOM");
-      update();
+      notifyListeners();
     } catch (err) {
       throw err;
     }
@@ -267,11 +215,11 @@ class SessionController extends GetxController {
       if (!extracted['success']) {
         throw extracted['message'];
       }
-      _notarizations.clear();
+      _notarizations = [];
       extracted['data'].forEach((json) {
         _notarizations.add(new TypeNotarization.fromJson(json));
       });
-      update();
+      notifyListeners();
     } catch (err) {
       throw err;
     }
@@ -293,8 +241,8 @@ class SessionController extends GetxController {
       if (!extracted['success']) {
         throw extracted['message'];
       }
-      _session.value.state = status;
-      update();
+      _session.state = status;
+      notifyListeners();
     } catch (err) {
       throw err;
     }
@@ -310,15 +258,13 @@ class SessionController extends GetxController {
         {},
       );
       var extracted = resDio.data;
-      if (extracted == null) {
-        return;
-      }
       if (!extracted['success']) {
         throw extracted['message'];
       }
-      _session.value.state = status;
-      await saveToken(extracted['data']['token']);
-      update();
+      _session.state = status;
+
+      saveToken(extracted['data']['token']);
+      notifyListeners();
     } catch (err) {
       throw err;
     }
@@ -341,9 +287,9 @@ class SessionController extends GetxController {
       if (!extracted['success']) {
         throw extracted['message'];
       }
-      _session.value.state = status;
+      _session.state = status;
       await removeToken();
-      update();
+      notifyListeners();
     } catch (err) {
       throw err;
     }
@@ -366,9 +312,9 @@ class SessionController extends GetxController {
       if (!extracted['success']) {
         throw extracted['message'];
       }
-      _session.value = null;
+      _session = null;
       await removeToken();
-      update();
+      notifyListeners();
     } catch (err) {
       throw err;
     }
@@ -391,9 +337,8 @@ class SessionController extends GetxController {
       if (!extracted['success']) {
         throw extracted['message'];
       }
-      _journalId.value = extracted['data'];
       await removeToken();
-      update();
+      notifyListeners();
     } catch (err) {
       throw err;
     }
@@ -401,8 +346,10 @@ class SessionController extends GetxController {
 
   Future<void> downloadFile() async {
     try {
+      final prefs = await SharedPreferences.getInstance();
+      var id = prefs.getString("SESSION_ID");
       dio.Response resDio = await makeRequest(
-        'session/${_sessionId.value}',
+        'session/$id',
         "GET",
         null,
       );
@@ -415,14 +362,15 @@ class SessionController extends GetxController {
       }
 
       String dirLoc = await findLocalPath;
-      String filePath = '$dirLoc/${_sessionFilePath.value}';
+      String filePath = '$dirLoc/$_sessionFilePath';
 
       File file = new File(filePath);
       var buffer = extracted['data']['data'] as List<dynamic>;
       await file.writeAsBytes(buffer.cast<int>());
-      _fileEncrypted.value = file;
-      _session.value = null;
-      update();
+      _fileEncrypted = file;
+      _session = null;
+      notifyListeners();
+      prefs.remove("SESSION_ID");
       await openFile();
     } catch (err) {
       throw err;
@@ -434,17 +382,20 @@ class SessionController extends GetxController {
       return;
     }
     _recipientVideo.insert(0, recipient);
-    update();
+    notifyListeners();
   }
 
   updateRecipients(data) {
+    getSession();
     int index =
         _recipients.indexWhere((recipient) => recipient.id == data['id']);
     if (index >= 0) {
       _recipients[index].states =
           List<String>.from(data['states']).map((state) => state).toList();
+      _recipients[index].firstName = data['firstName'];
+      _recipients[index].lastName = data['lastName'];
     }
-    update();
+    notifyListeners();
   }
 
   activateRecipient(Recipient recipient) {
@@ -456,7 +407,7 @@ class SessionController extends GetxController {
     if (index > -1) {
       _recipientVideo[index].isActive = true;
     }
-    update();
+    notifyListeners();
   }
 
   updatePoints(data) {
@@ -466,7 +417,7 @@ class SessionController extends GetxController {
         _points[index].isSigned = element['isSigned'];
       }
     });
-    update();
+    notifyListeners();
   }
 
   addSign() async {
@@ -509,24 +460,26 @@ class SessionController extends GetxController {
 
   shareFile() async {
     await Share.shareFiles(
-      [_fileEncrypted.value.path],
-      subject: _sessionFileName.value,
+      [_fileEncrypted.path],
+      subject: _sessionFileName,
     );
   }
 
   get fileEncrypted => _fileEncrypted;
 
-  Future<void> saveToken(String token) async {
-    await _box.write('TWILIO_TOKEN', token);
+  void saveToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('TWILIO_TOKEN', token);
   }
 
   Future<void> removeToken() async {
-    await _box.remove('TWILIO_TOKEN');
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('TWILIO_TOKEN');
   }
 
   Future<MemoryImage> formatImage() async {
     Render.PdfDocument doc =
-        await Render.PdfDocument.openFile(_fileEncrypted.value.path);
+        await Render.PdfDocument.openFile(_fileEncrypted.path);
     var page = await doc.getPage(1);
     var imgPDF = await page.render();
     var img = await imgPDF.createImageDetached();
@@ -538,7 +491,7 @@ class SessionController extends GetxController {
   }
 
   openFile() async {
-    await OpenFile.open(_fileEncrypted.value.path);
+    await OpenFile.open(_fileEncrypted.path);
   }
 
   Font getTypeFont(String id) {
@@ -547,9 +500,14 @@ class SessionController extends GetxController {
 
   Future<void> generatePdf(List<String> imagesPath) async {
     try {
-      final box = GetStorage();
+      _session = null;
+      _recipients = [];
+      _recipientVideo = [];
+      _points = [];
+      final prefs = await SharedPreferences.getInstance();
       var url = dotenv.env['URL'];
-      var token = box.read("TOKEN");
+      var token = prefs.getString("TOKEN");
+
       Map<String, String> headers = {
         "Authorization": "Bearer $token",
         "Content-type": 'multipart/form-data'
@@ -559,11 +517,20 @@ class SessionController extends GetxController {
         'POST',
         Uri.parse('$url/session/generate'),
       )..headers.addAll(headers);
+
       imagesPath.forEach((path) async {
+        File newFile = File(path);
         String name = Uuid().v4();
-        request
-          ..files.add(await http.MultipartFile.fromPath('images', path,
-              filename: "$name.png", contentType: MediaType('image', 'png')));
+        var stream = new http.ByteStream(newFile.openRead());
+        var length = await newFile.length();
+        var multipartFileSign = new http.MultipartFile(
+          'images',
+          stream,
+          length,
+          filename: "$name.png",
+        );
+
+        request.files.add(multipartFileSign);
       });
 
       http.StreamedResponse response = await request.send();
@@ -572,12 +539,12 @@ class SessionController extends GetxController {
       if (!extracted['success']) {
         throw extracted['message'];
       }
-      _session.value = new Session.fromJson(extracted['data']);
-      final prefs = GetStorage();
-      prefs.write("SOCKET_ROOM", extracted['data']['socketRoomName']);
-      update();
+      _session = new Session.fromJson(extracted['data']);
+      await getSession();
+      notifyListeners();
+    } on SocketException catch (err) {
+      throw err.message;
     } catch (err) {
-      print(err);
       throw err;
     }
   }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/widgets/button_primary.dart';
 
 
@@ -76,7 +76,7 @@ class PolicyView extends StatelessWidget {
               SizedBox(height: 20),
               ButtonPrimary(
                 text: 'Accept',
-                callback: () => Get.back(),
+                callback: () => Navigator.pop(context),
               )
             ],
           ),

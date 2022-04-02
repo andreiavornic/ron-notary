@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/models/recipient.dart';
 import 'package:notary/methods/hex_color.dart';
 import 'package:dio/dio.dart' as dio;
@@ -13,23 +13,18 @@ List<Color> colors = [
   Color(0xFF734BC8),
 ];
 
-class RecipientController extends GetxController {
-  var _recipients = <Recipient>[].obs;
-  var _recipientsForTag = <Recipient>[].obs;
+class RecipientController extends ChangeNotifier {
+  List<Recipient> _recipients = [];
+  List<Recipient> _recipientsForTag = [];
 
-  RxList<Recipient> get recipients => _recipients;
+  List<Recipient> get recipients => _recipients;
 
-  RxList<Recipient> get recipientsForTag => _recipientsForTag;
-
-  @override
-  void onInit() {
-    // getRecipients();
-    // fetchRecipients();
-    super.onInit();
-  }
+  List<Recipient> get recipientsForTag => _recipientsForTag;
 
   Future<void> getRecipients() async {
     try {
+      _recipients = [];
+      _recipientsForTag = [];
       dio.Response resDio = await makeRequest('recipient', "GET", null);
       var extracted = resDio.data;
 
@@ -37,12 +32,10 @@ class RecipientController extends GetxController {
         throw extracted['message'];
       }
       var data = extracted['data'];
-      var recipientResult = RxList<Recipient>([]);
       data.forEach((json) {
-        recipientResult.add(new Recipient.fromJson(json));
+        _recipients.add(new Recipient.fromJson(json));
       });
-      _recipients = recipientResult;
-      update();
+      notifyListeners();
     } catch (err) {
       throw err;
     }
@@ -74,7 +67,7 @@ class RecipientController extends GetxController {
           .toList(),
     );
     _recipients.add(newRecipient);
-    update();
+    notifyListeners();
   }
 
   Future<void> updateRecipient(Recipient recipient) async {
@@ -92,7 +85,7 @@ class RecipientController extends GetxController {
       int index =
           _recipients.indexWhere((element) => element.id == recipient.id);
       _recipients[index] = recipient;
-      update();
+      notifyListeners();
     } catch (err) {
       throw err;
     }
@@ -108,19 +101,23 @@ class RecipientController extends GetxController {
       }
       Recipient recipe = _recipients.firstWhere((element) => element.id == id);
       _recipients.remove(recipe);
-      update();
+      _recipients.forEach((element) {
+        int index = _recipients.indexOf(element);
+        element.color = colors[index];
+      });
+      notifyListeners();
     } catch (err) {
       throw err;
     }
   }
 
   fetchRecipients() {
-    _recipientsForTag = <Recipient>[].obs;
+    _recipientsForTag = [];
     _recipients.forEach((element) {
       _recipientsForTag.add(element);
     });
 
-    update();
+    notifyListeners();
   }
 
   activateRecipient(Recipient recipient) {
@@ -130,7 +127,7 @@ class RecipientController extends GetxController {
     int index =
         _recipientsForTag.indexWhere((element) => element.id == recipient.id);
     _recipientsForTag[index].isActive = !_recipientsForTag[index].isActive;
-    update();
+    notifyListeners();
   }
 
   addUserRecipient(Recipient recipient) {

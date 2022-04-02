@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/methods/resize_formatting.dart';
+import 'package:notary/utils/navigate.dart';
 import 'package:notary/widgets/button_primary_outline.dart';
 
 class ErrorPage extends StatelessWidget {
@@ -22,15 +23,15 @@ class ErrorPage extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Container(
-              height: Get.height,
+              height: StateM(context).height(),
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
-                      width: reSize(96),
-                      height: reSize(96),
+                      width: reSize(context, 96),
+                      height: reSize(context, 96),
                       decoration: BoxDecoration(
                         color: Color(0xFFFC563D),
                         borderRadius: BorderRadius.circular(50),
@@ -40,7 +41,7 @@ class ErrorPage extends StatelessWidget {
                       ),
                     ),
                     SizedBox(
-                      height: reSize(30),
+                      height: reSize(context, 30),
                     ),
                     Text(
                       "Declined",
@@ -52,7 +53,7 @@ class ErrorPage extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                     SizedBox(
-                      height: reSize(25),
+                      height: reSize(context, 25),
                     ),
                     Text(
                       errorMessage,
@@ -63,7 +64,7 @@ class ErrorPage extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                     SizedBox(
-                      height: reSize(40),
+                      height: reSize(context, 40),
                     ),
                     ButtonPrimaryOutline(
                       callback: callback,

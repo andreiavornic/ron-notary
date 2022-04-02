@@ -1,24 +1,23 @@
 import 'dart:io';
 
-import 'package:get/get.dart';
 import 'package:notary/methods/find_local.dart';
 import 'package:notary/models/journal.dart';
 import 'package:notary/services/dio_service.dart';
-
+import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
-import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart' as dio;
 
-class JournalController extends GetxController {
-  RxList<Journal> _journals = RxList<Journal>([]);
-  RxList<Journal> _journalSorted = RxList<Journal>([]);
+class JournalController extends ChangeNotifier {
+  List<Journal> _journals = [];
+  List<Journal> _journalSorted = [];
 
-  RxList<Journal> get journals => _journals;
+  List<Journal> get journals => _journals;
 
-  RxList<Journal> get journalSorted => _journalSorted;
+  List<Journal> get journalSorted => _journalSorted;
 
   getjournals() async {
     try {
+      _journals = [];
       dio.Response resDio = await makeRequest('journal', "GET", null);
       var extracted = resDio.data;
       if (extracted == null) {
@@ -31,7 +30,7 @@ class JournalController extends GetxController {
         _journals.add(new Journal.fromJson(json));
       });
       _journalSorted = _journals;
-      update();
+      notifyListeners();
     } catch (err) {
       throw err;
     }
@@ -103,7 +102,7 @@ class JournalController extends GetxController {
     }
   }
 
-  Future<void> getJournalMedia(Journal journal) async {
+  Future<String> getJournalMedia(Journal journal) async {
     try {
       dio.Response resDio = await makeRequest(
         'journal/media/${journal.id}',
@@ -112,50 +111,27 @@ class JournalController extends GetxController {
       );
       var extracted = resDio.data;
       if (extracted == null) {
-        return;
+        return null;
       }
       if (!extracted['success']) {
         throw extracted['message'];
       }
-      await startDownload(extracted['data'], journal);
+      return extracted['data'];
+     //  await startDownload(extracted['data'], journal);
     } catch (err) {
       throw err;
     }
-  }
-
-  Future<void> startDownload(String _urlMedia, Journal journal) async {
-    print("startDownload() =>  Executed!");
-    final request = http.Request('GET', Uri.parse(_urlMedia));
-    final http.StreamedResponse response = await http.Client().send(request);
-    List<int> bytes = [];
-    final path = await findLocalPath;
-    File videoFile = new File('$path/${journal.session.sessionToken}.mp4');
-    videoFile = new File('$path/${journal.session.sessionToken}.mp4');
-
-    response.stream.listen(
-      (List<int> newBytes) {
-        bytes.addAll(newBytes);
-      },
-      onDone: () async {
-        await videoFile.writeAsBytes(bytes);
-        await OpenFile.open(videoFile.path);
-      },
-      onError: (e) {
-        throw e;
-      },
-      cancelOnError: true,
-    );
   }
 
   sortJournals(String name) {
     if (name.isEmpty) {
       _journalSorted = _journals;
     } else {
-      _journalSorted = RxList<Journal>(_journals
+      _journalSorted = _journals
           .where((element) =>
               element.name.toLowerCase().contains(name.toLowerCase()))
-          .toList());
+          .toList();
     }
-    update();
+    notifyListeners();
   }
 }

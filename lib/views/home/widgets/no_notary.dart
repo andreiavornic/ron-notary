@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/controllers/user.dart';
 import 'package:notary/methods/resize_formatting.dart';
+import 'package:notary/utils/navigate.dart';
 import 'package:notary/widgets/button_primary_outline.dart';
+import 'package:provider/provider.dart';
 
 import '../notary_edit.dart';
 
 class NoNotary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<UserController>(builder: (_controller) {
+    return Consumer<UserController>(builder: (context, _controller, _) {
       return Column(
         children: [
           Container(
-            width: reSize(96),
-            height: reSize(96),
+            width: reSize(context, 96),
+            height: reSize(context, 96),
             decoration: BoxDecoration(
               color: Theme.of(context).primaryColor,
               borderRadius: BorderRadius.circular(50),
@@ -24,7 +26,7 @@ class NoNotary extends StatelessWidget {
               child: SvgPicture.asset("assets/images/76.svg"),
             ),
           ),
-          SizedBox(height: reSize(30)),
+          SizedBox(height: reSize(context, 30)),
           Container(
             child: Text(
               "Before we begin, we require some\nadditional information",
@@ -35,13 +37,11 @@ class NoNotary extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: reSize(30)),
+          SizedBox(height: reSize(context, 30)),
           Container(
             child: ButtonPrimaryOutline(
               text: "Add",
-              callback: () => Get.to(
-                () => NotaryEdit(),
-              ),
+              callback: () => StateM(context).navTo(NotaryEdit()),
               width: 232,
             ),
           ),

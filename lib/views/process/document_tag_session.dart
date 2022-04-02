@@ -1,11 +1,12 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
 import 'package:matrix_gesture_detector/matrix_gesture_detector.dart';
 import 'package:notary/controllers/session.dart';
 import 'package:notary/models/point.dart';
 import 'package:notary/views/tags/tag_touch_part.dart';
+import 'package:provider/provider.dart';
 
 class DocumentTagSession extends StatefulWidget {
   @override
@@ -17,8 +18,6 @@ class _DocumentTagSessionState extends State<DocumentTagSession> {
   ValueNotifier<Matrix4> notifier;
   TransformationController _transformationController;
   double wPage;
-
-  SessionController _sessionController = Get.put(SessionController());
 
   List<Image> _images;
 
@@ -33,7 +32,10 @@ class _DocumentTagSessionState extends State<DocumentTagSession> {
   }
 
   initImages() {
-    _images = List<String>.from(_sessionController.session.value.images)
+    _images = List<String>.from(
+            Provider.of<SessionController>(context, listen: false)
+                .session
+                .images)
         .map((image) => new Image.memory(base64Decode(image)))
         .toList();
     setState(() {});
@@ -41,7 +43,7 @@ class _DocumentTagSessionState extends State<DocumentTagSession> {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<SessionController>(builder: (_controller) {
+    return Consumer<SessionController>(builder: (context, _controller, _) {
       return Container(
         child: Center(
           child: Stack(

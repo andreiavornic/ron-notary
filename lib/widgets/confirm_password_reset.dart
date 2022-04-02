@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/methods/resize_formatting.dart';
+import 'package:notary/utils/navigate.dart';
 import 'package:notary/views/auth.dart';
 
 import 'button_primary_outline.dart';
@@ -22,8 +23,8 @@ class ConfirmPasswordReset extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
-                      width: reSize(96),
-                      height: reSize(96),
+                      width: reSize(context, 96),
+                      height: reSize(context, 96),
                       decoration: BoxDecoration(
                         color: Theme.of(context).primaryColor,
                         borderRadius: BorderRadius.circular(50),
@@ -31,12 +32,12 @@ class ConfirmPasswordReset extends StatelessWidget {
                       child: Center(
                         child: SvgPicture.asset(
                           'assets/images/120.svg',
-                          width: reSize(35),
+                          width: reSize(context, 35),
                         ),
                       ),
                     ),
                     SizedBox(
-                      height: reSize(20),
+                      height: reSize(context, 20),
                     ),
                     Text(
                       'Done!',
@@ -48,7 +49,7 @@ class ConfirmPasswordReset extends StatelessWidget {
                       ),
                     ),
                     SizedBox(
-                      height: reSize(20),
+                      height: reSize(context, 20),
                     ),
                     Container(
                       padding: EdgeInsets.only(left: 40, right: 40),
@@ -62,18 +63,15 @@ class ConfirmPasswordReset extends StatelessWidget {
                       ),
                     ),
                     SizedBox(
-                      height: reSize(45),
+                      height: reSize(context, 45),
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Container(
                         child: ButtonPrimaryOutline(
-                          callback: () => Get.offAll(
-                            () => Auth(),
-                            transition: Transition.noTransition,
-                          ),
+                          callback: () => StateM(context).navOff(Auth()),
                           text: 'Login',
-                          width: reSize(232),
+                          width: reSize(context, 232),
                         ),
                       ),
                     )

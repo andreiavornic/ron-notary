@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:notary/utils/navigate.dart';
+
 
 import 'button_primary.dart';
 
@@ -12,7 +13,7 @@ class TermsView extends StatelessWidget {
           children: [
             SizedBox(height: 90),
             Container(
-              width: Get.width,
+              width: StateM(context).width(),
               child: Padding(
                 padding: EdgeInsets.all(20),
                 child: Column(
@@ -220,7 +221,7 @@ class TermsView extends StatelessWidget {
                     ButtonPrimary(
                       text: "Accept",
                       width: 163,
-                      callback: () => Get.back(),
+                      callback: () => Navigator.pop(context),
                     ),
                     SizedBox(
                       height: 20,

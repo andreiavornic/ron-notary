@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/methods/resize_formatting.dart';
+import 'package:notary/utils/navigate.dart';
 
 import 'button_primary_outline.dart';
 
@@ -10,7 +11,7 @@ class ConfirmMessage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Color(0xFFFFFFFF),
       body: Container(
-        width: Get.width,
+        width: StateM(context).width(),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
@@ -27,11 +28,11 @@ class ConfirmMessage extends StatelessWidget {
                 child: Center(
                   child: Icon(
                     Icons.check,
-                    size: reSize(50),
+                    size: reSize(context, 50),
                   ),
                 ),
               ),
-              SizedBox(height: reSize(20)),
+              SizedBox(height: reSize(context, 20)),
               Text(
                 "Thanks!",
                 style: TextStyle(
@@ -40,7 +41,7 @@ class ConfirmMessage extends StatelessWidget {
                   color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
-              SizedBox(height: reSize(20)),
+              SizedBox(height: reSize(context, 20)),
               Text(
                 "Thank you for your message! You will\nreceive an email within 24 hours",
                 textAlign: TextAlign.center,
@@ -49,10 +50,10 @@ class ConfirmMessage extends StatelessWidget {
                   fontSize: 14,
                 ),
               ),
-              SizedBox(height: reSize(20)),
+              SizedBox(height: reSize(context, 20)),
               ButtonPrimaryOutline(
                 text: "Resume",
-                callback: () => Get.back(),
+                callback: () => Navigator.pop(context),
                 width: 232,
               )
             ],

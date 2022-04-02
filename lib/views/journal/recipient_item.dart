@@ -20,7 +20,7 @@ class RecipientItem extends StatelessWidget {
           ),
           ItemData(
             'Address:',
-            recipient.email,
+            recipient.address,
             false,
           ),
           ItemData(

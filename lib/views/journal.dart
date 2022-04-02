@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/controllers/journal.dart';
 import 'package:notary/methods/resize_formatting.dart';
 import 'package:notary/methods/show_error.dart';
+import 'package:notary/utils/navigate.dart';
 import 'package:notary/views/journal/item_journal.dart';
-import 'package:notary/widgets/edit_intput.widget.dart';
+import 'package:notary/widgets/edit_input.widget.dart';
 import 'package:notary/widgets/loading_page.dart';
 import 'package:notary/widgets/network_connection.dart';
 import 'package:notary/widgets/title_page.dart';
+import 'package:provider/provider.dart';
 
 class Journal extends StatefulWidget {
   @override
@@ -16,7 +18,6 @@ class Journal extends StatefulWidget {
 }
 
 class _JournalState extends State<Journal> {
-  JournalController _journalController = Get.put(JournalController());
   bool _loading;
 
   initState() {
@@ -27,28 +28,29 @@ class _JournalState extends State<Journal> {
 
   _getData() async {
     try {
-      await _journalController.getjournals();
+      await Provider.of<JournalController>(context, listen: false)
+          .getjournals();
       _loading = false;
       setState(() {});
     } catch (err) {
       _loading = false;
       setState(() {});
-      showError(err);
+      showError(err, context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<JournalController>(
-      builder: (_controller) {
+    return Consumer<JournalController>(
+      builder: (context, _controller, _) {
         return NetworkConnection(
-          widget: LoadingPage(
+          LoadingPage(
             _loading,
             _controller.journalSorted.length == 0 &&
                     _controller.journals.length == 0
                 ? Container(
-                    height: Get.height,
-                    width: Get.width,
+                    height: StateM(context).height(),
+                    width: StateM(context).width(),
                     child: Stack(
                       children: [
                         Padding(
@@ -56,7 +58,7 @@ class _JournalState extends State<Journal> {
                             horizontal: 20.0,
                           ),
                           child: Container(
-                            width: Get.width,
+                            width: StateM(context).width(),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -65,7 +67,8 @@ class _JournalState extends State<Journal> {
                                   'eJournal',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
-                                    color: Theme.of(context).colorScheme.secondary,
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
                                     fontSize: 28,
                                     fontWeight: FontWeight.w700,
                                   ),
@@ -83,13 +86,13 @@ class _JournalState extends State<Journal> {
                                   child: Center(
                                     child: SvgPicture.asset(
                                       'assets/images/72.svg',
-                                      width: reSize(34),
-                                      height: reSize(34),
+                                      width: reSize(context, 34),
+                                      height: reSize(context, 34),
                                     ),
                                   ),
                                 ),
                                 SizedBox(
-                                  height: reSize(35),
+                                  height: reSize(context, 35),
                                 ),
                                 Text(
                                   'To view details you are required to\ncomplete at least one session',
@@ -106,7 +109,7 @@ class _JournalState extends State<Journal> {
                         Positioned(
                             child: Column(
                           children: [
-                            SizedBox(height: reSize(70)),
+                            SizedBox(height: reSize(context, 70)),
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 12),
                               child: Row(
@@ -117,8 +120,8 @@ class _JournalState extends State<Journal> {
                                     child: Row(
                                       children: [
                                         Container(
-                                          width: reSize(24),
-                                          height: reSize(24),
+                                          width: reSize(context, 24),
+                                          height: reSize(context, 24),
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(50),
@@ -135,7 +138,7 @@ class _JournalState extends State<Journal> {
                                         ),
                                       ],
                                     ),
-                                    onTap: () => Get.back(),
+                                    onTap: () => Navigator.pop(context),
                                   ),
                                 ],
                               ),
@@ -203,14 +206,16 @@ class _JournalState extends State<Journal> {
                                     },
                                   ),
                                 ),
-                                SizedBox(height: reSize(10)),
+                                SizedBox(height: reSize(context, 10)),
                               ],
                             ),
                           ),
                         ),
                       ),
                       SizedBox(
-                        height: Get.height < 670 ? 20 : reSize(40),
+                        height: StateM(context).height() < 670
+                            ? 20
+                            : reSize(context, 40),
                       ),
                     ],
                   ),
@@ -221,6 +226,6 @@ class _JournalState extends State<Journal> {
   }
 
   _searchJournal(String name) {
-    _journalController.sortJournals(name);
+    Provider.of<JournalController>(context, listen: false).sortJournals(name);
   }
 }

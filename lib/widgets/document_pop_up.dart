@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/controllers/session.dart';
 import 'package:notary/methods/show_error.dart';
+import 'package:notary/utils/navigate.dart';
 import 'package:notary/views/process/document_tag_session.dart';
 import 'package:notary/views/start.dart';
 import 'package:notary/widgets/modals/modal_container.dart';
+import 'package:provider/provider.dart';
 
 import 'button_primary_outline.dart';
 import 'confirm_delete.dart';
@@ -18,7 +20,6 @@ class DocumentPopUp extends StatefulWidget {
 
 class _DocumentPopUpState extends State<DocumentPopUp> {
   bool _isLoading;
-  SessionController _sessionController = Get.put(SessionController());
 
   initState() {
     _isLoading = false;
@@ -29,18 +30,16 @@ class _DocumentPopUpState extends State<DocumentPopUp> {
     _isLoading = true;
     setState(() {});
     try {
-      Get.back();
-      await _sessionController.deleteSession();
-      Get.offAll(
-        () => Start(),
-        transition: Transition.noTransition,
-      );
+      Navigator.pop(context);
+      await Provider.of<SessionController>(context, listen: false).deleteSession();
+      StateM(context).navOff(Start());
+
       _isLoading = false;
       setState(() {});
     } catch (err) {
       _isLoading = false;
       setState(() {});
-      showError(err);
+      showError(err, context);
     }
   }
 
@@ -51,7 +50,7 @@ class _DocumentPopUpState extends State<DocumentPopUp> {
       Padding(
         padding: const EdgeInsets.only(left: 20.0, right: 20, bottom: 40),
         child: Container(
-          height: Get.height,
+          height: StateM(context).height(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
@@ -106,9 +105,11 @@ class _DocumentPopUpState extends State<DocumentPopUp> {
                               width: 50,
                               height: 50,
                               child: TextButton(
-                                onPressed: () => modalContainer(ConfirmDelete(
-                                  callback: () => _deleteSession(),
-                                )),
+                                onPressed: () => modalContainerSimple(
+                                    ConfirmDelete(
+                                      callback: () => _deleteSession(),
+                                    ),
+                                    context),
                                 style: ButtonStyle(
                                   overlayColor: MaterialStateProperty.all(
                                     Color(0xFFFFFFFF).withOpacity(0.09),
@@ -150,7 +151,7 @@ class _DocumentPopUpState extends State<DocumentPopUp> {
               SizedBox(height: 25),
               ButtonPrimaryOutline(
                 text: 'Go Back',
-                callback: () => Get.back(),
+                callback: () => Navigator.pop(context),
               )
             ],
           ),

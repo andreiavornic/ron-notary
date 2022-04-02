@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/controllers/point.dart';
 import 'package:notary/controllers/recipient.dart';
 import 'package:notary/controllers/session.dart';
@@ -9,14 +9,17 @@ import 'package:notary/methods/show_error.dart';
 import 'package:notary/models/point.dart';
 import 'package:notary/models/recipient.dart';
 import 'package:notary/models/user.dart';
+import 'package:notary/utils/navigate.dart';
 import 'package:notary/views/tags/document_body.dart';
 import 'package:notary/views/tags/document_tag.dart';
 import 'package:notary/widgets/button_primary.dart';
-import 'package:notary/widgets/edit_intput.widget.dart';
+import 'package:notary/widgets/edit_input.widget.dart';
 import 'package:notary/widgets/loading_page.dart';
 import 'package:notary/widgets/modals/modal_container.dart';
+import 'package:notary/widgets/network_connection.dart';
 import 'package:notary/widgets/recipient/recipient_list.dart';
 import 'package:notary/widgets/title_page.dart';
+import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
 
@@ -28,10 +31,10 @@ class Tags extends StatefulWidget {
 }
 
 class _TagsState extends State<Tags> {
-  UserController _userController = Get.put(UserController());
-  RecipientController _recipientController = Get.put(RecipientController());
-  PointController _pointController = Get.put(PointController());
-  SessionController _sessionController = Get.put(SessionController());
+  // UserController Provider.of<UserController>(context, listen: false) = Get.put(UserController());
+  // RecipientController Provider.of<RecipientController>(context, listen: false) = Get.put(RecipientController());
+  // PointController Provider.of<PointController>(context, listen: false) = Get.put(PointController());
+  // SessionController Provider.of<SessionController>(context, listen: false) = Get.put(SessionController());
   Recipient _userRecipient;
   String _typeSignature;
   String _text;
@@ -49,7 +52,7 @@ class _TagsState extends State<Tags> {
   }
 
   _getUserData() {
-    User _user = _userController.user.value;
+    User _user = Provider.of<UserController>(context, listen: false).user;
     _userRecipient = new Recipient(
       id: _user.id,
       firstName: _user.firstName,
@@ -58,25 +61,29 @@ class _TagsState extends State<Tags> {
       type: 'NOTARY',
       color: Color(0xFFFFC700),
     );
-    _recipientController.addUserRecipient(_userRecipient);
+    Provider.of<RecipientController>(context, listen: false)
+        .addUserRecipient(_userRecipient);
   }
 
   _getData() async {
     try {
-      await _pointController.getPoints();
+      await Provider.of<PointController>(context, listen: false).getPoints();
       _checkContinue();
     } catch (err) {
-      print(err);
       _loading = false;
       setState(() {});
-      //  showError(err);
+      //  showError(err, context);
     }
   }
 
   _addPoint(TapUpDetails details, int page, double wPage) {
-    if (_pointController.points.any((element) => element.isChecked)) return;
-    Recipient _activeRecipient = _recipientController.recipientsForTag
-        .firstWhere((element) => element.isActive);
+    if (Provider.of<PointController>(context, listen: false)
+        .points
+        .any((element) => element.isChecked)) return;
+    Recipient _activeRecipient =
+        Provider.of<RecipientController>(context, listen: false)
+            .recipientsForTag
+            .firstWhere((element) => element.isActive);
     var uuid = Uuid();
     Point newPoint = new Point(
       id: uuid.v4(),
@@ -95,7 +102,7 @@ class _TagsState extends State<Tags> {
       details.localPosition.dx - newPoint.value.length * 4,
       details.localPosition.dy - 9,
     );
-    _pointController.addPoint(newPoint);
+    Provider.of<PointController>(context, listen: false).addPoint(newPoint);
     if (_typeSignature == "STAMP") {
       _changeTypeSignature("SIGNATURE");
     }
@@ -105,12 +112,15 @@ class _TagsState extends State<Tags> {
   }
 
   void _checkContinue() {
-    List<Point> _points = _pointController.points;
+    List<Point> _points =
+        Provider.of<PointController>(context, listen: false).points;
     bool stampExist = _points.any((element) => element.type == "STAMP");
 
-    List<Recipient> signers = _recipientController.recipientsForTag
-        .where((element) => element.type == "SIGNER")
-        .toList();
+    List<Recipient> signers =
+        Provider.of<RecipientController>(context, listen: false)
+            .recipientsForTag
+            .where((element) => element.type == "SIGNER")
+            .toList();
     List<Point> recipePoints =
         _points.where((point) => point.ownerType == 'RECIPIENT').toList();
     int nrPoints = 0;
@@ -144,7 +154,8 @@ class _TagsState extends State<Tags> {
   _updatePoint(Point point, DragUpdateDetails data) {
     Offset newPosition = Offset(
         point.position.dx + data.delta.dx, point.position.dy + data.delta.dy);
-    _pointController.updatePositionPoint(point, newPosition);
+    Provider.of<PointController>(context, listen: false)
+        .updatePositionPoint(point, newPosition);
   }
 
   void _changeTypeSignature(String sign) {
@@ -154,72 +165,92 @@ class _TagsState extends State<Tags> {
 
   @override
   Widget build(BuildContext context) {
-    return LoadingPage(
-        _loading,
-        Column(
-          children: [
-            TitlePage(
-              title: 'Tags',
-              description: 'Select a participant to set tags',
-              needNav: true,
-              needHelp: true,
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: RecipientList(() {
-                _typeSignature = "SIGNATURE";
-                setState(() {});
-              }),
-            ),
-            SizedBox(height: reSize(10)),
-            if (_recipientController.recipientsForTag.length != 0)
-              DocumentBody(
-                changeTypeSignature: _changeTypeSignature,
-                activeRecipient: _recipientController.recipientsForTag
-                    .firstWhere((element) => element.isActive,
-                        orElse: () => null),
-                typeSignature: _typeSignature,
-                editPoint: _editPoint,
-                cancelEdit: _pointController.cancelEdit,
-                deletePoint: () {
-                  _pointController.deletePoint();
-                  _checkContinue();
-                },
-                documentTag: DocumentTag(
-                  updatePoint: _updatePoint,
-                  addPoint:
-                      _typeSignature == "TEXTBOX" ? _addTextBox : _addPoint,
-                  checkPoint: _pointController.activatePoint,
+    return Consumer2<RecipientController, PointController>(
+        builder: (context, _recipientController, _pointController, _) {
+      return NetworkConnection(
+         LoadingPage(
+            _loading,
+            Column(
+              children: [
+                TitlePage(
+                  title: 'Tags',
+                  description: 'Select a participant to set tags',
+                  needNav: true,
+                  needHelp: true,
                 ),
-              ),
-            SizedBox(height: reSize(20)),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Container(
-                child: ButtonPrimary(
-                  callback: _canContinue ? _addTagsAndContinue : null,
-                  text: 'Continue',
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: RecipientList(() {
+                    _typeSignature = "SIGNATURE";
+                    setState(() {});
+                  }),
                 ),
-              ),
-            ),
-            SizedBox(height: Get.height < 670 ? 20 : reSize(40)),
-          ],
-        ));
+                SizedBox(height: reSize(context, 10)),
+                if (Provider.of<RecipientController>(context, listen: false)
+                        .recipientsForTag
+                        .length !=
+                    0)
+                  DocumentBody(
+                    changeTypeSignature: _changeTypeSignature,
+                    activeRecipient:
+                        Provider.of<RecipientController>(context, listen: false)
+                            .recipientsForTag
+                            .firstWhere((element) => element.isActive,
+                                orElse: () => null),
+                    typeSignature: _typeSignature,
+                    editPoint: _editPoint,
+                    cancelEdit:
+                        Provider.of<PointController>(context, listen: false)
+                            .cancelEdit,
+                    deletePoint: () {
+                      Provider.of<PointController>(context, listen: false)
+                          .deletePoint();
+                      _checkContinue();
+                    },
+                    documentTag: DocumentTag(
+                      updatePoint: _updatePoint,
+                      addPoint:
+                          _typeSignature == "TEXTBOX" ? _addTextBox : _addPoint,
+                      checkPoint:
+                          Provider.of<PointController>(context, listen: false)
+                              .activatePoint,
+                    ),
+                  ),
+                SizedBox(height: reSize(context, 20)),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Container(
+                    child: ButtonPrimary(
+                      callback: _canContinue ? _addTagsAndContinue : null,
+                      text: 'Continue',
+                    ),
+                  ),
+                ),
+                SizedBox(
+                    height: StateM(context).height() < 670
+                        ? 20
+                        : reSize(context, 40)),
+              ],
+            )),
+      );
+    });
   }
 
   _editPoint() {
-    Point point =
-        _pointController.points.firstWhere((element) => element.isChecked);
+    Point point = Provider.of<PointController>(context, listen: false)
+        .points
+        .firstWhere((element) => element.isChecked);
     modalContainer(
-        textBoxHandler(point.position, point.page, point.wPage, point.value));
+        textBoxHandler(point.position, point.page, point.wPage, point),
+        context);
   }
 
   _addTextBox(TapUpDetails details, int page, double wPage) {
-    modalContainer(textBoxHandler(details, page, wPage, null));
+    modalContainer(textBoxHandler(details, page, wPage, null), context);
   }
 
   _updateTextBox(String txt) {
-    _pointController.editPoint(_text);
+    Provider.of<PointController>(context, listen: false).editPoint(_text);
     _text = null;
     setState(() {});
   }
@@ -228,18 +259,17 @@ class _TagsState extends State<Tags> {
     try {
       _loading = true;
       setState(() {});
-      await _pointController.addPoints();
-      _sessionController.updateStageByString("INVITE");
-      Get.to(
-        () => Invite(),
-        transition: Transition.noTransition,
-      );
+      await Provider.of<PointController>(context, listen: false).addPoints();
+      Provider.of<SessionController>(context, listen: false)
+          .updateStageByString("INVITE");
+      StateM(context).navTo(Invite());
+
       _loading = false;
       setState(() {});
     } catch (err) {
       _loading = false;
       setState(() {});
-      showError(err);
+      showError(err, context);
     }
   }
 
@@ -276,7 +306,7 @@ class _TagsState extends State<Tags> {
             },
             autofocus: true,
             unfocus: () {
-              Get.back();
+              Navigator.pop(context);
               if (_text != null) _addPoint(details, page, wPage);
             },
             initialValue: _text,
@@ -285,7 +315,7 @@ class _TagsState extends State<Tags> {
           ButtonPrimary(
             text: txt != null ? "Save Textbox" : "Add Textbox",
             callback: () {
-              Get.back();
+              Navigator.pop(context);
               if (_text != null)
                 txt != null
                     ? _updateTextBox(_text)

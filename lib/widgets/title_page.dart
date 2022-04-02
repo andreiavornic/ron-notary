@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/methods/resize_formatting.dart';
+import 'package:notary/utils/navigate.dart';
 import 'package:notary/widgets/stages.dart';
 
 import 'back_arrow_button.dart';
@@ -23,7 +24,7 @@ class TitlePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: Get.width,
+      width: StateM(context).width(),
       child: Row(
         children: [
           Expanded(
@@ -32,9 +33,9 @@ class TitlePage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 SizedBox(
-                    height: Get.height < 670
-                        ? reSize(50)
-                        : reSize(70)),
+                    height: StateM(context).height() < 670
+                        ? reSize(context, 50)
+                        : reSize(context, 70)),
                 Padding(
                   padding: needNav != null && needNav
                       ? EdgeInsets.symmetric(horizontal: 0)
@@ -60,16 +61,16 @@ class TitlePage extends StatelessWidget {
                                 letterSpacing: -1,
                               ),
                             ),
-                            SizedBox(height: reSize(2)),
+                            SizedBox(height: reSize(context, 2)),
                             Text(
                               description,
                               style: TextStyle(
                                   color: Color(0xFF494949),
                                   fontSize: 14,
                                   fontWeight: FontWeight.w400,
-                                  height: reSize(1)),
+                                  height: reSize(context, 1)),
                             ),
-                            SizedBox(height: reSize(20)),
+                            SizedBox(height: reSize(context, 20)),
                           ],
                         ),
                       ),

@@ -4,15 +4,17 @@ import 'dart:typed_data';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
+import 'package:notary/utils/navigate.dart';
+
 import 'package:path_provider/path_provider.dart';
 import 'package:notary/controllers/user.dart';
 import 'package:notary/methods/show_error.dart';
 import 'package:notary/widgets/button_primary.dart';
-import 'package:notary/widgets/edit_intput.widget.dart';
+import 'package:notary/widgets/edit_input.widget.dart';
 import 'package:notary/widgets/loading_page.dart';
 import 'package:notary/widgets/terms_view.dart';
 import 'package:notary/widgets/title_page.dart';
+import 'package:provider/provider.dart';
 
 class CertificatePassword extends StatefulWidget {
   final Uint8List byteData;
@@ -28,7 +30,6 @@ class CertificatePassword extends StatefulWidget {
 }
 
 class _CertificatePasswordState extends State<CertificatePassword> {
-  final UserController _userController = Get.put(UserController());
   String _password;
   bool _hidePassword;
   bool _savePassword;
@@ -49,7 +50,7 @@ class _CertificatePasswordState extends State<CertificatePassword> {
         _loading,
         SingleChildScrollView(
           child: Container(
-            height: Get.height,
+            height: StateM(context).height(),
             child: Column(
               children: [
                 TitlePage(
@@ -162,7 +163,9 @@ class _CertificatePasswordState extends State<CertificatePassword> {
                                   Text(
                                     "Validate your certificate",
                                     style: TextStyle(
-                                      color: Theme.of(context).colorScheme.secondary,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
                                       fontSize: 14,
                                     ),
                                   ),
@@ -202,13 +205,17 @@ class _CertificatePasswordState extends State<CertificatePassword> {
                                   RichText(
                                     text: TextSpan(
                                       style: TextStyle(
-                                        color: Theme.of(context).colorScheme.secondary,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
                                         fontSize: 14,
                                       ),
                                       children: [
-                                        TextSpan(text: 'I accept ', style: TextStyle(
-                                          fontSize: 14,
-                                        )),
+                                        TextSpan(
+                                            text: 'I accept ',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                            )),
                                         TextSpan(
                                           text: 'Terms of Use',
                                           style: TextStyle(
@@ -236,7 +243,7 @@ class _CertificatePasswordState extends State<CertificatePassword> {
                         ),
                         SizedBox(height: 20),
                         Container(
-                          width: Get.width - 40,
+                          width: StateM(context).width() - 40,
                           child: Column(
                             children: [
                               RichText(
@@ -251,10 +258,13 @@ class _CertificatePasswordState extends State<CertificatePassword> {
                                     TextSpan(
                                       text: 'Remove',
                                       style: TextStyle(
-                                        color: Theme.of(context).colorScheme.secondary,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
                                       ),
                                       recognizer: TapGestureRecognizer()
-                                        ..onTap = _removeCertificate,
+                                        ..onTap =
+                                            () => StateM(context).navBack(),
                                     )
                                   ],
                                 ),
@@ -319,27 +329,18 @@ class _CertificatePasswordState extends State<CertificatePassword> {
           buffer.asUint8List(
               widget.byteData.offsetInBytes, widget.byteData.lengthInBytes));
 
-      await _userController.addCertificate(
+      await Provider.of<UserController>(context, listen: false).addCertificate(
         certificate,
         _password,
         _savePassword,
       );
-      Get.back();
+      Navigator.pop(context);
       _loading = false;
       setState(() {});
     } catch (err) {
       _loading = false;
       setState(() {});
-      showError(err.toString());
-    }
-  }
-
-  Future<void> _removeCertificate() async {
-    try {
-      await _userController.removeCertificate();
-      Get.back();
-    } catch (err) {
-      showError(err);
+      showError(err, context);
     }
   }
 }

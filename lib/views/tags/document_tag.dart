@@ -1,14 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
 import 'package:matrix_gesture_detector/matrix_gesture_detector.dart';
 import 'package:notary/controllers/point.dart';
-import 'package:notary/controllers/recipient.dart';
 import 'package:notary/controllers/session.dart';
 import 'package:notary/models/point.dart';
-import 'package:notary/models/recipient.dart';
 import 'package:notary/views/tags/tag_touch.dart';
+import 'package:provider/provider.dart';
 
 class DocumentTag extends StatefulWidget {
   final Function updatePoint;
@@ -31,12 +30,7 @@ class _DocumentTagState extends State<DocumentTag> {
   TransformationController _transformationController;
   double wPage;
 
-  SessionController _sessionController = Get.put(SessionController());
-  RecipientController _recipientController = Get.put(RecipientController());
-
   List<Image> _images;
-
-  List<Recipient> _recipients;
 
   @override
   void initState() {
@@ -50,80 +44,79 @@ class _DocumentTagState extends State<DocumentTag> {
 
   initImages() {
     _images = [];
-    _sessionController.session.value.images.forEach((image) {
+    Provider
+        .of<SessionController>(context, listen: false)
+        .session
+        .images
+        .forEach((image) {
       _images.add(new Image.memory(base64Decode(image)));
     });
-    _recipients = _recipientController.recipientsForTag;
     setState(() {});
   }
 
+
   @override
   Widget build(BuildContext context) {
-    return _recipients.length > 0
-        ? GetBuilder<PointController>(
-            init: PointController(),
-            builder: (_controller) {
-              return Container(
-                child: Center(
-                  child: Stack(
-                    children: [
-                      MatrixGestureDetector(
-                        shouldRotate: false,
-                        onMatrixUpdate: (m, tm, sm, rm) {
-                          _matrix = MatrixGestureDetector.compose(
-                              _matrix, tm, sm, null);
-                          notifier.value = _matrix;
-                          setState(() {});
-                        },
-                        child: AnimatedBuilder(
-                          animation: notifier,
-                          builder: (ctx, _) {
-                            return Transform(
-                              transform: notifier.value,
-                              child: InteractiveViewer(
-                                minScale: 1,
-                                maxScale: 5,
-                                transformationController:
-                                    _transformationController,
-                                child: SingleChildScrollView(
-                                  physics: _controller.points.any((element) => element.isChecked)
-                                      ? NeverScrollableScrollPhysics()
-                                      : ScrollPhysics(),
-                                  child: Column(
-                                    children: <Widget>[
-                                      for (int i = 0; i < _images.length; i++)
-                                        GestureDetector(
-                                          onTapUp: (TapUpDetails details) {
-                                            widget.addPoint(details, i, wPage);
-                                          },
-                                          child: _getImageAndPoints(
-                                            _controller.points,
-                                            _images[i],
-                                            i,
-                                          ),
-                                        ),
-                                    ],
+    return Consumer<PointController>(
+      builder: (context, _controller, _) {
+        return Container(
+          child: Center(
+            child: Stack(
+              children: [
+                MatrixGestureDetector(
+                  shouldRotate: false,
+                  onMatrixUpdate: (m, tm, sm, rm) {
+                    _matrix =
+                        MatrixGestureDetector.compose(_matrix, tm, sm, null);
+                    notifier.value = _matrix;
+                    setState(() {});
+                  },
+                  child: AnimatedBuilder(
+                    animation: notifier,
+                    builder: (ctx, _) {
+                      return Transform(
+                        transform: notifier.value,
+                        child: InteractiveViewer(
+                          minScale: 1,
+                          maxScale: 5,
+                          transformationController: _transformationController,
+                          child: SingleChildScrollView(
+                            physics: _controller.points
+                                .any((element) => element.isChecked)
+                                ? NeverScrollableScrollPhysics()
+                                : ScrollPhysics(),
+                            child: Column(
+                              children: <Widget>[
+                                for (int i = 0; i < _images.length; i++)
+                                  GestureDetector(
+                                    onTapUp: (TapUpDetails details) {
+                                      widget.addPoint(details, i, wPage);
+                                    },
+                                    child: _getImageAndPoints(
+                                      _controller.points,
+                                      _images[i],
+                                      i,
+                                    ),
                                   ),
-                                ),
-                              ),
-                            );
-                          },
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
-                    ],
+                      );
+                    },
                   ),
                 ),
-              );
-            },
-          )
-        : Container();
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
-  Widget _getImageAndPoints(
-    List<Point> _points,
-    Image image,
-    int index,
-  ) {
+  Widget _getImageAndPoints(List<Point> _points,
+      Image image,
+      int index,) {
     _checkPoint(Point point) {
       int indexPoint = _points.indexWhere((element) => element.id == point.id);
       if (indexPoint >= 0) {
@@ -132,7 +125,7 @@ class _DocumentTagState extends State<DocumentTag> {
     }
 
     List<Point> _sortedPoints =
-        _points.where((element) => element.page == index).toList();
+    _points.where((element) => element.page == index).toList();
     return Stack(
       children: [
         Column(

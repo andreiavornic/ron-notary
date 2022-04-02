@@ -31,7 +31,7 @@ class ButtonNavigator extends StatelessWidget {
         child: Column(
           children: [
             Container(
-              height: reSize(20),
+              height: reSize(context, 20),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -42,7 +42,7 @@ class ButtonNavigator extends StatelessWidget {
                     Container(
                       child: SvgPicture.asset(
                         'assets/images/$icon.svg',
-                        width: reSize(24),
+                        width: reSize(context, 24),
                         color: onPressed == null
                             ? Color(0xFF000000).withOpacity(0.3)
                             : Color(0xFF000000),
@@ -68,7 +68,7 @@ class ButtonNavigator extends StatelessWidget {
                 ),
                 Icon(
                   FontAwesomeIcons.chevronRight,
-                  size: reSize(11),
+                  size: reSize(context, 11),
                   color: onPressed == null
                       ? Color(0xFFA4A4A4).withOpacity(0.3)
                       : Color(0xFFA4A4A4),
@@ -76,7 +76,7 @@ class ButtonNavigator extends StatelessWidget {
               ],
             ),
             Container(
-              height: reSize(20),
+              height: reSize(context, 20),
             ),
           ],
         ),

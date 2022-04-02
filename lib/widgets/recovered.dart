@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/controllers/user.dart';
 import 'package:notary/methods/show_error.dart';
+import 'package:notary/utils/navigate.dart';
 import 'package:notary/views/auth.dart';
 import 'package:notary/views/confirm_account.dart';
 import 'package:notary/views/new_password.dart';
 import 'package:notary/widgets/loading_page.dart';
 import 'package:notary/widgets/title_page.dart';
-import 'package:pinput/pin_put/pin_put.dart';
+import 'package:pinput/pinput.dart';
+import 'package:provider/provider.dart';
 
+import '../methods/resize_formatting.dart';
 import 'button_primary.dart';
-import 'edit_intput.widget.dart';
+import 'edit_input.widget.dart';
 
 class RecoveredPage extends StatefulWidget {
   final bool isRegister;
@@ -22,7 +25,6 @@ class RecoveredPage extends StatefulWidget {
 }
 
 class _RecoveredPageState extends State<RecoveredPage> {
-  UserController _userController = Get.put(UserController());
   String _email;
   String _code;
   bool _isCodeSent;
@@ -36,19 +38,16 @@ class _RecoveredPageState extends State<RecoveredPage> {
 
   _sendCode() async {
     try {
-      Get.to(
-        () => NewPassword(
-          token: _code,
-        ),
-        transition: Transition.noTransition,
-      );
+      StateM(context).navTo(NewPassword(
+        token: _code,
+      ));
       // _pinPutController.text = null;
       // _code = null;
       // _email = null;
       _isCodeSent = false;
       setState(() {});
     } catch (err) {
-      showError(err);
+      showError(err, context);
     }
   }
 
@@ -66,17 +65,12 @@ class _RecoveredPageState extends State<RecoveredPage> {
     }
   }
 
-  BoxDecoration get _pinPutDecoration {
-    return BoxDecoration(
-      border: Border.all(color: Color(0xFFC4C4C4)),
-    );
-  }
-
   _resetPassword() async {
     try {
       _loading = true;
       setState(() {});
-      await _userController.resetPassword(_email);
+      await Provider.of<UserController>(context, listen: false)
+          .resetPassword(_email);
       _isCodeSent = true;
       _email = null;
       _loading = false;
@@ -84,7 +78,7 @@ class _RecoveredPageState extends State<RecoveredPage> {
     } catch (err) {
       _loading = false;
       setState(() {});
-      showError(err);
+      showError(err, context);
     }
   }
 
@@ -92,14 +86,15 @@ class _RecoveredPageState extends State<RecoveredPage> {
     try {
       _loading = true;
       setState(() {});
-      await _userController.getVerify(_code);
-      Get.offAll(() => ConfirmAccount());
+      await Provider.of<UserController>(context, listen: false)
+          .getVerify(_code);
+      StateM(context).navOff(ConfirmAccount());
       _loading = false;
       setState(() {});
     } catch (err) {
       _loading = false;
       setState(() {});
-      showError(err);
+      showError(err, context);
     }
   }
 
@@ -109,7 +104,7 @@ class _RecoveredPageState extends State<RecoveredPage> {
         _loading,
         SingleChildScrollView(
           child: Container(
-            height: Get.height,
+            height: StateM(context).height(),
             child: Column(
               children: [
                 TitlePage(
@@ -141,23 +136,48 @@ class _RecoveredPageState extends State<RecoveredPage> {
                                       textAlign: TextAlign.center,
                                     ),
                                     SizedBox(height: 30),
-                                    PinPut(
-                                      fieldsCount: 6,
-                                      withCursor: true,
-                                      eachFieldHeight: 46,
-                                      eachFieldWidth: 32,
-                                      textStyle: TextStyle(
-                                        fontSize: 28,
-                                        color: Color(0xFFC4C4C4),
+                                    Pinput(
+                                      length: 6,
+                                      cursor: Container(),
+                                      separator: SizedBox(
+                                        width: 15,
                                       ),
-                                      fieldsAlignment: MainAxisAlignment.center,
-                                      eachFieldMargin:
-                                          EdgeInsets.symmetric(horizontal: 4),
+                                      defaultPinTheme: PinTheme(
+                                          textStyle: TextStyle(
+                                            fontSize: 32,
+                                            color: Color(0xFFC4C4C4),
+                                          ),
+                                          height: reSize(context, 50),
+                                          width: reSize(context, 40),
+                                          decoration: BoxDecoration(
+                                              color: Color(0xFFFFFFFF),
+                                              border: Border(
+                                                bottom: BorderSide(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .secondary,
+                                                  width: 1.0,
+                                                ),
+                                              )
+                                            // border: Border(
+                                            //   bottom: BorderSide(
+                                            //     color: Theme.of(context).colorScheme.secondary,
+                                            //     width: 1.0,
+                                            //   ),
+                                            // ),
+                                          )),
+                                      // cursor: true,
+                                      // eachFieldHeight: 46,
+                                      // eachFieldWidth: 32,
+
+                                      pinContentAlignment: Alignment.center,
+                                      // eachFieldMargin:
+                                      //     EdgeInsets.symmetric(horizontal: 4),
                                       onChanged: (String pin) {
                                         _code = pin;
                                         setState(() {});
                                       },
-                                      onSubmit: (String pin) {
+                                      onSubmitted: (String pin) {
                                         getClipboard(pin);
                                       },
                                       onClipboardFound: (String pin) {
@@ -165,39 +185,42 @@ class _RecoveredPageState extends State<RecoveredPage> {
                                       },
                                       focusNode: _pinPutFocusNode,
                                       controller: _pinPutController,
-                                      submittedFieldDecoration:
-                                          _pinPutDecoration.copyWith(
-                                        color: Color(0xFFFFFFFF),
-                                        border: Border(
-                                          bottom: BorderSide(
-                                            color:
-                                                Theme.of(context).colorScheme.secondary,
-                                            width: 1.0,
-                                          ),
-                                        ),
-                                      ),
-                                      selectedFieldDecoration:
-                                          _pinPutDecoration.copyWith(
-                                        color: Color(0xFFFFFFF),
-                                        border: Border(
-                                          bottom: BorderSide(
-                                            color:
-                                                Theme.of(context).colorScheme.secondary,
-                                            width: 1.0,
-                                          ),
-                                        ),
-                                      ),
-                                      followingFieldDecoration:
-                                          _pinPutDecoration.copyWith(
-                                        color: Color(0xFFFFFFFF),
-                                        border: Border(
-                                          bottom: BorderSide(
-                                            color:
-                                                Theme.of(context).colorScheme.secondary,
-                                            width: 1.0,
-                                          ),
-                                        ),
-                                      ),
+                                      // submittedFieldDecoration:
+                                      //     _pinPutDecoration.copyWith(
+                                      //   color: Color(0xFFFFFFFF),
+                                      //   border: Border(
+                                      //     bottom: BorderSide(
+                                      //       color: Theme.of(context)
+                                      //           .colorScheme
+                                      //           .secondary,
+                                      //       width: 1.0,
+                                      //     ),
+                                      //   ),
+                                      // ),
+                                      // selectedFieldDecoration:
+                                      //     _pinPutDecoration.copyWith(
+                                      //   color: Color(0xFFFFFFF),
+                                      //   border: Border(
+                                      //     bottom: BorderSide(
+                                      //       color: Theme.of(context)
+                                      //           .colorScheme
+                                      //           .secondary,
+                                      //       width: 1.0,
+                                      //     ),
+                                      //   ),
+                                      // ),
+                                      // followingFieldDecoration:
+                                      //     _pinPutDecoration.copyWith(
+                                      //   color: Color(0xFFFFFFFF),
+                                      //   border: Border(
+                                      //     bottom: BorderSide(
+                                      //       color: Theme.of(context)
+                                      //           .colorScheme
+                                      //           .secondary,
+                                      //       width: 1.0,
+                                      //     ),
+                                      //   ),
+                                      // ),
                                     ),
                                   ],
                                 ),
@@ -260,10 +283,7 @@ class _RecoveredPageState extends State<RecoveredPage> {
                               ),
                             ),
                             GestureDetector(
-                              onTap: () => Get.offAll(
-                                () => Auth(),
-                                transition: Transition.noTransition,
-                              ),
+                              onTap: () => StateM(context).navOff(Auth()),
                               child: Text(
                                 'Login Now',
                                 style: TextStyle(

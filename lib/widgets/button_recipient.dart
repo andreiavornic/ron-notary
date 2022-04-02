@@ -74,8 +74,8 @@ class _ButtonRecipientState extends State<ButtonRecipient> {
             right: -5,
             top: 1,
             child: Container(
-              width: reSize(14),
-              height: reSize(14),
+              width: reSize(context, 14),
+              height: reSize(context, 14),
               decoration: BoxDecoration(
                   color: Theme.of(context).primaryColor,
                   borderRadius: BorderRadius.circular(7),

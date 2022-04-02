@@ -1,27 +1,17 @@
 import 'package:flutter/cupertino.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/models/point.dart';
 
 import 'package:dio/dio.dart' as dio;
 import 'package:notary/services/dio_service.dart';
 
-class PointController extends GetxController {
-  RxList<Point> _points = RxList<Point>([]);
+class PointController extends ChangeNotifier {
+  List<Point> _points = [];
 
-  RxList<Point> get points => _points;
-
-  @override
-  void onInit() {
-    // getPoints();
-    super.onInit();
-  }
-
-  reset() {
-    _points.clear();
-    update();
-  }
+  List<Point> get points => _points;
 
   getPoints() async {
+    _points = [];
     try {
       dio.Response resDio = await makeRequest('point', "GET", null);
       var extracted = resDio.data;
@@ -31,7 +21,7 @@ class PointController extends GetxController {
       if (!extracted['success']) {
         throw extracted['message'];
       }
-      _points.clear();
+      _points = [];
       extracted['data'].forEach(
         (json) => addPoint(
           new Point.fromJson(json),
@@ -54,20 +44,18 @@ class PointController extends GetxController {
         return;
       }
 
-      print("extracted $extracted");
       if (!extracted['success']) {
         throw extracted['message'];
       }
-      RxList<Point> pointsResult = RxList<Point>([]);
+      List<Point> pointsResult = [];
       extracted['data'].forEach(
         (json) => pointsResult.add(
           new Point.fromJson(json),
         ),
       );
       _points = pointsResult;
-      update();
+      notifyListeners();
     } catch (err) {
-      print(err);
       throw err;
     }
   }
@@ -75,12 +63,12 @@ class PointController extends GetxController {
   updateSignPoint(Map<String, dynamic> json) {
     int index = _points.indexWhere((element) => element.id == json['id']);
     _points[index].isSigned = json['isSigned'];
-    update();
+    notifyListeners();
   }
 
   addPoint(Point point) {
     _points.add(point);
-    update();
+    notifyListeners();
   }
 
   updatePoints(data) {
@@ -90,34 +78,34 @@ class PointController extends GetxController {
         _points[index].isSigned = element['isSigned'];
       }
     });
-    update();
+    notifyListeners();
   }
 
   updatePositionPoint(Point point, Offset position) {
     _points.firstWhere((element) => element == point).position = position;
-    update();
+    notifyListeners();
   }
 
   activatePoint(int index) {
     _points.forEach((element) => element.isChecked = false);
     _points[index].isChecked = true;
-    update();
+    notifyListeners();
   }
 
   cancelEdit() {
     _points.forEach((element) => element.isChecked = false);
-    update();
+    notifyListeners();
   }
 
   editPoint(String txt) {
     _points.firstWhere((element) => element.isChecked).value = txt;
     _points.forEach((element) => element.isChecked = false);
-    update();
+    notifyListeners();
   }
 
   deletePoint() {
     Point pointForDelete = _points.firstWhere((element) => element.isChecked);
     _points.remove(pointForDelete);
-    update();
+    notifyListeners();
   }
 }

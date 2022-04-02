@@ -1,0 +1,71 @@
+{
+  "identifier" : "21CCD8A8",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "6E480024",
+      "localizations" : [
+
+      ],
+      "name" : "subscrition_test",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "displayPrice" : "0.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "ED904A69",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "B_test description",
+              "displayName" : "B_test",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.ronary.b_test",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : null,
+          "subscriptionGroupID" : "6E480024",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "displayPrice" : "1.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "62CDCB89",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "P_Test description",
+              "displayName" : "P_Test",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.ronary.p_test",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : null,
+          "subscriptionGroupID" : "6E480024",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 1,
+    "minor" : 1
+  }
+}

@@ -1,7 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:notary/utils/navigate.dart';
+
 import 'package:notary/widgets/title_page.dart';
 
 class DetailImage extends StatelessWidget {
@@ -14,7 +15,7 @@ class DetailImage extends StatelessWidget {
   Widget build(BuildContext context) {
     _deleteImg() {
       deleteImg();
-      return Get.back();
+      return Navigator.pop(context);
     }
 
     ColorFilter greyscale = ColorFilter.matrix(<double>[
@@ -43,13 +44,13 @@ class DetailImage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Color(0xFFFFFFFF),
       body: Container(
-        width: Get.width,
-        height: Get.height,
+        width: StateM(context).width(),
+        height: StateM(context).height(),
         child: Stack(
           children: [
             Container(
-              width: Get.width,
-              height: Get.height,
+              width: StateM(context).width(),
+              height: StateM(context).height(),
               child: ColorFiltered(
                 colorFilter: greyscale,
                 child: Image.file(
@@ -66,7 +67,7 @@ class DetailImage extends StatelessWidget {
             Container(
               child: Positioned(
                 bottom: 40,
-                left: Get.width / 2 - 56,
+                left: StateM(context).width() / 2 - 56,
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
                   child: ClipRRect(

@@ -31,8 +31,8 @@ class _LoadingState extends State<Loading> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Lottie.asset(
       'assets/anime/loader7.json',
-      width: reSize(50),
-      height: reSize(50),
+      width: reSize(context, 50),
+      height: reSize(context, 50),
     );
   }
 }

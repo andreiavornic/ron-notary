@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/methods/get_icon_card.dart';
 import 'package:notary/methods/resize_formatting.dart';
 import 'package:notary/models/card.dart' as CardModel;
+import 'package:notary/utils/navigate.dart';
 import 'package:notary/widgets/button_primary.dart';
 
 import 'dot_hidden.dart';
@@ -17,33 +18,33 @@ class SelectCardPrimary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: Get.height / 4 * 3,
-      width: Get.width,
+      height: StateM(context).height() / 4 * 3,
+      width: StateM(context).width(),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: reSize(40)),
+            SizedBox(height: reSize(context, 40)),
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
-                  width:  reSize(80),
-                  height:  reSize(80),
+                  width:  reSize(context, 80),
+                  height:  reSize(context, 80),
                   decoration: BoxDecoration(
                       color: Theme.of(context).primaryColor,
                       borderRadius: BorderRadius.circular(80)),
                   child: Center(
                     child: SvgPicture.asset(
                       'assets/images/114.svg',
-                      width: reSize(38),
+                      width: reSize(context, 38),
                     ),
                   ),
                 ),
-                SizedBox(height:  reSize(20)),
+                SizedBox(height:  reSize(context, 20)),
                 Text(
                   'Make this card primary?',
                   style: TextStyle(
@@ -52,7 +53,7 @@ class SelectCardPrimary extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                SizedBox(height:  reSize(20)),
+                SizedBox(height:  reSize(context, 20)),
                 Text(
                   'This card will used for plan renewal\nby default',
                   style: TextStyle(
@@ -64,7 +65,7 @@ class SelectCardPrimary extends StatelessWidget {
               ],
             ),
             Container(
-              height:  reSize(54),
+              height:  reSize(context, 54),
               decoration: BoxDecoration(
                 border: Border.all(
                   width: 1,
@@ -81,7 +82,7 @@ class SelectCardPrimary extends StatelessWidget {
                       Row(
                         children: [
                           getIconCard(card.brand),
-                          SizedBox(width:  reSize(10)),
+                          SizedBox(width:  reSize(context, 10)),
                           Text(
                             card.name,
                             style: TextStyle(
@@ -95,7 +96,7 @@ class SelectCardPrimary extends StatelessWidget {
                       Row(
                         children: [
                           for (int i = 0; i < 4; i++) DotHidden(),
-                          SizedBox(width:  reSize(5)),
+                          SizedBox(width:  reSize(context, 5)),
                           Text(
                             card.lastFour,
                             style: TextStyle(
@@ -103,7 +104,7 @@ class SelectCardPrimary extends StatelessWidget {
                               fontSize: 14,
                             ),
                           ),
-                          SizedBox(width:  reSize(15)),
+                          SizedBox(width:  reSize(context, 15)),
                         ],
                       ),
                     ],
@@ -118,9 +119,9 @@ class SelectCardPrimary extends StatelessWidget {
                   text: "Confirm",
                 ),
                 SizedBox(
-                    height: Get.height < 670
+                    height: StateM(context).height() < 670
                         ? 20
-                        : reSize(40)),
+                        : reSize(context, 40)),
               ],
             ),
           ],

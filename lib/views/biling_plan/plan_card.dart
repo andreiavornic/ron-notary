@@ -1,20 +1,18 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
-import 'package:notary/controllers/payment.dart';
+
 import 'package:notary/controllers/user.dart';
 import 'package:notary/methods/date_format.dart';
 import 'package:notary/methods/resize_formatting.dart';
-import 'package:notary/methods/show_error.dart';
-import 'package:notary/models/payment.dart';
-import 'package:notary/views/process/confirm_delete.dart';
+import 'package:notary/utils/navigate.dart';
 import 'package:notary/widgets/button_primary.dart';
 import 'package:notary/widgets/loading.dart';
 import 'package:notary/widgets/modals/modal_container.dart';
-
-import '../select_plan.dart';
+import 'package:provider/provider.dart';
+import '../../methods/show_error.dart';
+import '../purchase_app.dart';
+import '../purchase_cat.dart';
+import 'extra_notarizations.dart';
 
 class PlanCard extends StatefulWidget {
   @override
@@ -22,56 +20,42 @@ class PlanCard extends StatefulWidget {
 }
 
 class _PlanCardState extends State<PlanCard> {
-  PaymentController _paymentController = Get.put(PaymentController());
-  UserController _userController = Get.put(UserController());
   bool _isLoading;
-
 
   @override
   void initState() {
-    _isLoading = false;
     super.initState();
-  }
-
-
-  Future<void> _deletePayment() async {
     _isLoading = true;
-    setState(() {});
-    Get.back();
-    try {
-      await _paymentController.deletePayment();
-      _userController.deletePayment();
-      _isLoading = false;
-      setState(() {});
-    } catch (err) {
-      _isLoading = false;
-      setState(() {});
-      showError(err);
-    }
+    _getData();
   }
 
-  Future<void> _addExtra() async {
+  _getData() async {
     try {
-      await _paymentController.selectExtraNotarization();
-      await _userController
-          .addExtra(_paymentController.extraNotarization.value);
-      Get.back();
-      // await FlutterInappPurchase.instance
-      //     .requestPurchaseWithQuantityIOS(_item.productId, 5);
+      await Provider.of<UserController>(context, listen: false).getUser();
+      _isLoading = false;
+      setState(() {});
     } catch (err) {
-      showError(err);
+      _isLoading = false;
+      setState(() {});
+      showError(err, context);
     }
   }
 
   _getDate(int endPeriod) {
-    if (endPeriod != null) return formatDate(endPeriod);
-    return null;
+    int nowDate = DateTime.now().millisecondsSinceEpoch;
+    if (endPeriod != null) {
+      if (nowDate > endPeriod) {
+        return "Expired in ${formatDate(endPeriod)}";
+      } else {
+        return "Exp: ${formatDate(endPeriod)}";
+      }
+    }
+    return "Exp:";
   }
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<UserController>(builder: (_controller) {
-      Payment payment = _controller.payment.value;
+    return Consumer<UserController>(builder: (context, _controller, _) {
       return Stack(
         children: [
           Container(
@@ -83,7 +67,7 @@ class _PlanCardState extends State<PlanCard> {
                 colors: [Color(0xFF272D2C), Color(0xFF272D2C)],
               ),
             ),
-            child: payment == null || !payment.paid
+            child: _controller.payment == null || !_controller.payment.paid
                 ? Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(6),
@@ -111,7 +95,7 @@ class _PlanCardState extends State<PlanCard> {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          SizedBox(height: reSize(15)),
+                          SizedBox(height: reSize(context, 15)),
                           Text(
                             "To start using Ronary please select\nsubscription plan",
                             style: TextStyle(
@@ -119,20 +103,13 @@ class _PlanCardState extends State<PlanCard> {
                               fontSize: 14,
                             ),
                           ),
-                          SizedBox(height: reSize(20)),
+                          SizedBox(height: reSize(context, 20)),
                           ButtonPrimary(
                             text: "Select Subscription",
                             activeBtn: true,
-                            callback: () => Get.to(() => SelectPlan()
-                                //   Navigator.push(
-                                // context,
-                                // MaterialPageRoute(
-                                //   builder: (context) => SelectPlan(
-                                //     cards: widget.user?.payment?.cards,
-                                //   ),
-                                // ),
-                                //),
-                                ),
+                            callback: () => StateM(context).navTo(
+                              PurchaseApp(),
+                            ),
                           )
                         ],
                       ),
@@ -153,7 +130,7 @@ class _PlanCardState extends State<PlanCard> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  "${payment.plan.title} ${payment.plan != null ? payment.plan.ronAmount : ""} RON",
+                                  "${_controller.payment.plan.title} ${_controller.payment.plan != null ? _controller.payment.plan.ronAmount : ""} RON",
                                   style: TextStyle(
                                     color: Color(0xFFFFFFFF),
                                     fontSize: 16,
@@ -171,10 +148,10 @@ class _PlanCardState extends State<PlanCard> {
                                       ),
                                     ),
                                     SizedBox(
-                                      width: reSize(5),
+                                      width: reSize(context, 5),
                                     ),
                                     Text(
-                                      "${payment.ronAmount}",
+                                      "${_controller.payment.ronAmount}",
                                       style: TextStyle(
                                         color: Color(0xFFFFFFFF),
                                         fontSize: 28,
@@ -185,24 +162,15 @@ class _PlanCardState extends State<PlanCard> {
                                 )
                               ],
                             ),
-                            SizedBox(height: reSize(15)),
+                            SizedBox(height: reSize(context, 15)),
                             Container(
-                              width: reSize(77),
-                              height: reSize(24),
+                              width: reSize(context, 77),
+                              height: reSize(context, 24),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(22),
                                 child: TextButton(
-                                  onPressed: () => Get.to(() => SelectPlan()),
-                                  //   Navigator.push(
-                                  // context,
-                                  // MaterialPageRoute(
-                                  //   builder: (context) => SelectPlan(
-                                  //     cards: widget.user.value.cards,
-                                  //     changePlan: true,
-                                  //     planId: widget.user.value.payment.plan.id,
-                                  //   ),
-                                  // ),
-                                  //),
+                                  onPressed: () =>
+                                      StateM(context).navTo(PurchaseApp()),
                                   style: ButtonStyle(
                                       padding: MaterialStateProperty.all(
                                           EdgeInsets.zero),
@@ -213,8 +181,8 @@ class _PlanCardState extends State<PlanCard> {
                                           MaterialStateProperty.all(
                                               Color(0xFF494949))),
                                   child: Container(
-                                    width: reSize(77),
-                                    height: reSize(24),
+                                    width: reSize(context, 77),
+                                    height: reSize(context, 24),
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(22),
                                     ),
@@ -229,7 +197,7 @@ class _PlanCardState extends State<PlanCard> {
                                             "assets/images/78.svg",
                                             color: Color(0xFFFFFFFF),
                                           ),
-                                          SizedBox(width: reSize(5)),
+                                          SizedBox(width: reSize(context, 5)),
                                           Text(
                                             "Change",
                                             style: TextStyle(
@@ -244,53 +212,54 @@ class _PlanCardState extends State<PlanCard> {
                                 ),
                               ),
                             ),
-                            SizedBox(height: reSize(20)),
+                            SizedBox(height: reSize(context, 20)),
                             Container(
                               height: 1,
                               color: Color(0xFF494949),
                             ),
-                            SizedBox(height: reSize(20)),
+                            SizedBox(height: reSize(context, 20)),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  'Exp: ${_getDate(payment.endPeriod)}',
+                                  '${_getDate(_controller.payment.endPeriod)}',
                                   style: TextStyle(
                                     color: Color(0xFFFFFFFF),
                                     fontSize: 12,
                                   ),
                                 ),
-                                InkWell(
-                                  onTap: () => modalContainer(
-                                    ConfirmDelete(
-                                      callback: _deletePayment,
-                                      description: Text(
-                                        'You really want to unsubscribe? All your RON notarizations will be deleted, you will have 30 days to download your files',
-                                        style: TextStyle(
-                                          color: Color(0xFF494949),
-                                          fontSize: 14,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                      btnTxt: 'Unsubscribe',
-                                    ),
-                                  ),
-                                  child: Text(
-                                    "Unsubscribe",
-                                    style: TextStyle(
-                                      color: Color(0xFF878E8D),
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ),
+                                // InkWell(
+                                //   onTap: () => modalContainer(
+                                //     ConfirmDelete(
+                                //       callback: _deletePayment,
+                                //       description: Text(
+                                //         'You really want to unsubscribe? All your RON notarizations will be deleted, you will have 30 days to download your files',
+                                //         style: TextStyle(
+                                //           color: Color(0xFF494949),
+                                //           fontSize: 14,
+                                //         ),
+                                //         textAlign: TextAlign.center,
+                                //       ),
+                                //       btnTxt: 'Unsubscribe',
+                                //     ),
+                                //   ),
+                                //   child: Text(
+                                //     "Unsubscribe",
+                                //     style: TextStyle(
+                                //       color: Color(0xFF878E8D),
+                                //       fontSize: 12,
+                                //     ),
+                                //   ),
+                                // ),
                               ],
                             ),
-                            SizedBox(height: reSize(20)),
+                            SizedBox(height: reSize(context, 20)),
                             ClipRRect(
                               borderRadius: BorderRadius.circular(4),
                               child: Container(
-                                height: reSize(44),
-                                width: Get.width - reSize(60),
+                                height: reSize(context, 44),
+                                width: StateM(context).width() -
+                                    reSize(context, 60),
                                 decoration: BoxDecoration(
                                   color: Theme.of(context).primaryColor,
                                   borderRadius: BorderRadius.only(
@@ -304,19 +273,23 @@ class _PlanCardState extends State<PlanCard> {
                                           EdgeInsets.zero),
                                       overlayColor: MaterialStateProperty.all(
                                           Theme.of(context)
-                                              .colorScheme.secondary
+                                              .colorScheme
+                                              .secondary
                                               .withOpacity(0.05)),
                                       backgroundColor:
                                           MaterialStateProperty.all(
                                               Theme.of(context).primaryColor),
                                     ),
+                                    onPressed: ()=> print("Add extra notarization"),
                                     // onPressed: _addExtra,
-                                    onPressed: () =>
-                                        modalContainer(_extraSet(1)),
+                                    // onPressed: () => modalContainerSimple(
+                                    //     ExtraNotarization(), context),
                                     child: Text(
                                       "Buy extra notarization",
                                       style: TextStyle(
-                                        color: Theme.of(context).colorScheme.secondary,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
                                         fontSize: 16,
                                         fontWeight: FontWeight.w700,
                                       ),
@@ -332,9 +305,12 @@ class _PlanCardState extends State<PlanCard> {
           _isLoading
               ? Container(
                   height: 231,
-                  width: Get.width - 40,
+                  width: StateM(context).width() - 40,
                   decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.secondary.withOpacity(0.7),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .secondary
+                          .withOpacity(0.7),
                       borderRadius: BorderRadius.circular(8)),
                   child: Center(
                     child: Loading(),
@@ -342,158 +318,6 @@ class _PlanCardState extends State<PlanCard> {
                 )
               : Container()
         ],
-      );
-    });
-  }
-
-  void _plusExtra() {
-    _paymentController.plusExtra();
-    setState(() {});
-  }
-
-  void _minusExtra() {
-    _paymentController.minusExtra();
-    setState(() {});
-  }
-
-  Widget _extraSet(int ron) {
-    return GetBuilder<PaymentController>(builder: (_controller) {
-      return Container(
-        height: Get.height / 2,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            SizedBox(height: reSize(30)),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: reSize(20)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Buy RON Sessions",
-                    style: TextStyle(
-                      color: Color(0xFF161617),
-                      fontSize: 24,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  SizedBox(height: reSize(5)),
-                  Text(
-                    "Select number of RON credits",
-                    style: TextStyle(
-                      color: Color(0xFFADAEAF),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: reSize(30)),
-            Expanded(
-              child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Container(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(28),
-                          child: Container(
-                            width: reSize(28),
-                            height: reSize(28),
-                            child: TextButton(
-                              onPressed: _controller.extraNotarization <= 1
-                                  ? null
-                                  : _minusExtra,
-                              //  paymentProvider.minusNotarization(),
-                              style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                    Color(0xFFE1E1E1)),
-                                overlayColor: MaterialStateProperty.all(
-                                  Theme.of(context)
-                                      .colorScheme.secondary
-                                      .withOpacity(0.2),
-                                ),
-                                padding:
-                                    MaterialStateProperty.all(EdgeInsets.zero),
-                              ),
-                              child: Container(
-                                width: reSize(28),
-                                height: reSize(28),
-                                child: Center(
-                                  child:
-                                      SvgPicture.asset("assets/images/80.svg"),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: reSize(40)),
-                        Container(
-                          height: reSize(60),
-                          decoration: BoxDecoration(
-                              border: Border(
-                            bottom: BorderSide(
-                                width: 1.0, color: Color(0xFFE1E1E1)),
-                          )),
-                          child: Center(
-                            child: Text(
-                              _paymentController.extraNotarization.toString(),
-                              style: TextStyle(
-                                fontSize: 48,
-                                color: Theme.of(context).colorScheme.secondary,
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: reSize(40)),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(28),
-                          child: Container(
-                            width: reSize(28),
-                            height: reSize(28),
-                            child: TextButton(
-                              onPressed: _plusExtra,
-                              // paymentProvider.addNotarization(),
-                              style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                    Color(0xFFE1E1E1)),
-                                overlayColor: MaterialStateProperty.all(
-                                  Theme.of(context)
-                                      .colorScheme.secondary
-                                      .withOpacity(0.2),
-                                ),
-                                padding:
-                                    MaterialStateProperty.all(EdgeInsets.zero),
-                              ),
-                              child: Container(
-                                width: reSize(28),
-                                height: reSize(28),
-                                child: Center(
-                                  child:
-                                      SvgPicture.asset("assets/images/79.svg"),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )),
-            ),
-            SizedBox(height: reSize(20)),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: ButtonPrimary(
-                text: "Buy for \$${_controller.extraNotarization * 25}",
-                callback: _addExtra,
-              ),
-            ),
-            SizedBox(height: Get.height < 670 ? 20 : reSize(40)),
-          ],
-        ),
       );
     });
   }

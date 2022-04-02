@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/controllers/point.dart';
 import 'package:notary/controllers/recipient.dart';
 import 'package:notary/methods/resize_formatting.dart';
 import 'package:notary/models/recipient.dart';
+import 'package:provider/provider.dart';
 
 import 'btn_tags.dart';
 import 'navigator_tags.dart';
@@ -32,7 +33,6 @@ class DocumentBody extends StatefulWidget {
 }
 
 class _DocumentBodyState extends State<DocumentBody> {
-  RecipientController _recipientController = Get.put(RecipientController());
   Color _baseColor;
   double widthConstrain;
 
@@ -41,9 +41,8 @@ class _DocumentBodyState extends State<DocumentBody> {
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: GetBuilder<PointController>(
-          init: PointController(),
-          builder: (_pointController) {
+        child: Consumer2<PointController, RecipientController>(
+          builder: (context, _pointController, _recipientController, _) {
             Recipient _recipe = _recipientController.recipientsForTag
                 .firstWhere((element) => element.isActive, orElse: () => null);
 
@@ -86,7 +85,7 @@ class _DocumentBodyState extends State<DocumentBody> {
                     ),
                   ),
                   Container(
-                    height: reSize(59),
+                    height: reSize(context, 59),
                     decoration: BoxDecoration(
                       color: Color(0xFFFAFBFD).withOpacity(0.9),
                       border: Border(
@@ -112,7 +111,7 @@ class _DocumentBodyState extends State<DocumentBody> {
                         bottomRight: Radius.circular(16),
                       ),
                     ),
-                    child: _pointController.points
+                    child: Provider.of<PointController>(context, listen: false).points
                             .any((element) => element.isChecked)
                         ? Container(
                             child: Row(
@@ -127,7 +126,7 @@ class _DocumentBodyState extends State<DocumentBody> {
                                       )
                                     : Container(),
                                 widget.typeSignature == "TEXTBOX"
-                                    ? SizedBox(width: reSize(20))
+                                    ? SizedBox(width: reSize(context, 20))
                                     : SizedBox(),
                                 BtnTags(
                                   baseColor: _baseColor,
@@ -136,7 +135,7 @@ class _DocumentBodyState extends State<DocumentBody> {
                                   text: 'Delete',
                                   active: false,
                                 ),
-                                SizedBox(width: reSize(20)),
+                                SizedBox(width: reSize(context, 20)),
                                 BtnTags(
                                   baseColor: _baseColor,
                                   icon: 'assets/images/35.svg',

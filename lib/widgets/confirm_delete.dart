@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/methods/resize_formatting.dart';
+import 'package:notary/utils/navigate.dart';
 
 import 'button_primary_outline.dart';
 
@@ -16,8 +17,8 @@ class ConfirmDelete extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: Get.height / 4 * 3,
-      width: Get.width,
+      height: StateM(context).height() / 4 * 3,
+      width: StateM(context).width(),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
@@ -29,8 +30,8 @@ class ConfirmDelete extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
-                    width: reSize(80),
-                    height: reSize(80),
+                    width: reSize(context, 80),
+                    height: reSize(context, 80),
                     decoration: BoxDecoration(
                         color: Color(0xFFFC563D),
                         borderRadius: BorderRadius.circular(80)),
@@ -39,12 +40,12 @@ class ConfirmDelete extends StatelessWidget {
                         icon != null
                             ? 'assets/images/$icon.svg'
                             : 'assets/images/106.svg',
-                        width: reSize(24),
+                        width: reSize(context, 24),
                         color: Color(0xFFFFFFFF),
                       ),
                     ),
                   ),
-                  SizedBox(height: reSize(20)),
+                  SizedBox(height: reSize(context, 20)),
                   Text(
                     'Are you sure?',
                     style: TextStyle(
@@ -53,7 +54,7 @@ class ConfirmDelete extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  SizedBox(height: reSize(20)),
+                  SizedBox(height: reSize(context, 20)),
                   description != null
                       ? description
                       : RichText(
@@ -76,9 +77,9 @@ class ConfirmDelete extends StatelessWidget {
                       ],
                     ),
                   ),
-                  SizedBox(height: reSize(30)),
+                  SizedBox(height: reSize(context, 30)),
                   ButtonPrimaryOutline(
-                    width: reSize(230),
+                    width: reSize(context, 230),
                     text: btnTxt != null ? btnTxt : 'Remove',
                     callback: callback,
                     color: Colors.red,
@@ -87,7 +88,7 @@ class ConfirmDelete extends StatelessWidget {
               ),
             ),
 
-            SizedBox(height: reSize(14)),
+            SizedBox(height: reSize(context, 14)),
           ],
         ),
       ),

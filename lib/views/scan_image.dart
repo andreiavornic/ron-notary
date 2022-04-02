@@ -1,19 +1,19 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:isolate';
 
 import 'package:edge_detection/edge_detection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
 import 'package:notary/controllers/session.dart';
 import 'package:notary/methods/show_error.dart';
+import 'package:notary/utils/navigate.dart';
 import 'package:notary/views/document-setting.dart';
 import 'package:notary/widgets/button_primary.dart';
 import 'package:notary/widgets/detail_image.dart';
 import 'package:notary/widgets/loading_page.dart';
 import 'package:notary/widgets/title_page.dart';
+import 'package:provider/provider.dart';
 
 class ScanImage extends StatefulWidget {
   @override
@@ -21,7 +21,6 @@ class ScanImage extends StatefulWidget {
 }
 
 class _ScanImageState extends State<ScanImage> {
-  SessionController _sessionController = Get.put(SessionController());
   List<String> _imagePaths;
   String _imagePath;
   int _indexSelected;
@@ -37,41 +36,38 @@ class _ScanImageState extends State<ScanImage> {
 
   Future<void> getImage() async {
     try {
-      String imagePath = await EdgeDetection.detectEdge;
+      String imagePath = (await EdgeDetection.detectEdge);
       if (imagePath != null) {
         _imagePath = imagePath;
         _imagePaths.add(_imagePath);
         setState(() {});
-      }
-      if (_imagePath == null && _imagePaths.length == 0) {
-        Get.back();
+      } else if (_imagePath == null || _imagePaths.length == 0) {
+        Navigator.pop(context);
       }
     } on PlatformException catch (err) {
-      showError(err);
+      showError(err, context);
     }
-    if (!mounted) return;
   }
 
   Future<void> _convertImageToPDF() async {
     _isLoading = true;
     setState(() {});
     try {
-      await _sessionController.generatePdf(_imagePaths);
-      // await Provider.of<SessionProvider>(context, listen: false)
-      //     .generatePdfSession(_imagePaths);
+      int totalLength = 0;
+      _imagePaths.forEach((element) {
+        totalLength += new File(element).lengthSync();
+      });
+      if (totalLength > 1.45e+7) throw "Your document is bigger than 15 MB,\n please scan only documents";
+      await Provider.of<SessionController>(context, listen: false)
+          .generatePdf(_imagePaths);
       _isLoading = false;
       setState(() {});
-      Get.back();
-      Get.to(
-        () => DocumentSetting(),
-        transition: Transition.noTransition,
-      );
-      // Navigator.of(context).pop();
-      // return widget.uploadFile();
+      Navigator.pop(context);
+      StateM(context).navTo(DocumentSetting());
     } catch (err) {
       _isLoading = false;
       setState(() {});
-      showError(err);
+      showError(err, context);
     }
   }
 
@@ -81,14 +77,14 @@ class _ScanImageState extends State<ScanImage> {
       setState(() {});
     }
     if (_imagePaths.length == 0) {
-      Get.back();
+      Navigator.pop(context);
     }
   }
 
   _navToImg(int i) {
     _indexSelected = i;
     setState(() {});
-    Get.to(() => DetailImage(_imagePaths[i], _deleteImg));
+    StateM(context).navTo(DetailImage(_imagePaths[i], _deleteImg));
   }
 
   ColorFilter greyscale = ColorFilter.matrix(<double>[
@@ -222,11 +218,4 @@ class _ScanImageState extends State<ScanImage> {
       ),
     );
   }
-}
-
-class DecodeParam {
-  final File file;
-  final SendPort sendPort;
-
-  DecodeParam(this.file, this.sendPort);
 }

@@ -1,15 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
 import 'package:intl/intl.dart';
 import 'package:notary/controllers/user.dart';
 import 'package:notary/methods/resize_formatting.dart';
 import 'package:notary/methods/show_error.dart';
+import 'package:notary/utils/navigate.dart';
 import 'package:notary/widgets/button_primary.dart';
-import 'package:notary/widgets/edit_intput.widget.dart';
+import 'package:notary/widgets/edit_input.widget.dart';
 import 'package:notary/widgets/loading_page.dart';
 import 'package:notary/widgets/modals/modal_container.dart';
 import 'package:notary/widgets/title_page.dart';
+import 'package:provider/provider.dart';
 
 class NotaryEdit extends StatefulWidget {
   @override
@@ -17,7 +19,6 @@ class NotaryEdit extends StatefulWidget {
 }
 
 class _NotaryEditState extends State<NotaryEdit> {
-  UserController _userController = Get.put(UserController());
   String _company;
   String _ronLicense;
   DateTime _ronExpire = DateTime.now();
@@ -35,13 +36,12 @@ class _NotaryEditState extends State<NotaryEdit> {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<UserController>(
-        init: UserController(),
-        builder: (_controller) {
+    return Consumer<UserController>(
+        builder: (context, _controller, _) {
           return LoadingPage(
             _loading,
             Container(
-              height: Get.height,
+              height: StateM(context).height(),
               child: SingleChildScrollView(
                 child: Container(
                   child: Column(
@@ -51,7 +51,7 @@ class _NotaryEditState extends State<NotaryEdit> {
                         description: "Must match your notary commission",
                         needNav: true,
                       ),
-                      SizedBox(height: reSize(15)),
+                      SizedBox(height: reSize(context, 15)),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: Container(
@@ -60,7 +60,7 @@ class _NotaryEditState extends State<NotaryEdit> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Commissioned Notary in ${_controller.user.value.longState}',
+                                  'Commissioned Notary in ${_controller.user.longState}',
                                   style: TextStyle(
                                     color:
                                         Theme.of(context).colorScheme.secondary,
@@ -207,7 +207,7 @@ class _NotaryEditState extends State<NotaryEdit> {
                                       initialValue: null,
                                       action: TextInputAction.done,
                                     ),
-                                    SizedBox(height: reSize(15)),
+                                    SizedBox(height: reSize(context, 15)),
                                   ],
                                 ),
                                 Column(
@@ -220,7 +220,7 @@ class _NotaryEditState extends State<NotaryEdit> {
                                           fontSize: 12),
                                       //textAlign: TextAlign.center,
                                     ),
-                                    SizedBox(height: reSize(15)),
+                                    SizedBox(height: reSize(context, 15)),
                                     Container(
                                       child: ButtonPrimary(
                                         callback:
@@ -228,6 +228,10 @@ class _NotaryEditState extends State<NotaryEdit> {
                                         text: "Continue",
                                       ),
                                     ),
+                                    SizedBox(
+                                        height: StateM(context).height() < 670
+                                            ? 20
+                                            : reSize(context, 40)),
                                   ],
                                 )
                               ],
@@ -235,6 +239,7 @@ class _NotaryEditState extends State<NotaryEdit> {
                           ),
                         ),
                       ),
+
                     ],
                   ),
                 ),
@@ -267,7 +272,7 @@ class _NotaryEditState extends State<NotaryEdit> {
     _loading = true;
     setState(() {});
     try {
-      await _userController.editNotary({
+      await Provider.of<UserController>(context, listen: false).editNotary({
         "company": _company,
         "ronLicense": _ronLicense,
         "ronExpire": _ronExpire.toString(),
@@ -278,24 +283,23 @@ class _NotaryEditState extends State<NotaryEdit> {
       });
       _loading = false;
       setState(() {});
-      Get.back();
+      Navigator.pop(context);
     } catch (err) {
       _loading = false;
       setState(() {});
-      showError(err);
+      showError(err, context);
     }
   }
 
   _selectRonExpire() async {
-    print("Click!");
     await modalContainer(
       Container(
-        height: Get.height / 2,
+        height: StateM(context).height() / 2,
         color: Color(0xFFFFFFFF),
         child: Column(
           children: [
             Container(
-              height: Get.height / 2 - reSize(100),
+              height: StateM(context).height() / 2 - reSize(context, 100),
               child: CupertinoDatePicker(
                 mode: CupertinoDatePickerMode.date,
                 minimumYear: DateTime.now().year,
@@ -314,7 +318,7 @@ class _NotaryEditState extends State<NotaryEdit> {
               child: ButtonPrimary(
                 text: 'Select expire date',
                 callback: () {
-                  Get.back();
+                  Navigator.pop(context);
                   FocusScope.of(context).requestFocus(new FocusNode());
                 },
               ),
@@ -322,6 +326,7 @@ class _NotaryEditState extends State<NotaryEdit> {
           ],
         ),
       ),
+        context
     );
   }
 }

@@ -7,7 +7,7 @@ class Journal {
   String name;
   String stepPdf;
   String videoStatus;
-  int fee;
+  double fee;
   List<Recipient> recipients;
   List<Point> points;
   Session session;
@@ -16,7 +16,7 @@ class Journal {
   Journal.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         name = json['name'],
-        fee = json['fee'],
+        fee = json['fee'] / 1,
         stepPdf = json['stepPdf'],
         videoStatus = json['videoStatus'],
 

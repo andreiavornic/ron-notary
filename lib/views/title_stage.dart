@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
+
 import 'package:notary/methods/resize_formatting.dart';
 
 class TitleStage extends StatelessWidget {
@@ -21,9 +21,9 @@ class TitleStage extends StatelessWidget {
           children: [
             IconButton(
               icon: SvgPicture.asset('assets/images/83.svg'),
-              onPressed: () => Get.back(),
+              onPressed: () => Navigator.pop(context),
             ),
-            SizedBox(width: reSize(10)),
+            SizedBox(width: reSize(context, 10)),
           ],
         )
       ],

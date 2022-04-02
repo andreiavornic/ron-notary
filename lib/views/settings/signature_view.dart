@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 import 'package:notary/controllers/user.dart';
 import 'package:notary/methods/resize_formatting.dart';
+import 'package:notary/utils/navigate.dart';
 import 'package:notary/widgets/modals/modal_container.dart';
 import 'package:notary/widgets/signature_list.dart';
+import 'package:provider/provider.dart';
 
 class SignatureView extends StatefulWidget {
   @override
@@ -15,14 +17,13 @@ class SignatureView extends StatefulWidget {
 class _SignatureViewState extends State<SignatureView> {
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<UserController>(
-        init: UserController(),
-        builder: (_controller) {
+    return Consumer<UserController>(
+        builder: (context, _controller, _) {
           return Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: reSize(20)),
+              SizedBox(height: reSize(context, 20)),
               Text(
                 'Signature & Initials',
                 style: TextStyle(
@@ -31,7 +32,7 @@ class _SignatureViewState extends State<SignatureView> {
                   color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
-              SizedBox(height: reSize(15)),
+              SizedBox(height: reSize(context, 15)),
               Text(
                 'I agree that the Signature and my Initials will be my electronic signature and initials, and when applied on a document at my direction, they will be just as legally binding as my pen-and-ink signature and initials.',
                 style: TextStyle(
@@ -41,10 +42,10 @@ class _SignatureViewState extends State<SignatureView> {
                 ),
               ),
               SizedBox(
-                height: reSize(30),
+                height: reSize(context, 30),
               ),
               TextButton(
-                onPressed: () => modalContainer(SignatureList()),
+                onPressed: () => modalContainerSimple(SignatureList(),        context),
                 style: ButtonStyle(
                   padding: MaterialStateProperty.all(EdgeInsets.zero),
                   overlayColor: MaterialStateProperty.all(
@@ -58,7 +59,7 @@ class _SignatureViewState extends State<SignatureView> {
                   ),
                 ),
                 child: Container(
-                    width: Get.width - 40,
+                    width: StateM(context).width() - 40,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -82,9 +83,9 @@ class _SignatureViewState extends State<SignatureView> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    "${_controller.user.value.firstName} ${_controller.user.value.lastName}, ${_controller.user.value.firstName[0]}.${_controller.user.value.lastName[0]}.",
+                                    "${_controller.user.firstName} ${_controller.user.lastName}, ${_controller.user.firstName[0]}.${_controller.user.lastName[0]}.",
                                     style: GoogleFonts.getFont(
-                                      _controller.user.value.fontFamily.fontFamily,
+                                      _controller.user.fontFamily.fontFamily,
                                       fontSize: 15,
                                       //    fontWeight: FontWeight.bold,
                                       color: Theme.of(context).colorScheme.secondary,
@@ -96,7 +97,7 @@ class _SignatureViewState extends State<SignatureView> {
                                   )
                                 ],
                               ),
-                        SizedBox(height: reSize(5)),
+                        SizedBox(height: reSize(context, 5)),
                         Container(
                           height: 1,
                           color: Color(0xFFEDEDED),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:notary/controllers/purchase.dart';
+import 'package:notary/utils/navigate.dart';
+
 
 class HistoryPurchase extends StatefulWidget {
 
@@ -12,11 +12,9 @@ class HistoryPurchase extends StatefulWidget {
 }
 
 class _HistoryPurchaseState extends State<HistoryPurchase> {
-  PurchaseController _purchaseController = Get.put(PurchaseController());
 
   @override
   initState() {
-    _purchaseController.getPastPurchase();
     super.initState();
   }
 
@@ -24,22 +22,22 @@ class _HistoryPurchaseState extends State<HistoryPurchase> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        height: Get.height,
+        height: StateM(context).height(),
         child: SingleChildScrollView(
           child: Column(
             children: [
-              ..._purchaseController.purchaseHistory
-                  .asMap()
-                  .entries
-                  .map((item) {
-                return Column(
-                  children: [
-                    Text("${item.value.transactionStateIOS}"),
-                    Text("${item.value.productId}"),
-                    SizedBox(height: 10),
-                  ],
-                );
-              })
+              // ..._purchaseController.purchaseHistory
+              //     .asMap()
+              //     .entries
+              //     .map((item) {
+              //   return Column(
+              //     children: [
+              //       Text("${item.value.transactionStateIOS}"),
+              //       Text("${item.value.productId}"),
+              //       SizedBox(height: 10),
+              //     ],
+              //   );
+              // })
             ],
           ),
         ),

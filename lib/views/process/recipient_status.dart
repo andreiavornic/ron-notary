@@ -15,8 +15,9 @@ class RecipientStatus extends StatelessWidget {
     return InkWell(
       highlightColor: Color(0xFFFFFFFF),
       splashColor: Color(0xFFFFFFFF),
-      onTap: () => modalContainer(
+      onTap: () => modalContainerSimple(
         RecipientWaiting(recipient.id),
+          context
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -26,8 +27,8 @@ class RecipientStatus extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(right: 7, bottom: 2),
                 child: Container(
-                  width: reSize(34),
-                  height: reSize(34),
+                  width: reSize(context, 34),
+                  height: reSize(context, 34),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
                     color: recipient.color,
@@ -48,24 +49,24 @@ class RecipientStatus extends StatelessWidget {
               recipient?.states?.last == "LOGGED" ? CheckIcon() : Container(),
             ],
           ),
-          SizedBox(height: reSize(8)),
+          SizedBox(height: reSize(context, 8)),
           Container(
             constraints: BoxConstraints(maxWidth: 120),
             child: Text(
               '${recipient.firstName} ${recipient.lastName}',
               style: TextStyle(
                 color: Theme.of(context).colorScheme.secondary,
-                fontSize: reSize(14),
+                fontSize: reSize(context, 14),
               ),
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          SizedBox(height: reSize(2)),
+          SizedBox(height: reSize(context, 2)),
           Text(
             _formattingState(),
             style: TextStyle(
               color: Color(0xFFADAEAF),
-              fontSize: reSize(12),
+              fontSize: reSize(context, 12),
             ),
           ),
         ],
