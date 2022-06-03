@@ -98,7 +98,7 @@ class _RegisterPageState extends State<RegisterPage> {
       _loading = false;
       setState(() {});
     } catch (err) {
-      _loading = true;
+      _loading = false;
       setState(() {});
       showError(err, context);
     }

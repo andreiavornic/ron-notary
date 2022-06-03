@@ -1,3 +1,4 @@
+// import 'package:adapty_flutter/adapty_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:notary/services/dio_service.dart';
 import 'package:dio/dio.dart' as dio;
@@ -8,6 +9,7 @@ class AuthenticationController with ChangeNotifier {
 
   Future<void> logOut() async {
     isLogged = false;
+    // await Adapty.logout();
     removeToken();
     notifyListeners();
   }
@@ -16,6 +18,8 @@ class AuthenticationController with ChangeNotifier {
     try {
       dio.Response resDio = await makeRequest('auth/login', 'POST', data);
       var extracted = resDio.data;
+
+      print(extracted);
 
       if (!extracted['success']) {
         throw extracted["message"];
@@ -76,11 +80,13 @@ class AuthenticationController with ChangeNotifier {
         "longState": longState,
       });
       var extracted = resDio.data;
+      print(extracted);
 
       if (!extracted['success']) {
         throw extracted['message'];
       }
     } catch (err) {
+      print(err);
       throw err;
     }
   }

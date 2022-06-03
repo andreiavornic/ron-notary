@@ -240,8 +240,9 @@ class _TagsState extends State<Tags> {
     Point point = Provider.of<PointController>(context, listen: false)
         .points
         .firstWhere((element) => element.isChecked);
+
     modalContainer(
-        textBoxHandler(point.position, point.page, point.wPage, point),
+        textBoxHandler(point.position, point.page, point.wPage, point.value),
         context);
   }
 

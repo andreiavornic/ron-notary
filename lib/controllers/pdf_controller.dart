@@ -16,7 +16,8 @@ class PdfController {
         baseUrl: dotenv.env['URL'],
         headers: {
           HttpHeaders.authorizationHeader: "Bearer $token",
-          HttpHeaders.contentTypeHeader: 'application/json'
+          HttpHeaders.contentTypeHeader: 'application/json',
+          "Platform": Platform.operatingSystem
         },
       );
       var formData = FormData();

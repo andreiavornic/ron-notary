@@ -1,17 +1,21 @@
+import 'package:notary/models/plan.dart';
+
 class Transactions {
-  int purchaseDate;
-  String title;
+  Plan plan;
   String status;
-  int price;
+  String platform;
+  int startPeriod;
+  int endPeriod;
 
   Transactions.fromJson(Map<String, dynamic> json)
-      : purchaseDate = json['purchaseDate'],
-        title = json['title'],
+      : plan = Plan.fromJson(json['plan']),
         status = json['status'],
-        price = json['price'];
+        platform = json['platform'],
+        startPeriod = json['startPeriod'],
+        endPeriod = json['endPeriod'];
 
   @override
   String toString() {
-    return 'Transactions{purchaseDate: $purchaseDate, title: $title, status: $status, price: $price}';
+    return 'Transactions{plan: $plan, status: $status, platform: $platform, startPeriod: $startPeriod, endPeriod: $endPeriod}';
   }
 }

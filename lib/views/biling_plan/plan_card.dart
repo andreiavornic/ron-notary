@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 
 import 'package:notary/controllers/user.dart';
@@ -6,12 +9,16 @@ import 'package:notary/methods/date_format.dart';
 import 'package:notary/methods/resize_formatting.dart';
 import 'package:notary/utils/navigate.dart';
 import 'package:notary/widgets/button_primary.dart';
+import 'package:notary/widgets/buy_extra.dart';
 import 'package:notary/widgets/loading.dart';
 import 'package:notary/widgets/modals/modal_container.dart';
 import 'package:provider/provider.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 import '../../methods/show_error.dart';
+import '../purchase_adapty.dart';
 import '../purchase_app.dart';
 import '../purchase_cat.dart';
+import '../purchase_ron.dart';
 import 'extra_notarizations.dart';
 
 class PlanCard extends StatefulWidget {
@@ -20,13 +27,69 @@ class PlanCard extends StatefulWidget {
 }
 
 class _PlanCardState extends State<PlanCard> {
+  UserController _userController;
   bool _isLoading;
+  Offering _extraOffering;
 
   @override
   void initState() {
     super.initState();
+    _userController = Provider.of<UserController>(context, listen: false);
     _isLoading = true;
     _getData();
+  }
+
+  _initProduct() async {
+    try {
+      await Purchases.setDebugLogsEnabled(false);
+      if (Platform.isAndroid) {
+        await Purchases.setup("goog_DrHqiNSEIRjHlVmRtdUpnghhSSi");
+      } else if (Platform.isIOS) {
+        await Purchases.setup("appl_stCljdECnjoLyTdauyLLNGbhCQL");
+      }
+      Purchases.logIn(_userController.user.email);
+      Purchases.setAttributes({
+        "Name":
+            "${_userController.user.lastName} ${_userController.user.firstName}",
+        "E-mail": _userController.user.email,
+        "Phone": _userController.user.phone,
+      });
+      Offerings offerings = await Purchases.getOfferings();
+      print("Notarization ${offerings.all['Basic']}");
+      if (offerings.all['Extra Notarization'] != null) {
+        _extraOffering = offerings.all['Extra Notarization'];
+      }
+      print(_extraOffering.availablePackages[0].identifier);
+      setState(() {});
+    } catch (err) {
+      print(err);
+    }
+  }
+
+  _buyConsumable() async {
+    try {
+      _isLoading = true;
+      setState(() {});
+      await _initProduct();
+      print("_extraOffering $_extraOffering");
+      if (_extraOffering.availablePackages.length > 0) {
+        await Purchases.purchasePackage(_extraOffering.availablePackages[0]);
+      }
+      _isLoading = false;
+      setState(() {});
+      // InAppPurchase.instance.buyNonConsumable(purchaseParam: purchaseParam);
+    } on PlatformException catch (e) {
+      _isLoading = false;
+      setState(() {});
+      var errorCode = PurchasesErrorHelper.getErrorCode(e);
+      if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
+        showError(e, context);
+      }
+    } catch (err) {
+      _isLoading = false;
+      setState(() {});
+      showError(err, context);
+    }
   }
 
   _getData() async {
@@ -108,7 +171,7 @@ class _PlanCardState extends State<PlanCard> {
                             text: "Select Subscription",
                             activeBtn: true,
                             callback: () => StateM(context).navTo(
-                              PurchaseApp(),
+                              PurchaseCat(),
                             ),
                           )
                         ],
@@ -170,7 +233,7 @@ class _PlanCardState extends State<PlanCard> {
                                 borderRadius: BorderRadius.circular(22),
                                 child: TextButton(
                                   onPressed: () =>
-                                      StateM(context).navTo(PurchaseApp()),
+                                      StateM(context).navTo(PurchaseCat()),
                                   style: ButtonStyle(
                                       padding: MaterialStateProperty.all(
                                           EdgeInsets.zero),
@@ -280,7 +343,7 @@ class _PlanCardState extends State<PlanCard> {
                                           MaterialStateProperty.all(
                                               Theme.of(context).primaryColor),
                                     ),
-                                    onPressed: ()=> print("Add extra notarization"),
+                                    onPressed: _buyConsumable,
                                     // onPressed: _addExtra,
                                     // onPressed: () => modalContainerSimple(
                                     //     ExtraNotarization(), context),

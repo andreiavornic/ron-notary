@@ -43,6 +43,7 @@ android {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "com.ronary.notary_app"
         minSdkVersion 26
+        //noinspection OldTargetApi
         targetSdkVersion 30
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName

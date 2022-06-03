@@ -1,10 +1,12 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_apns/flutter_apns.dart';
+import 'package:flutter_apns/apns.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:notary/controllers/payment.dart';
 
 import 'package:notary/controllers/session.dart';
 import 'package:notary/controllers/user.dart';
@@ -13,7 +15,6 @@ import 'package:notary/methods/show_error.dart';
 import 'package:notary/utils/navigate.dart';
 import 'package:notary/views/encrypt.dart';
 import 'package:notary/views/home/start_session.dart';
-import 'package:notary/views/purchase_app.dart';
 import 'package:notary/views/purchase_cat.dart';
 import 'package:notary/views/session_process.dart';
 import 'package:notary/widgets/bottom_navigator.dart';
@@ -23,7 +24,6 @@ import 'package:notary/widgets/network_connection.dart';
 import 'package:notary/widgets/payment_btn.dart';
 import 'package:notary/widgets/wrap_pages/loading_page.dart';
 import 'package:provider/provider.dart';
-import '../widgets/payment_success.dart';
 import 'document-setting.dart';
 import 'download.dart';
 import 'errors/error_page.dart';
@@ -39,64 +39,66 @@ class Start extends StatefulWidget {
 class _StartState extends State<Start> {
   bool _loading;
   UserController _userController;
+
   SessionController _sessionController;
-  String _token;
-  final PushConnector connector = createPushConnector();
-  FirebaseMessaging messaging = FirebaseMessaging.instance;
+  final PushConnector _connector = createPushConnector();
 
   @override
   void initState() {
     _loading = true;
-    _userController = Provider.of<UserController>(
-      context,
-      listen: false,
-    );
-    _sessionController = Provider.of<SessionController>(
-      context,
-      listen: false,
-    );
+    _userController = Provider.of<UserController>(context, listen: false);
+    _sessionController = Provider.of<SessionController>(context, listen: false);
 
-    _getData();
+    _initNotification();
     super.initState();
   }
 
-  _getSnackbar(context, payload, action) {
-    final snackBar = SnackBar(
-      content: Text(
-        payload.notification?.title,
-        style: TextStyle(fontSize: 12, color: Color(0xFF161617)),
-      ),
-      backgroundColor: Color(0xFFF6F6F9).withOpacity(0.9),
-      behavior: SnackBarBehavior.floating,
-      elevation: 6.0,
-      duration: Duration(seconds: 10),
-      action: action,
-      margin: EdgeInsets.only(
-        bottom: StateM(context).height() - 100,
-        right: 20,
-        left: 20,
-      ),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  _initNotification() async {
+    try {
+      await register();
+      await _getData();
+      if (mounted) {
+        setState(() {
+          _loading = false;
+        });
+      }
+    } catch (err) {
+      print("Is error $err");
+      if (mounted) {
+        setState(() {
+          _loading = false;
+        });
+      }
+      showError(err, context);
+    }
   }
 
   Future<void> register() async {
+    print("register() => Executed!");
     try {
-      final connector = this.connector;
-      connector.configure(
+      _connector.requestNotificationPermissions();
+      _connector.configure(
         onLaunch: (data) => onPush('onLaunch', data),
         onResume: (data) => onPush('onResume', data),
         onMessage: (data) => onPush('onMessage', data),
+        //     onBackgroundMessage: _onBackgroundMessage,
       );
-      connector.requestNotificationPermissions();
-      connector.token.addListener(() {
-        _token = connector.token.value;
-        if (mounted) setState(() {});
+      _connector.token.addListener(() async {
+        var token = _connector.token.value;
+        print("token $token");
+        await _userController.addTokenNotification(token);
       });
-    } catch (e) {}
+      if (mounted) {
+        setState(() {});
+      }
+    } catch (e) {
+      throw e;
+    }
   }
 
   Future<dynamic> onPush(String name, RemoteMessage payload) async {
+    if(!mounted) return;
+    print("onPush name $name");
     String os = Platform.operatingSystem;
     dynamic data = {"actionIdentifier": null, "info": {}};
     if (os == 'ios') {
@@ -108,56 +110,36 @@ class _StartState extends State<Start> {
     final action = data['actionIdentifier'];
     if (action != null) {
       switch (action) {
-        case 'RON_THREE':
-          _getSnackbar(
-              context,
-              payload,
-              SnackBarAction(
-                label: 'Undo',
-                textColor: Color(0xFF161617),
-                onPressed: () {},
-              ));
-          break;
         case 'INITIAL_PURCHASE':
-          StateM(context).navOff(PaymentSuccess());
+          await Provider.of<UserController>(context, listen: false).getUser();
+          await Provider.of<PaymentController>(context, listen: false)
+              .getTransactions();
           print("INITIAL_PURCHASE");
           break;
-        case 'RENEWAL':
-          _getSnackbar(
-              context,
-              "Your subscription was renewed",
-              SnackBarAction(
-                label: 'Undo',
-                textColor: Color(0xFF161617),
-                onPressed: () {},
-              ));
-          break;
-        case 'PRODUCT_CHANGE':
-          await _userController.getUser();
-          print("PRODUCT_CHANGE");
-          break;
-        case 'CANCELLATION':
-          await _userController.getUser();
-          print("CANCELLATION");
+        case 'SUBSCRIPTION_RENEWED':
+          await Provider.of<UserController>(context, listen: false).getUser();
+          await Provider.of<PaymentController>(context, listen: false)
+              .getTransactions();
+          print("SUBSCRIPTION_RENEWED");
           break;
         case 'EXPIRATION':
-          _getSnackbar(
-              context,
-              payload,
-              SnackBarAction(
-                label: 'Buy more',
-                textColor: Color(0xFF161617),
-                onPressed: () => StateM(context).navTo(PurchaseApp()),
-              ));
+          await Provider.of<UserController>(context, listen: false).getUser();
           print("EXPIRATION");
           break;
         case 'UPDATE_POINT':
           print("UPDATE_POINT");
-          _sessionController.updatePoints(info);
+          Provider.of<SessionController>(context, listen: false)
+              .updatePoints(info);
+          break;
+        case 'UPDATE_ONE_POINT':
+          print("UPDATE_ONE_POINT");
+          Provider.of<SessionController>(context, listen: false)
+              .updateOnePoint(info);
           break;
         case 'UPDATE_RECIPIENT':
           print("UPDATE_RECIPIENT");
-          _sessionController.updateRecipients(info);
+          Provider.of<SessionController>(context, listen: false)
+              .updateRecipients(info);
           break;
         default:
           break;
@@ -168,21 +150,21 @@ class _StartState extends State<Start> {
 
   _getData() async {
     try {
-      await register();
+      if (!mounted) return;
       await _userController.getUser();
-      await _userController.addTokenNotification(_token);
       await _userController.getStamp();
       await _userController.getSignatures();
       await _sessionController.getSession();
-      _loading = false;
-      setState(() {});
     } catch (err) {
-      if (mounted) {
-        showError(err, context);
-        _loading = false;
-        setState(() {});
-      }
+      print("Error __getData()");
+      throw err;
     }
+  }
+
+  @override
+  void dispose() {
+    _connector.dispose();
+    super.dispose();
   }
 
   @override
@@ -219,12 +201,12 @@ class _StartState extends State<Start> {
                       ],
                     ),
                   ),
-                  if (_controller.payment != null)
-                    BottomNavigator(
-                      widget: _controller.payment.paid == false
-                          ? Container()
-                          : _getSessionExist(),
-                    ),
+                  BottomNavigator(
+                    widget:
+                        _controller.payment != null && !_controller.payment.paid
+                            ? Container()
+                            : _getSessionExist(),
+                  ),
                 ],
               ),
             ),
@@ -273,7 +255,7 @@ class _StartState extends State<Start> {
                 ButtonPrimaryOutline(
                   width: 232,
                   text: "Billing",
-                  callback: () => StateM(context).navTo(PurchaseApp()),
+                  callback: () => StateM(context).navTo(PurchaseCat()),
                 )
               ],
             ),

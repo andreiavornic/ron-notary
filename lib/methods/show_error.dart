@@ -5,12 +5,15 @@ import 'package:notary/views/errors/error_page.dart';
 import 'package:notary/views/start.dart';
 import 'package:provider/provider.dart';
 
+import '../views/server_not_response.dart';
+import '../views/session_expired.dart';
+
 showError(err, context) {
-  if (err == 'JWT EXPIRED' ||
-      err == 'TOKEN NULL' ||
-      err == "SERVE_NOT_RESPONSE") {
-    Provider.of<AuthenticationController>(context, listen: false).logOut();
-    StateM(context).navOff(Auth());
+  if (err == 'JWT EXPIRED' || err == 'TOKEN NULL') {
+    StateM(context).navOff(SessionExpired());
+    return;
+  } else if (err == "SERVE_NOT_RESPONSE") {
+    StateM(context).navOff(ServerNotResponse());
     return;
   } else if (err == 'Session not found') {
     StateM(context).navTo(ErrorPage(
@@ -25,5 +28,4 @@ showError(err, context) {
     errorMessage: err.toString(),
     callback: () => StateM(context).navBack(),
   ));
-
 }

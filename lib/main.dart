@@ -1,7 +1,15 @@
+import 'dart:convert';
+import 'dart:io';
+
+// import 'package:adapty_flutter/adapty_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_apns/apns.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:overlay_support/overlay_support.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:notary/views/auth.dart';
@@ -18,46 +26,67 @@ import 'controllers/session.dart';
 import 'controllers/support.dart';
 import 'controllers/user.dart';
 import 'firebase_options.dart';
+import 'methods/show_error.dart';
+// import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  if (Platform.isAndroid) {
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+  } else {
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+
+    print(
+        "debugDefaultTargetPlatformOverride $debugDefaultTargetPlatformOverride");
+  }
+
+  kNotificationSlideDuration = const Duration(milliseconds: 500);
+  kNotificationDuration = const Duration(milliseconds: 1500);
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  WidgetsFlutterBinding.ensureInitialized();
+
   await SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+
   final ThemeData theme = ThemeData();
   await dotenv.load(fileName: ".env");
 
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => AuthenticationController()),
-        ChangeNotifierProvider(create: (context) => JournalController()),
-        ChangeNotifierProvider(create: (context) => PaymentController()),
-        ChangeNotifierProvider(create: (context) => PlanController()),
-        ChangeNotifierProvider(create: (context) => PointController()),
-        ChangeNotifierProvider(create: (context) => RecipientController()),
-        ChangeNotifierProvider(create: (context) => SessionController()),
-        ChangeNotifierProvider(create: (context) => SupportController()),
-        ChangeNotifierProvider(create: (context) => UserController()),
+        ChangeNotifierProvider(create: (_) => AuthenticationController()),
+        ChangeNotifierProvider(create: (_) => JournalController()),
+        ChangeNotifierProvider(create: (_) => PaymentController()),
+        ChangeNotifierProvider(create: (_) => PlanController()),
+        ChangeNotifierProvider(create: (_) => PointController()),
+        ChangeNotifierProvider(create: (_) => RecipientController()),
+        ChangeNotifierProvider(create: (_) => SessionController()),
+        ChangeNotifierProvider(create: (_) => SupportController()),
+        ChangeNotifierProvider(create: (_) => UserController()),
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Ronary Notary',
-        theme: theme.copyWith(
-          primaryColor: Color(0xFFFFC700),
-          colorScheme: theme.colorScheme.copyWith(
-            secondary: Color(0xFF161617),
-            primary: Color(0xFF161617),
-          ),
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-          canvasColor: Colors.white,
-          backgroundColor: Color(0xFFFFFFFF),
-          scaffoldBackgroundColor: Color(0xFFFFFFFF),
+      child: OverlaySupport.global(
+        toastTheme: ToastThemeData(
+          textColor: Color(0xFF161617),
         ),
-        home: App(),
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Ronary Notary',
+          theme: theme.copyWith(
+            primaryColor: Color(0xFFFFC700),
+            colorScheme: theme.colorScheme.copyWith(
+              secondary: Color(0xFF161617),
+              primary: Color(0xFF161617),
+            ),
+            visualDensity: VisualDensity.adaptivePlatformDensity,
+            canvasColor: Colors.white,
+            backgroundColor: Color(0xFFFFFFFF),
+            scaffoldBackgroundColor: Color(0xFFFFFFFF),
+          ),
+          home: App(),
+        ),
       ),
     ),
   );
@@ -69,6 +98,8 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> with RouteAware {
+
+
   @override
   initState() {
     super.initState();

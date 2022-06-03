@@ -44,8 +44,7 @@ class _DocumentTagState extends State<DocumentTag> {
 
   initImages() {
     _images = [];
-    Provider
-        .of<SessionController>(context, listen: false)
+    Provider.of<SessionController>(context, listen: false)
         .session
         .images
         .forEach((image) {
@@ -53,7 +52,6 @@ class _DocumentTagState extends State<DocumentTag> {
     });
     setState(() {});
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +80,7 @@ class _DocumentTagState extends State<DocumentTag> {
                           transformationController: _transformationController,
                           child: SingleChildScrollView(
                             physics: _controller.points
-                                .any((element) => element.isChecked)
+                                    .any((element) => element.isChecked)
                                 ? NeverScrollableScrollPhysics()
                                 : ScrollPhysics(),
                             child: Column(
@@ -114,9 +112,11 @@ class _DocumentTagState extends State<DocumentTag> {
     );
   }
 
-  Widget _getImageAndPoints(List<Point> _points,
-      Image image,
-      int index,) {
+  Widget _getImageAndPoints(
+    List<Point> _points,
+    Image image,
+    int index,
+  ) {
     _checkPoint(Point point) {
       int indexPoint = _points.indexWhere((element) => element.id == point.id);
       if (indexPoint >= 0) {
@@ -125,7 +125,7 @@ class _DocumentTagState extends State<DocumentTag> {
     }
 
     List<Point> _sortedPoints =
-    _points.where((element) => element.page == index).toList();
+        _points.where((element) => element.page == index).toList();
     return Stack(
       children: [
         Column(
@@ -144,8 +144,8 @@ class _DocumentTagState extends State<DocumentTag> {
             )
           ],
         ),
-        for (var point in _sortedPoints)
-          Positioned(
+        ..._sortedPoints.map((point) {
+          return Positioned(
             left: point.position.dx,
             top: point.position.dy,
             child: GestureDetector(
@@ -155,7 +155,8 @@ class _DocumentTagState extends State<DocumentTag> {
                 onTap: () => _checkPoint(point),
               ),
             ),
-          ),
+          );
+        })
       ],
     );
   }

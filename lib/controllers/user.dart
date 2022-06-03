@@ -51,7 +51,6 @@ class UserController extends ChangeNotifier {
       if (!extracted['success']) {
         throw extracted['message'];
       }
-
       _user = new User.fromJson(extracted['data']);
       _notary = extracted['data']['notary'] != null
           ? new Notary.fromJson(extracted['data']['notary'])
@@ -62,10 +61,13 @@ class UserController extends ChangeNotifier {
       _certificate = extracted['data']['certificate'];
       _passwordCertificate = extracted['data']['passwordCertificate'];
       final prefs = await SharedPreferences.getInstance();
-      prefs.setString("SOCKET_ROOM_SESSION", extracted['data']['roomSession']);
-
+      if (extracted['data']['roomSession'] != null) {
+        prefs.setString(
+            "SOCKET_ROOM_SESSION", extracted['data']['roomSession']);
+      }
       notifyListeners();
     } catch (err) {
+      print("Error getUser($err)");
       throw err;
     }
   }
@@ -78,7 +80,6 @@ class UserController extends ChangeNotifier {
         "os": os,
       });
       var extracted = resDio.data;
-
       if (!extracted['success']) {
         throw extracted['message'];
       }

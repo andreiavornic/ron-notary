@@ -5,7 +5,7 @@ class Plan {
   int price;
   int ronAmount;
   double perSession;
-  String planIdAppStore;
+  String productId;
 
   Plan({
     this.id,
@@ -14,7 +14,7 @@ class Plan {
     this.price,
     this.perSession,
     this.ronAmount,
-    this.planIdAppStore,
+    this.productId,
   });
 
   Plan.fromJson(Map<String, dynamic> json)
@@ -23,11 +23,11 @@ class Plan {
         description = json['description'],
         price = json['price'],
         ronAmount = json['ronAmount'],
-        planIdAppStore = json['planIdAppStore'],
+        productId = json['productId'],
         perSession = (json['price'] / json['ronAmount']).toDouble();
 
   @override
   String toString() {
-    return 'Plan{id: $id, title: $title, description: $description, price: $price, ronAmount: $ronAmount, perSession: $perSession, planIdAppStore: $planIdAppStore}';
+    return 'Plan{id: $id, title: $title, description: $description, price: $price, ronAmount: $ronAmount, perSession: $perSession, productId: $productId}';
   }
 }

@@ -14,12 +14,11 @@ FutureOr<Response> makeRequest(String path, String method, dynamic data) async {
       baseUrl: dotenv.env['URL'],
       headers: {
         HttpHeaders.authorizationHeader: "Bearer $token",
-        HttpHeaders.contentTypeHeader: 'application/json'
+        HttpHeaders.contentTypeHeader: 'application/json',
+        "Platform": Platform.operatingSystem
       },
     );
-
     print("$method: ${dio.options.baseUrl}$path");
-
     Response response;
     switch (method) {
       case ("POST"):
@@ -42,7 +41,8 @@ FutureOr<Response> makeRequest(String path, String method, dynamic data) async {
         data: {
           "success": false,
           "message": "SERVE_NOT_RESPONSE",
-        }, requestOptions: null,
+        },
+        requestOptions: null,
       );
     }
     if (e.response != null) {

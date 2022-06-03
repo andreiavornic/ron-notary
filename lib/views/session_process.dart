@@ -18,6 +18,7 @@ import 'package:share/share.dart';
 
 import '../widgets/network_connection.dart';
 import 'start.dart';
+import 'package:camera/camera.dart';
 
 class SessionProcess extends StatefulWidget {
   @override
@@ -27,6 +28,8 @@ class SessionProcess extends StatefulWidget {
 class _SessionProcessState extends State<SessionProcess> {
   bool _loading;
   SessionController _sessionController;
+  List<CameraDescription> cameras;
+  CameraController controller;
 
   @override
   void initState() {
@@ -39,7 +42,6 @@ class _SessionProcessState extends State<SessionProcess> {
   Future<void> _getSession() async {
     try {
       await _sessionController.getSession();
-
       if (mounted) {
         _loading = false;
         setState(() {});
@@ -240,6 +242,7 @@ class _SessionProcessState extends State<SessionProcess> {
                                       element.states.last == "LOGGED")
                                   ? _goInProcess
                                   : null,
+                              // callback: _goInProcess,
                               text: "Start Session",
                             ),
                           ),
@@ -260,10 +263,30 @@ class _SessionProcessState extends State<SessionProcess> {
     );
   }
 
+  Future<void> _setupCamera() async {
+    try {
+      // initialize cameras.
+      cameras = await availableCameras();
+
+      // initialize camera controllers.
+      controller = new CameraController(cameras[1], ResolutionPreset.medium);
+      print(controller);
+      await controller.initialize();
+
+    } on CameraException catch (_) {
+      debugPrint("Some error occured!");
+    }
+  }
+
   _goInProcess() async {
     try {
       _loading = true;
       setState(() {});
+      // await _setupCamera();
+      // _loading = false;
+      // setState(() {});
+      // return;
+
       await _sessionController.getSession();
       await _sessionController.processSession();
       StateM(context).navTo(VideoSession());

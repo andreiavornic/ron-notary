@@ -33,7 +33,7 @@ dependencies:
   file_picker: ^4.5.1
   mask_text_input_formatter: ^2.0.0
   lottie: ^1.2.2
-  font_awesome_flutter: ^9.2.0
+  font_awesome_flutter: ^10.1.0
   matrix_gesture_detector: ^0.1.0
   uuid: ^3.0.5
   intl: ^0.17.0
@@ -60,12 +60,19 @@ dependencies:
   provider: ^6.0.2
   shared_preferences: ^2.0.13
   # purchases_flutter: ^3.9.5
-  flutter_apns: ^1.5.4
-  firebase_messaging: ^11.2.11
-  firebase_core: ^1.13.1
+  # flutter_apns: ^1.5.4
+  firebase_messaging: ^11.2.14
+  firebase_core: ^1.15.0
   connectivity_plus: ^2.2.1
   focus_detector: ^2.0.1
-  flutter_inapp_purchase: ^5.1.2
+#  in_app_purchase: ^3.0.4
+#  in_app_purchase_storekit: ^0.3.0+4
+  rxdart: ^0.27.3
+  overlay_support: ^1.2.1
+  camera: ^0.9.4+20
+  flutter_apns: ^1.5.4
+#  adapty_flutter: ^1.0.10
+  purchases_flutter: ^3.10.0
 
 dev_dependencies:
   flutter_test:

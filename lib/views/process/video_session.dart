@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:focus_detector/focus_detector.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -18,12 +20,14 @@ import 'package:notary/views/process/widgets/ready_recipient.dart';
 import 'package:notary/widgets/black_loading.dart';
 import 'package:notary/widgets/btn_sign.dart';
 import 'package:notary/widgets/button_primary.dart';
+import 'package:notary/widgets/loading_page.dart';
 import 'package:notary/widgets/network_connection.dart';
 import 'package:notary/widgets/title_page.dart';
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:provider/provider.dart';
 
 import '../encrypt.dart';
+import '../session_process.dart';
 import 'document_tag_session.dart';
 
 class VideoSession extends StatefulWidget {
@@ -41,14 +45,26 @@ class _VideoSessionState extends State<VideoSession> {
   ConferenceRoom _conferenceRoom;
   bool _isSign = false;
   bool _isStamp = false;
+  bool _loading = false;
+  CameraController controller;
 
   @override
   void initState() {
     _documentIsActive = true;
     _sessionController = Provider.of<SessionController>(context, listen: false);
     _userController = Provider.of<UserController>(context, listen: false);
+    _checkCamera();
     _connectToTwilio();
     super.initState();
+  }
+
+  _checkCamera() async {
+    List<CameraDescription> cameras;
+    cameras = await availableCameras();
+    controller = CameraController(cameras[1], ResolutionPreset.max);
+    if (controller != null) {
+      await controller.dispose();
+    }
   }
 
   void _conferenceRoomUpdated() {
@@ -67,7 +83,40 @@ class _VideoSessionState extends State<VideoSession> {
         });
         conferenceRoom.addListener(_conferenceRoomUpdated);
       });
+    } on PlatformException catch (err) {
+      if (err.code == '561017449') {
+        showDialog<void>(
+          context: context,
+          barrierDismissible: false, // user must tap button!
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text(
+                'Please Check',
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+              ),
+              content: Text(
+                'The app was not allowed to set the audio/video category because another app is controlling it.',
+                style: TextStyle(
+                  fontSize: 14,
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('GO BACK'),
+                  onPressed: () {
+                    StateM(context).navOff(SessionProcess());
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+      print("PlatformException ${err.code}");
     } catch (err) {
+      print("Is error $err");
       throw err;
     }
   }
@@ -98,8 +147,9 @@ class _VideoSessionState extends State<VideoSession> {
           onVisibilityLost: () {},
           onForegroundLost: () {},
           onForegroundGained: () {},
-          child: Scaffold(
-            body: Container(
+          child: LoadingPage(
+            _loading,
+            Container(
               height: StateM(context).height(),
               child: Column(
                 children: [
@@ -592,7 +642,7 @@ class _VideoSessionState extends State<VideoSession> {
         bottom: 60,
         child: AvatarGlow(
           endRadius: 42.0,
-          glowColor: Theme.of(context).primaryColor,
+          glowColor: Theme.of(context).colorScheme.secondary,
           showTwoGlows: false,
           animate: active,
           duration: Duration(milliseconds: 2500),
@@ -645,7 +695,7 @@ class _VideoSessionState extends State<VideoSession> {
       bottom: 0,
       child: AvatarGlow(
         endRadius: 42.0,
-        glowColor: Theme.of(context).primaryColor,
+        glowColor: Theme.of(context).colorScheme.secondary,
         showTwoGlows: false,
         animate: active,
         duration: Duration(milliseconds: 2500),
@@ -722,14 +772,20 @@ class _VideoSessionState extends State<VideoSession> {
 
   _finishSession() async {
     try {
+      _loading = true;
+      setState(() {});
       if (_conferenceRoom != null) {
         await _conferenceRoom.disconnect();
         _onConferenceRoomException.cancel();
       }
       await Provider.of<SessionController>(context, listen: false)
           .finishSession();
+      _loading = false;
+      setState(() {});
       StateM(context).navOff(Encryption());
     } catch (err) {
+      _loading = false;
+      setState(() {});
       showError(err, context);
     }
   }

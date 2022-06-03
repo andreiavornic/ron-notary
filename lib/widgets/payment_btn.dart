@@ -7,7 +7,9 @@ import 'package:notary/utils/navigate.dart';
 import 'package:notary/views/purchase_cat.dart';
 import 'package:notary/widgets/button_primary_outline.dart';
 
+import '../views/purchase_adapty.dart';
 import '../views/purchase_app.dart';
+import '../views/purchase_ron.dart';
 
 class PaymentBtn extends StatefulWidget {
   @override
@@ -39,7 +41,7 @@ class _PaymentBtnState extends State<PaymentBtn> {
         ),
         SizedBox(height: reSize(context, 30)),
         ButtonPrimaryOutline(
-          callback: () => StateM(context).navTo(PurchaseApp()),
+          callback: () => StateM(context).navTo(PurchaseCat()),
           text: "Choose Plan",
           width: 232,
         ),

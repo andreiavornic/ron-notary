@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:notary/controllers/session.dart';
 import 'package:notary/methods/resize_formatting.dart';
+import 'package:notary/methods/show_error.dart';
 import 'package:notary/models/session.dart';
 import 'package:notary/models/type_notarization.dart';
 import 'package:notary/utils/navigate.dart';
@@ -51,6 +52,7 @@ class _DocumentSettingState extends State<DocumentSetting> {
     } catch (err) {
       _loading = false;
       setState(() {});
+      showError(err, context);
     }
   }
 
@@ -68,6 +70,7 @@ class _DocumentSettingState extends State<DocumentSetting> {
     } catch (err) {
       _loading = false;
       setState(() {});
+      showError(err, context);
     }
   }
 

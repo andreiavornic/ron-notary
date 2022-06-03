@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:notary/enum/stage_enum.dart';
 import 'package:notary/methods/find_local.dart';
-import 'package:notary/models/font_family.dart';
+
 import 'package:notary/models/point.dart';
 import 'package:notary/models/recipient.dart';
 import 'package:notary/models/session.dart';
@@ -53,9 +53,6 @@ class SessionController extends ChangeNotifier {
     try {
       dio.Response resDio = await makeRequest('session', 'GET', null);
       var extracted = resDio.data;
-      if (extracted == null) {
-        return;
-      }
       if (!extracted['success']) {
         throw extracted['message'];
       }
@@ -64,22 +61,29 @@ class SessionController extends ChangeNotifier {
       _recipientVideo = [];
       _points = [];
       _getUserData(extracted['data']['user']);
+
       extracted['data']['session']['recipients'].forEach((json) {
         _recipients.add(new Recipient.fromJson(json));
         _recipientVideo.add(new Recipient.fromJson(json));
       });
+
       extracted['data']['session']['points'].forEach((json) {
         _points.add(new Point.fromJson(json));
       });
+
       _sessionFileName = extracted['data']['session']['sessionFileName'];
       _sessionFilePath = extracted['data']['session']['sessionFilePath'];
       _fileEncrypted = null;
+
       final prefs = await SharedPreferences.getInstance();
       prefs.setString("SESSION_ID", extracted['data']['session']['id']);
-      prefs.setString(
-          "TWILIO_ROOM", extracted['data']['session']['twilioRoomName']);
+
+      if (_session.twilioRoomName != null) {
+        prefs.setString("TWILIO_ROOM", _session.twilioRoomName);
+      }
       notifyListeners();
     } catch (err) {
+      print(err);
       _session = null;
       notifyListeners();
       // throw err;
@@ -109,7 +113,8 @@ class SessionController extends ChangeNotifier {
       var token = prefs.getString("TOKEN");
       Map<String, String> headers = {
         "Authorization": "Bearer $token",
-        "Content-type": 'multipart/form-data'
+        "Content-type": 'multipart/form-data',
+        "Platform": Platform.operatingSystem
       };
 
       var request = http.MultipartRequest(
@@ -182,7 +187,8 @@ class SessionController extends ChangeNotifier {
   }
 
   updateStageByString(String stage) {
-    _session.stage = Stage.values.firstWhere((element) => element.name == stage);
+    _session.stage =
+        Stage.values.firstWhere((element) => element.name == stage);
     notifyListeners();
   }
 
@@ -386,7 +392,7 @@ class SessionController extends ChangeNotifier {
   }
 
   updateRecipients(data) {
-    getSession();
+    // getSession();
     int index =
         _recipients.indexWhere((recipient) => recipient.id == data['id']);
     if (index >= 0) {
@@ -420,6 +426,14 @@ class SessionController extends ChangeNotifier {
     notifyListeners();
   }
 
+  updateOnePoint(data) {
+    int index = _points.indexWhere((point) => point.id == data['id']);
+    if (index >= 0) {
+      _points[index].isSigned = data['isSigned'];
+    }
+    notifyListeners();
+  }
+
   addSign() async {
     try {
       dio.Response resDio = await makeRequest(
@@ -450,6 +464,20 @@ class SessionController extends ChangeNotifier {
       if (extracted == null) {
         return;
       }
+      if (!extracted['success']) {
+        throw extracted['message'];
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  signPoint(String id) async {
+    try {
+      print(id);
+      dio.Response resDio = await makeRequest('point/$id', "POST", {});
+
+      var extracted = resDio.data;
       if (!extracted['success']) {
         throw extracted['message'];
       }
@@ -494,8 +522,12 @@ class SessionController extends ChangeNotifier {
     await OpenFile.open(_fileEncrypted.path);
   }
 
-  Font getTypeFont(String id) {
-    return _recipientVideo.firstWhere((element) => element.id == id).fontFamily;
+  String getTypeFont(String id) {
+    int index = _recipientVideo.indexWhere((element) => element.id == id);
+    if (index == -1) {
+      return null;
+    }
+    return _recipientVideo[index].fontFamily.fontFamily;
   }
 
   Future<void> generatePdf(List<String> imagesPath) async {
@@ -510,7 +542,8 @@ class SessionController extends ChangeNotifier {
 
       Map<String, String> headers = {
         "Authorization": "Bearer $token",
-        "Content-type": 'multipart/form-data'
+        "Content-type": 'multipart/form-data',
+        "Platform": Platform.operatingSystem
       };
 
       var request = http.MultipartRequest(

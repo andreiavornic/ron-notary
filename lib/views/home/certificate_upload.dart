@@ -55,6 +55,7 @@ class _CertificateUploadState extends State<CertificateUpload> {
         type: FileType.custom,
         allowedExtensions: ['p12', 'pfx'],
       );
+
       if (result != null) {
         File file = File(result.files.single.path);
         var extension = Path.extension(file.path);
@@ -62,11 +63,14 @@ class _CertificateUploadState extends State<CertificateUpload> {
           setState(() {});
           return;
         }
-        Uint8List bytes = await _readFileByte(file.path);
-        StateM(context).navTo(CertificatePassword(bytes, Path.basename(file.path)));
 
+        Uint8List bytes = await _readFileByte(file.path);
+
+        StateM(context)
+            .navTo(CertificatePassword(bytes, Path.basename(file.path)));
       }
     } catch (err) {
+      print(err);
       showError(err, context);
     }
   }

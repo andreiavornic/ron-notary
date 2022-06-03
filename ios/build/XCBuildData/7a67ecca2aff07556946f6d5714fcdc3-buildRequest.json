@@ -1,0 +1,65 @@
+{
+  "_buildCommand2" : {
+    "command" : "prepareForIndexing",
+    "enableIndexBuildArena" : false,
+    "targets" : null
+  },
+  "buildCommand" : "build",
+  "configuredTargets" : [
+    {
+      "guid" : "18c1723432283e0cc55f10a6dcfd9e0288a783a885d8b0b3beb2e9f90bde3f49"
+    }
+  ],
+  "containerPath" : "/Users/user/Desktop/Archive/notary/ios/Runner.xcodeproj",
+  "continueBuildingAfterErrors" : true,
+  "enableIndexBuildArena" : false,
+  "hideShellScriptEnvironment" : false,
+  "parameters" : {
+    "action" : "build",
+    "activeArchitecture" : "arm64",
+    "activeRunDestination" : {
+      "disableOnlyActiveArch" : false,
+      "platform" : "iphoneos",
+      "sdk" : "iphoneos15.2",
+      "sdkVariant" : "iphoneos",
+      "supportedArchitectures" : [
+        "arm64v8",
+        "arm64",
+        "armv8"
+      ],
+      "targetArchitecture" : "arm64"
+    },
+    "arenaInfo" : {
+      "buildIntermediatesPath" : "",
+      "buildProductsPath" : "",
+      "derivedDataPath" : "/Users/user/Library/Developer/Xcode/DerivedData",
+      "indexDataStoreFolderPath" : "/Users/user/Library/Developer/Xcode/DerivedData/Runner-ddfqekvuysqtahfwcdlwoubsckys/Index/DataStore",
+      "indexEnableDataStore" : true,
+      "indexPCHPath" : "/Users/user/Library/Developer/Xcode/DerivedData/Runner-ddfqekvuysqtahfwcdlwoubsckys/Index/PrecompiledHeaders",
+      "pchPath" : ""
+    },
+    "configurationName" : "Release",
+    "overrides" : {
+      "synthesized" : {
+        "table" : {
+          "ASSETCATALOG_FILTER_FOR_DEVICE_MODEL" : "iPad7,5",
+          "ASSETCATALOG_FILTER_FOR_DEVICE_OS_VERSION" : "15.4.1",
+          "BUILD_ACTIVE_RESOURCES_ONLY" : "YES",
+          "ENABLE_PREVIEWS" : "NO",
+          "TARGET_DEVICE_IDENTIFIER" : "10e3247e27f33fa6ccad082b21eb14fb8d07064d",
+          "TARGET_DEVICE_MODEL" : "iPad7,5",
+          "TARGET_DEVICE_OS_VERSION" : "15.4.1",
+          "TARGET_DEVICE_PLATFORM_NAME" : "iphoneos"
+        }
+      }
+    }
+  },
+  "schemeCommand" : "launch",
+  "schemeCommand2" : "launch",
+  "shouldCollectMetrics" : false,
+  "showNonLoggedProgress" : true,
+  "useDryRun" : false,
+  "useImplicitDependencies" : true,
+  "useLegacyBuildLocations" : false,
+  "useParallelTargets" : true
+}

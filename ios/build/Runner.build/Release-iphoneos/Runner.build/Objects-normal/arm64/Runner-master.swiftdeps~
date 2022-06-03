@@ -1,0 +1,6 @@
+version: "Apple Swift version 5.6 (swiftlang-5.6.0.323.62 clang-1316.0.20.8)"
+options: "a88d2d4772299f6c83cb0c7cba0a071495e85d26567681d6596fef29a53d92d0"
+build_start_time: [1651159038, 230863094]
+build_end_time: [1651159038, 289582967]
+inputs:
+  "/Users/user/Desktop/Archive/notary/ios/Runner/AppDelegate.swift": !private [1650643150, 559562921]
