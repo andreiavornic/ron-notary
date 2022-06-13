@@ -469,7 +469,7 @@ class _VideoSessionState extends State<VideoSession> {
                             child: Row(
                               children: [
                                 FaIcon(
-                                  FontAwesomeIcons.exclamationCircle,
+                                  FontAwesomeIcons.circleExclamation,
                                   color: Color(0xFFFC563D),
                                   size: 20,
                                 ),

@@ -339,8 +339,7 @@ class _NotaryState extends State<Notary> {
   }
 
   bool _checkData() {
-    if (_company.isNotEmpty &&
-        _ronLicense.isNotEmpty &&
+    if (_ronLicense.isNotEmpty &&
         _ronExpire != null &&
         _address.isNotEmpty &&
         _city.isNotEmpty &&

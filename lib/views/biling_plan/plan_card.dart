@@ -9,17 +9,11 @@ import 'package:notary/methods/date_format.dart';
 import 'package:notary/methods/resize_formatting.dart';
 import 'package:notary/utils/navigate.dart';
 import 'package:notary/widgets/button_primary.dart';
-import 'package:notary/widgets/buy_extra.dart';
 import 'package:notary/widgets/loading.dart';
-import 'package:notary/widgets/modals/modal_container.dart';
 import 'package:provider/provider.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import '../../methods/show_error.dart';
-import '../purchase_adapty.dart';
-import '../purchase_app.dart';
 import '../purchase_cat.dart';
-import '../purchase_ron.dart';
-import 'extra_notarizations.dart';
 
 class PlanCard extends StatefulWidget {
   @override

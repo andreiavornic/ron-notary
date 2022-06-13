@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:notary/controllers/authentication.dart';
 
 import 'package:notary/controllers/user.dart';
 import 'package:notary/methods/show_error.dart';
 import 'package:notary/utils/navigate.dart';
 import 'package:notary/views/auth.dart';
-import 'package:notary/views/confirm_account.dart';
 import 'package:notary/views/new_password.dart';
 import 'package:notary/widgets/loading_page.dart';
 import 'package:notary/widgets/title_page.dart';
@@ -12,6 +12,7 @@ import 'package:pinput/pinput.dart';
 import 'package:provider/provider.dart';
 
 import '../methods/resize_formatting.dart';
+import '../views/start.dart';
 import 'button_primary.dart';
 import 'edit_input.widget.dart';
 
@@ -86,9 +87,9 @@ class _RecoveredPageState extends State<RecoveredPage> {
     try {
       _loading = true;
       setState(() {});
-      await Provider.of<UserController>(context, listen: false)
+      await Provider.of<AuthenticationController>(context, listen: false)
           .getVerify(_code);
-      StateM(context).navOff(ConfirmAccount());
+      StateM(context).navOff(Start());
       _loading = false;
       setState(() {});
     } catch (err) {
@@ -159,13 +160,13 @@ class _RecoveredPageState extends State<RecoveredPage> {
                                                   width: 1.0,
                                                 ),
                                               )
-                                            // border: Border(
-                                            //   bottom: BorderSide(
-                                            //     color: Theme.of(context).colorScheme.secondary,
-                                            //     width: 1.0,
-                                            //   ),
-                                            // ),
-                                          )),
+                                              // border: Border(
+                                              //   bottom: BorderSide(
+                                              //     color: Theme.of(context).colorScheme.secondary,
+                                              //     width: 1.0,
+                                              //   ),
+                                              // ),
+                                              )),
                                       // cursor: true,
                                       // eachFieldHeight: 46,
                                       // eachFieldWidth: 32,

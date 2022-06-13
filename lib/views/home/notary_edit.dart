@@ -250,9 +250,7 @@ class _NotaryEditState extends State<NotaryEdit> {
   }
 
   bool _checkData() {
-    if (_company != null &&
-        _company.isNotEmpty &&
-        _ronLicense != null &&
+    if (_ronLicense != null &&
         _ronLicense.isNotEmpty &&
         _ronExpire != null &&
         _ronExpire != null &&

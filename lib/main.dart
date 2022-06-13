@@ -1,13 +1,10 @@
-import 'dart:convert';
 import 'dart:io';
 
 // import 'package:adapty_flutter/adapty_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_apns/apns.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -26,7 +23,6 @@ import 'controllers/session.dart';
 import 'controllers/support.dart';
 import 'controllers/user.dart';
 import 'firebase_options.dart';
-import 'methods/show_error.dart';
 // import 'firebase_options.dart';
 
 void main() async {
@@ -98,8 +94,6 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> with RouteAware {
-
-
   @override
   initState() {
     super.initState();

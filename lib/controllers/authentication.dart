@@ -52,6 +52,27 @@ class AuthenticationController with ChangeNotifier {
     }
   }
 
+  Future<void> getVerify(String verifyToken) async {
+    try {
+      dio.Response resDio = await makeRequest(
+        'auth/activate',
+        "POST",
+        {"verifyToken": verifyToken},
+      );
+      var extracted = resDio.data;
+
+      if (!extracted['success']) {
+        throw extracted['message'];
+      }
+      String token = extracted['data']['token'];
+      await saveToken(token);
+      isLogged = true;
+      notifyListeners();
+    } catch (err) {
+      throw err;
+    }
+  }
+
   Future<bool> checkLoginStatus() async {
     final token = await getToken();
     if (token != null) {

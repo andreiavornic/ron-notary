@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-
 import 'package:notary/methods/resize_formatting.dart';
 import 'package:notary/utils/navigate.dart';
 import 'package:notary/views/purchase_cat.dart';
 import 'package:notary/widgets/button_primary_outline.dart';
-
-import '../views/purchase_adapty.dart';
-import '../views/purchase_app.dart';
-import '../views/purchase_ron.dart';
 
 class PaymentBtn extends StatefulWidget {
   @override

@@ -111,7 +111,7 @@ class _ContactPageState extends State<ContactPage> {
                       Row(
                         children: [
                           InkWell(
-                            onTap: () => launch("tel:+37369385286"),
+                            onTap: () => launch("tel:+18727662792"),
                             borderRadius: BorderRadius.circular(50),
                             child: Container(
                               width: reSize(context, 60),

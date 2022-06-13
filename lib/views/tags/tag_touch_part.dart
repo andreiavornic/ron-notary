@@ -3,9 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:notary/controllers/session.dart';
 import 'package:notary/controllers/user.dart';
-import 'package:notary/methods/show_error.dart';
 import 'package:notary/models/point.dart';
-import 'package:notary/models/session.dart';
 import 'package:provider/provider.dart';
 
 import 'get_stamp.dart';
@@ -52,28 +50,28 @@ class _TouchTagPartState extends State<TouchTagPart> {
     });
   }
 
-  Future<void> _signPoint(Point point) async {
-    try {
-      var notarySigns = Provider.of<SessionController>(context, listen: false)
-          .points
-          .where((element) =>
-              element.ownerId ==
-                  Provider.of<UserController>(context, listen: false).user.id &&
-              element.type != "STAMP");
+  // Future<void> _signPoint(Point point) async {
+  //   try {
+  //     var notarySigns = Provider.of<SessionController>(context, listen: false)
+  //         .points
+  //         .where((element) =>
+  //             element.ownerId ==
+  //                 Provider.of<UserController>(context, listen: false).user.id &&
+  //             element.type != "STAMP");
 
-      if (!notarySigns.contains(point)) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Please sign only your points'),
-        ));
-        return;
-      }
+  //     if (!notarySigns.contains(point)) {
+  //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+  //         content: Text('Please sign only your points'),
+  //       ));
+  //       return;
+  //     }
 
-      Provider.of<SessionController>(context, listen: false)
-          .signPoint(point.id);
-    } catch (err) {
-      showError(err, context);
-    }
-  }
+  //     Provider.of<SessionController>(context, listen: false)
+  //         .signPoint(point.id);
+  //   } catch (err) {
+  //     showError(err, context);
+  //   }
+  // }
 
   Widget _getText(
     Point point,
@@ -121,12 +119,10 @@ class _TouchTagPartState extends State<TouchTagPart> {
                   color: Color(0xFF161617).withOpacity(0.56),
                   fontFamily: widget.point.ownerType == "NOTARY"
                       ? _userController.getTypeFont().fontFamily
-                      : _sessionController
-                      .getTypeFont(widget.point.ownerId) !=
-                      null
-                      ? _sessionController
-                      .getTypeFont(widget.point.ownerId)
-                      : _userController.getTypeFont().fontFamily,
+                      : _sessionController.getTypeFont(widget.point.ownerId) !=
+                              null
+                          ? _sessionController.getTypeFont(widget.point.ownerId)
+                          : _userController.getTypeFont().fontFamily,
                 ),
               ),
             ),

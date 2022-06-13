@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -8,24 +7,18 @@ import 'package:notary/methods/show_error.dart';
 import 'package:notary/widgets/loading_page.dart';
 // import 'package:in_app_purchase_android/billing_client_wrappers.dart';
 // import 'package:in_app_purchase_android/in_app_purchase_android.dart';
-import 'package:notary/widgets/payment_success.dart';
+//import 'package:notary/widgets/payment_success.dart';
 import 'package:provider/provider.dart';
-
-import '../controllers/payment.dart';
 import '../controllers/plan.dart';
-import '../controllers/user.dart';
 import '../methods/resize_formatting.dart';
-import '../models/plan.dart';
 import '../utils/navigate.dart';
-import '../widgets/button_primary.dart';
-import '../widgets/plan_block.dart';
 import '../widgets/title_page.dart';
 
-const Set<String> _productIds = <String>{
-  'basic.ronary.com',
-  'business.ronary.com',
-  'pro.ronary.com',
-};
+// const Set<String> _productIds = <String>{
+//   'basic.ronary.com',
+//   'business.ronary.com',
+//   'pro.ronary.com',
+// };
 
 class PurchaseRon extends StatefulWidget {
   @override
@@ -33,9 +26,7 @@ class PurchaseRon extends StatefulWidget {
 }
 
 class _PurchaseRonState extends State<PurchaseRon> {
-  PaymentController _paymentController;
   PlanController _planController;
-  UserController _userController;
   int _indexPage;
   PageController pageController;
 
@@ -50,10 +41,8 @@ class _PurchaseRonState extends State<PurchaseRon> {
   void initState() {
     _loading = true;
     _indexPage = 1;
-    _userController = Provider.of<UserController>(context, listen: false);
     pageController =
         PageController(viewportFraction: 0.8, initialPage: _indexPage);
-    _paymentController = Provider.of<PaymentController>(context, listen: false);
     _planController = Provider.of<PlanController>(context, listen: false);
     _initPlatform();
     super.initState();
@@ -74,12 +63,12 @@ class _PurchaseRonState extends State<PurchaseRon> {
     // });
   }
 
-  _finishAllTransactions() async {
-    // var transactions = await SKPaymentQueueWrapper().transactions();
-    // transactions.forEach((skPaymentTransactionWrapper) {
-    //   SKPaymentQueueWrapper().finishTransaction(skPaymentTransactionWrapper);
-    // });
-  }
+  // _finishAllTransactions() async {
+  //   // var transactions = await SKPaymentQueueWrapper().transactions();
+  //   // transactions.forEach((skPaymentTransactionWrapper) {
+  //   //   SKPaymentQueueWrapper().finishTransaction(skPaymentTransactionWrapper);
+  //   // });
+  // }
 
   _loadProducts() async {
     try {
@@ -219,16 +208,16 @@ class _PurchaseRonState extends State<PurchaseRon> {
   //   }
   // }
 
-  String _getTitle(String identifier) {
-    print(_planController.plans);
-    Plan _plan = _planController.plans
-        .firstWhere((element) => element.productId == identifier);
-    return _plan.title;
-  }
+  // String _getTitle(String identifier) {
+  //   print(_planController.plans);
+  //   Plan _plan = _planController.plans
+  //       .firstWhere((element) => element.productId == identifier);
+  //   return _plan.title;
+  // }
 
   @override
   void dispose() {
-   // _subscription.cancel();
+    // _subscription.cancel();
     super.dispose();
   }
 
@@ -261,38 +250,38 @@ class _PurchaseRonState extends State<PurchaseRon> {
                   child: Padding(
                     padding: EdgeInsets.all(1),
                     child: Row(
-                      // children: [
-                      //   ..._products.asMap().entries.map((package) {
-                      //     int index = package.key;
-                      //     return Expanded(
-                      //       child: InkWell(
-                      //         onTap: () {
-                      //           pageController.animateToPage(
-                      //             index,
-                      //             duration: const Duration(seconds: 1),
-                      //             curve: Curves.easeInOut,
-                      //           );
-                      //           _indexPage = index;
-                      //           setState(() {});
-                      //         },
-                      //         child: Container(
-                      //           height: reSize(context, 30),
-                      //           decoration: BoxDecoration(
-                      //               borderRadius: BorderRadius.circular(2),
-                      //               color: _indexPage == index
-                      //                   ? Color(0xFFFFC600)
-                      //                   : Colors.transparent),
-                      //           child: Center(
-                      //             child: Text(
-                      //               _getTitle(package.value.id),
-                      //             ),
-                      //           ),
-                      //         ),
-                      //       ),
-                      //     );
-                      //   }),
-                      // ],
-                    ),
+                        // children: [
+                        //   ..._products.asMap().entries.map((package) {
+                        //     int index = package.key;
+                        //     return Expanded(
+                        //       child: InkWell(
+                        //         onTap: () {
+                        //           pageController.animateToPage(
+                        //             index,
+                        //             duration: const Duration(seconds: 1),
+                        //             curve: Curves.easeInOut,
+                        //           );
+                        //           _indexPage = index;
+                        //           setState(() {});
+                        //         },
+                        //         child: Container(
+                        //           height: reSize(context, 30),
+                        //           decoration: BoxDecoration(
+                        //               borderRadius: BorderRadius.circular(2),
+                        //               color: _indexPage == index
+                        //                   ? Color(0xFFFFC600)
+                        //                   : Colors.transparent),
+                        //           child: Center(
+                        //             child: Text(
+                        //               _getTitle(package.value.id),
+                        //             ),
+                        //           ),
+                        //         ),
+                        //       ),
+                        //     );
+                        //   }),
+                        // ],
+                        ),
                   ),
                 ),
               ),

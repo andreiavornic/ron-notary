@@ -263,20 +263,20 @@ class _SessionProcessState extends State<SessionProcess> {
     );
   }
 
-  Future<void> _setupCamera() async {
-    try {
-      // initialize cameras.
-      cameras = await availableCameras();
+  // Future<void> _setupCamera() async {
+  //   try {
+  //     // initialize cameras.
+  //     cameras = await availableCameras();
 
-      // initialize camera controllers.
-      controller = new CameraController(cameras[1], ResolutionPreset.medium);
-      print(controller);
-      await controller.initialize();
+  //     // initialize camera controllers.
+  //     controller = new CameraController(cameras[1], ResolutionPreset.medium);
+  //     print(controller);
+  //     await controller.initialize();
 
-    } on CameraException catch (_) {
-      debugPrint("Some error occured!");
-    }
-  }
+  //   } on CameraException catch (_) {
+  //     debugPrint("Some error occured!");
+  //   }
+  // }
 
   _goInProcess() async {
     try {

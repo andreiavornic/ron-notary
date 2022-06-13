@@ -30,8 +30,9 @@ class _StateSelectState extends State<StateSelect> {
     int index = 0;
     if (widget.isSetting != null && widget.isSetting) {
       if (Provider.of<UserController>(context, listen: false).notary != null) {
-        index = citiesAbrv.indexWhere(
-            (element) => element == Provider.of<UserController>(context, listen: false).notary.state);
+        index = citiesAbrv.indexWhere((element) =>
+            element ==
+            Provider.of<UserController>(context, listen: false).notary.state);
       }
     }
 
@@ -41,9 +42,10 @@ class _StateSelectState extends State<StateSelect> {
   }
 
   _selectState() {
+    print("_selectState() => Executed!");
     String selectedCity = _cities[_stateSelected];
     String abbrevCity = USStates.getAbbreviation(selectedCity);
-    return widget.changeState(abbrevCity, selectedCity);
+    widget.changeState(abbrevCity, selectedCity);
   }
 
   @override
@@ -52,9 +54,9 @@ class _StateSelectState extends State<StateSelect> {
       height: StateM(context).height() / 2,
       decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(25),
-            topRight: Radius.circular(25),
-          )),
+        topLeft: Radius.circular(25),
+        topRight: Radius.circular(25),
+      )),
       child: Column(
         children: [
           Text(
@@ -103,8 +105,9 @@ class _StateSelectState extends State<StateSelect> {
                   );
                 }).toList(),
                 onSelectedItemChanged: (int index) {
+                  print(index);
                   _stateSelected = index;
-                  setState(() {});
+                  // setState(() {});
                 },
               ),
             ),
@@ -117,7 +120,9 @@ class _StateSelectState extends State<StateSelect> {
               callback: _selectState,
             ),
           ),
-          SizedBox(height: StateM(context).height() < 670 ? 20 : reSize(context, 40)),
+          SizedBox(
+              height:
+                  StateM(context).height() < 670 ? 20 : reSize(context, 40)),
         ],
       ),
     );

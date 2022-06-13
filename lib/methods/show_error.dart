@@ -1,9 +1,6 @@
-import 'package:notary/controllers/authentication.dart';
 import 'package:notary/utils/navigate.dart';
-import 'package:notary/views/auth.dart';
 import 'package:notary/views/errors/error_page.dart';
 import 'package:notary/views/start.dart';
-import 'package:provider/provider.dart';
 
 import '../views/server_not_response.dart';
 import '../views/session_expired.dart';

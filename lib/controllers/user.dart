@@ -330,22 +330,6 @@ class UserController extends ChangeNotifier {
     }
   }
 
-  Future<void> getVerify(String verifyToken) async {
-    try {
-      dio.Response resDio = await makeRequest(
-        'user/activate',
-        "POST",
-        {"verifyToken": verifyToken},
-      );
-      var extracted = resDio.data;
-
-      if (!extracted['success']) {
-        throw extracted['message'];
-      }
-    } catch (err) {
-      throw err;
-    }
-  }
 
   Future<void> resetPassword(String email) async {
     try {

@@ -179,18 +179,26 @@ class _RegisterPageState extends State<RegisterPage> {
                               Container(
                                 width: StateM(context).width() - 40,
                                 child: InkWell(
-                                  onTap: () => modalContainer(
-                                      StateSelect(
-                                        changeState:
-                                            (abbrevCity, selectedCity) {
-                                          _state = abbrevCity;
-                                          _longState = selectedCity;
-                                          setState(() {});
-                                          Navigator.pop(context);
-                                        },
-                                        isSetting: false,
-                                      ),
-                                      context),
+                                  onTap: () {
+                                    FocusScopeNode currentFocus =
+                                        FocusScope.of(context);
+
+                                    if (!currentFocus.hasPrimaryFocus) {
+                                      currentFocus.unfocus();
+                                    }
+                                    modalContainerSimple(
+                                        StateSelect(
+                                          changeState:
+                                              (abbrevCity, selectedCity) {
+                                            _state = abbrevCity;
+                                            _longState = selectedCity;
+                                            setState(() {});
+                                            Navigator.pop(context);
+                                          },
+                                          isSetting: false,
+                                        ),
+                                        context);
+                                  },
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,

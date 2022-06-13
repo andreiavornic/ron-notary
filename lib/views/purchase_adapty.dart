@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 // import 'package:adapty_flutter/adapty_flutter.dart';
 // import 'package:adapty_flutter/models/adapty_android_subscription_update_params.dart';
 // import 'package:adapty_flutter/models/adapty_enums.dart';
@@ -11,19 +9,12 @@ import 'dart:convert';
 // import 'package:adapty_flutter/results/get_paywalls_result.dart';
 // import 'package:adapty_flutter/results/make_purchase_result.dart';
 import 'package:flutter/material.dart';
-import 'package:notary/controllers/payment.dart';
-import 'package:notary/controllers/user.dart';
-import 'package:notary/methods/show_error.dart';
 import 'package:notary/widgets/loading_page.dart';
-import 'package:notary/widgets/payment_success.dart';
-import 'package:provider/provider.dart';
 
-import '../controllers/plan.dart';
 import '../methods/resize_formatting.dart';
 import '../utils/navigate.dart';
 import '../widgets/button_primary.dart';
 import '../widgets/network_connection.dart';
-import '../widgets/plan_block.dart';
 import '../widgets/title_page.dart';
 
 class PurchaseAdapty extends StatefulWidget {
@@ -32,9 +23,6 @@ class PurchaseAdapty extends StatefulWidget {
 }
 
 class _PurchaseAdaptyState extends State<PurchaseAdapty> {
-  UserController _userController;
-  PaymentController _paymentController;
-  PlanController _planController;
   int _indexPage;
   // List<AdaptyProduct> _products = [];
   bool _loading;
@@ -43,10 +31,6 @@ class _PurchaseAdaptyState extends State<PurchaseAdapty> {
 
   @override
   void initState() {
-    // TODO: implement initState
-    _userController = Provider.of<UserController>(context, listen: false);
-    _paymentController = Provider.of<PaymentController>(context, listen: false);
-    _planController = Provider.of<PlanController>(context, listen: false);
     _indexPage = 1;
     pageController =
         PageController(viewportFraction: 0.8, initialPage: _indexPage);
@@ -57,61 +41,61 @@ class _PurchaseAdaptyState extends State<PurchaseAdapty> {
     super.initState();
   }
 
-  _initAdapty() async {
-    // try {
-    //   _loading = true;
-    //   _products = [];
-    //   _getLastSubscription();
-    //   setState(() {});
-    //   Adapty.activate();
-    //
-    //   await Adapty.setLogLevel(AdaptyLogLevel.errors);
-    //   await Adapty.identify(_userController.user.email);
-    //
-    //   final GetPaywallsResult getPaywallsResult =
-    //       await Adapty.getPaywalls(forceUpdate: true);
-    //   final List<AdaptyPaywall> paywalls = getPaywallsResult.paywalls;
-    //
-    //   paywalls[0].products.forEach((product) {
-    //     _products.add(product);
-    //   });
-    //   _loading = false;
-    //   setState(() {});
-    // } on AdaptyError catch (adaptyError) {
-    //   print("adaptyError error $adaptyError");
-    //   _loading = false;
-    //   setState(() {});
-    // } catch (e) {
-    //   print("Catch error ${e.toString()}");
-    //   _loading = false;
-    //   setState(() {});
-    // }
-  }
+  // _initAdapty() async {
+  //   try {
+  //     _loading = true;
+  //     _products = [];
+  //     _getLastSubscription();
+  //     setState(() {});
+  //     Adapty.activate();
 
-  _getPlan() async {
-    try {
-      await _planController.getPlan();
-    } catch (err) {
-      showError(err, context);
-    }
-  }
+  //     await Adapty.setLogLevel(AdaptyLogLevel.errors);
+  //     await Adapty.identify(_userController.user.email);
 
-  _getLastSubscription() async {
-    // try {
-    //   AdaptyPurchaserInfo purchaserInfo =
-    //       await Adapty.getPurchaserInfo(forceUpdate: true);
-    //   purchaserInfo.subscriptions.forEach((key, value) {
-    //     if (value.isActive) {
-    //       _oldSubscription = value;
-    //       setState(() {});
-    //     }
-    //   });
-    // } on AdaptyError catch (adaptyError) {
-    //   print("adaptyError error $adaptyError");
-    // } catch (e) {
-    //   print("Catch error ${e.toString()}");
-    // }
-  }
+  //     final GetPaywallsResult getPaywallsResult =
+  //         await Adapty.getPaywalls(forceUpdate: true);
+  //     final List<AdaptyPaywall> paywalls = getPaywallsResult.paywalls;
+
+  //     paywalls[0].products.forEach((product) {
+  //       _products.add(product);
+  //     });
+  //     _loading = false;
+  //     setState(() {});
+  //   } on AdaptyError catch (adaptyError) {
+  //     print("adaptyError error $adaptyError");
+  //     _loading = false;
+  //     setState(() {});
+  //   } catch (e) {
+  //     print("Catch error ${e.toString()}");
+  //     _loading = false;
+  //     setState(() {});
+  //   }
+  // }
+
+  // _getPlan() async {
+  //   try {
+  //     await _planController.getPlan();
+  //   } catch (err) {
+  //     showError(err, context);
+  //   }
+  // }
+
+  // _getLastSubscription() async {
+  //   try {
+  //     AdaptyPurchaserInfo purchaserInfo =
+  //         await Adapty.getPurchaserInfo(forceUpdate: true);
+  //     purchaserInfo.subscriptions.forEach((key, value) {
+  //       if (value.isActive) {
+  //         _oldSubscription = value;
+  //         setState(() {});
+  //       }
+  //     });
+  //   } on AdaptyError catch (adaptyError) {
+  //     print("adaptyError error $adaptyError");
+  //   } catch (e) {
+  //     print("Catch error ${e.toString()}");
+  //   }
+  // }
 
   _buyProduct() async {
     // try {

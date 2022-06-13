@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 
 // import 'package:adapty_flutter/adapty_flutter.dart';
@@ -21,9 +20,6 @@ import 'package:notary/widgets/button_primary.dart';
 import 'package:notary/widgets/loading.dart';
 import 'package:provider/provider.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
-// import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
-
-import '../../controllers/payment.dart';
 
 Set<String> extraId = <String>{"extra.ronary.com"};
 
@@ -38,7 +34,7 @@ class _ExtraNotarizationState extends State<ExtraNotarization> {
   UserController _userController;
   int _extraNotarization;
   bool _loading;
-  PaymentController _paymentController;
+
   Offering _extraOffering;
 
   // List<ProductDetails> _products = [];
@@ -49,7 +45,6 @@ class _ExtraNotarizationState extends State<ExtraNotarization> {
     _loading = false;
     _extraNotarization = 1;
     _userController = Provider.of<UserController>(context, listen: false);
-    _paymentController = Provider.of<PaymentController>(context, listen: false);
     _initProduct();
     super.initState();
   }

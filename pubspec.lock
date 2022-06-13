@@ -804,7 +804,7 @@ packages:
       name: twilio_programmable_video_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.7.0"
+    version: "0.7.1"
   typed_data:
     dependency: transitive
     description:
