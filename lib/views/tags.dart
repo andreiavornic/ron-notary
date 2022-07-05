@@ -168,7 +168,7 @@ class _TagsState extends State<Tags> {
     return Consumer2<RecipientController, PointController>(
         builder: (context, _recipientController, _pointController, _) {
       return NetworkConnection(
-         LoadingPage(
+        LoadingPage(
             _loading,
             Column(
               children: [
@@ -241,13 +241,13 @@ class _TagsState extends State<Tags> {
         .points
         .firstWhere((element) => element.isChecked);
 
-    modalContainer(
+    modalContainerSimple(
         textBoxHandler(point.position, point.page, point.wPage, point.value),
         context);
   }
 
   _addTextBox(TapUpDetails details, int page, double wPage) {
-    modalContainer(textBoxHandler(details, page, wPage, null), context);
+    modalContainerSimple(textBoxHandler(details, page, wPage, null), context);
   }
 
   _updateTextBox(String txt) {

@@ -37,7 +37,7 @@ class _EditRecipientState extends State<EditRecipient> {
   bool _isLoading;
   bool _confirmDelete;
   MaskTextInputFormatter _phoneFormatter = new MaskTextInputFormatter(
-    mask: '+1 (###) ###-####',
+    mask: '+# (###) ###-####',
     filter: {
       "#": RegExp(r'[0-9]'),
     },
@@ -55,7 +55,8 @@ class _EditRecipientState extends State<EditRecipient> {
     _isLoading = true;
     setState(() {});
     try {
-      await Provider.of<RecipientController>(context, listen: false).updateRecipient(_recipient);
+      await Provider.of<RecipientController>(context, listen: false)
+          .updateRecipient(_recipient);
       Navigator.pop(context);
     } catch (err) {
       Navigator.pop(context);
@@ -209,7 +210,8 @@ class _EditRecipientState extends State<EditRecipient> {
                                                   height: 10,
                                                   color: Color(0xFFEDEDED),
                                                 ),
-                                                SizedBox(width: reSize(context, 10)),
+                                                SizedBox(
+                                                    width: reSize(context, 10)),
                                               ],
                                             ),
                                           ))

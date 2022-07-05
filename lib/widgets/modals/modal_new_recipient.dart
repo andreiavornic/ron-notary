@@ -10,6 +10,7 @@ import 'package:notary/widgets/loading.dart';
 import 'package:notary/widgets/title-modal.dart';
 import 'package:provider/provider.dart';
 
+import '../../utils/navigate.dart';
 import '../button_primary.dart';
 import '../button_recipient.dart';
 import '../edit_input.widget.dart';
@@ -36,6 +37,7 @@ class _NewRecipientState extends State<NewRecipient> {
   String _dropdownError;
   bool _enableBtn;
   bool _loading;
+  bool _emailError = false;
 
   MaskTextInputFormatter _phoneFormatter = new MaskTextInputFormatter(
     mask: '+# (###) ###-####',
@@ -114,11 +116,11 @@ class _NewRecipientState extends State<NewRecipient> {
     return Stack(
       children: [
         Container(
-         // height: StateM(context).height() / 2,
+          // height: StateM(context).height() / 2,
           color: Color(0xFFFFFFFF),
           child: SingleChildScrollView(
             child: Container(
-             // height: StateM(context).height(),
+              // height: StateM(context).height(),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Column(
@@ -168,25 +170,65 @@ class _NewRecipientState extends State<NewRecipient> {
                                 initialValue: _lastName,
                                 labelText: "Last Name",
                               ),
-                              EditInput(
-                                keyboardType: TextInputType.emailAddress,
-                                onChanged: (value) {
-                                  _email = value;
-                                  _verifyBtn();
-                                  setState(() {});
-                                },
-                                validate: (String value) {
-                                  if (value.isEmpty && _phone == null) {
-                                    return "Email is required!";
-                                  } else if (!value.contains("@") &&
-                                      _phone == null) {
-                                    return "Please add a valid email";
+                              Focus(
+                                onFocusChange: (hasFocus) {
+                                  if (!hasFocus) {
+                                    if (_email == null ||
+                                        _email.isEmpty ||
+                                        !_email.contains("@")) {
+                                      _emailError = true;
+                                      setState(() {});
+                                    }
+                                  } else {
+                                    _emailError = false;
+                                    setState(() {});
                                   }
-                                  return null;
                                 },
-                                initialValue: _email,
-                                noCapitalize: true,
-                                labelText: "Email",
+                                child: Column(
+                                  children: [
+                                    EditInput(
+                                      keyboardType: TextInputType.emailAddress,
+                                      onChanged: (value) {
+                                        _email = value;
+                                        _verifyBtn();
+                                        setState(() {});
+                                      },
+                                      // validate: (String value) {
+                                      //   if (value.isEmpty && _phone == null) {
+                                      //     return "Email is required!";
+                                      //   } else if (!value.contains("@") &&
+                                      //       _phone == null) {
+                                      //     return "Please add a valid email";
+                                      //   }
+                                      //   return null;
+                                      // },
+                                      initialValue: _email,
+                                      noCapitalize: true,
+                                      labelText: "Email",
+                                    ),
+                                    if (_emailError)
+                                      Column(
+                                        children: [
+                                          SizedBox(
+                                            height: 5,
+                                          ),
+                                          Container(
+                                            width: StateM(context).width() - 40,
+                                            child: Text(
+                                              "Please check email",
+                                              style: TextStyle(
+                                                color: Color(0xFFFF4E4E),
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w400,
+                                                height: 0.5,
+                                              ),
+                                              textAlign: TextAlign.start,
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                  ],
+                                ),
                               ),
                               Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
@@ -197,7 +239,8 @@ class _NewRecipientState extends State<NewRecipient> {
                                       EditInput(
                                         labelText: "Phone",
                                         inputFormatters: [_phoneFormatter],
-                                        initialValue: _phone != null ? _phone : '',
+                                        initialValue:
+                                            _phone != null ? _phone : '',
                                         //  initialValue: _phone != null ? _phone : '+1',
                                         prefix: Container(
                                           width: reSize(context, 40),

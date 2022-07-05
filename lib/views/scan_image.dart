@@ -28,6 +28,7 @@ class _ScanImageState extends State<ScanImage> {
 
   @override
   void initState() {
+    print("initState(ScanImage) => Executed");
     _isLoading = false;
     _imagePaths = [];
     getImage();
@@ -35,16 +36,24 @@ class _ScanImageState extends State<ScanImage> {
   }
 
   Future<void> getImage() async {
+    print("getImage() => Executed!");
     try {
-      String imagePath = (await EdgeDetection.detectEdge);
-      if (imagePath != null) {
-        _imagePath = imagePath;
-        _imagePaths.add(_imagePath);
-        setState(() {});
-      } else if (_imagePath == null || _imagePaths.length == 0) {
-        Navigator.pop(context);
-      }
+      EdgeDetection.detectEdge.then((value) {
+        String imagePath = value;
+        print(imagePath);
+        if (imagePath != null) {
+          _imagePath = imagePath;
+          _imagePaths.add(_imagePath);
+          setState(() {});
+        } else if (_imagePath == null || _imagePaths.length == 0) {
+          Navigator.pop(context);
+        }
+      });
+      //  String imagePath = (await );
+
     } on PlatformException catch (err) {
+      showError(err, context);
+    } catch (err) {
       showError(err, context);
     }
   }
@@ -57,7 +66,8 @@ class _ScanImageState extends State<ScanImage> {
       _imagePaths.forEach((element) {
         totalLength += new File(element).lengthSync();
       });
-      if (totalLength > 1.45e+7) throw "Your document is bigger than 15 MB,\n please scan only documents";
+      if (totalLength > 1.45e+7)
+        throw "Your document is bigger than 15 MB,\n please scan only documents";
       await Provider.of<SessionController>(context, listen: false)
           .generatePdf(_imagePaths);
       _isLoading = false;

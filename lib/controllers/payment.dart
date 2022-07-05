@@ -72,12 +72,12 @@ class PaymentController extends ChangeNotifier {
   //   }
   // }
 
-  Future<bool> verifyPayment(
-      String purchaseToken, String productId) async {
+  Future<bool> verifyPayment(String appUserId, String productId) async {
+    print("verifyPayment($appUserId) => Executed!");
     print("verifyPayment($productId) => Executed!");
     try {
       dio.Response resDio = await makeRequest('payment', 'POST', {
-        "purchaseToken": purchaseToken,
+        "appUserId": appUserId,
         "productId": productId,
       });
       var extracted = resDio.data;

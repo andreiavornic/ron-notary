@@ -51,6 +51,7 @@ class UserController extends ChangeNotifier {
       if (!extracted['success']) {
         throw extracted['message'];
       }
+      print(extracted['data']);
       _user = new User.fromJson(extracted['data']);
       _notary = extracted['data']['notary'] != null
           ? new Notary.fromJson(extracted['data']['notary'])
@@ -330,7 +331,6 @@ class UserController extends ChangeNotifier {
     }
   }
 
-
   Future<void> resetPassword(String email) async {
     try {
       dio.Response resDio = await makeRequest(
@@ -386,7 +386,11 @@ class UserController extends ChangeNotifier {
     if (extra != 0) {
       _payment.ronAmount = _payment.ronAmount + extra;
     } else {
-      _payment.ronAmount = _payment.ronAmount - 1;
+     if(_payment != null){
+       _payment.ronAmount = _payment.ronAmount - 1;
+     } else if(_user.promoCode !=null) {
+       _user.promoCode.ronsLeft = _user.promoCode.ronsLeft - 1;
+     }
     }
     notifyListeners();
   }

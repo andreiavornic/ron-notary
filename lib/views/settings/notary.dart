@@ -33,7 +33,7 @@ class _NotaryState extends State<Notary> {
   String _zip;
   String _companyPhone;
   String _companyEmail;
-  bool _validEmail;
+  bool _emailError = false;
   MaskTextInputFormatter _phoneFormatter = new MaskTextInputFormatter(
     mask: '+# (###) ###-####',
     filter: {
@@ -61,7 +61,7 @@ class _NotaryState extends State<Notary> {
     _zip = _notary.zip;
     _companyPhone = _notary.companyPhone;
     _companyEmail = _notary.companyEmail;
-    _validEmail = true;
+    _emailError = false;
     setState(() {});
   }
 
@@ -115,8 +115,8 @@ class _NotaryState extends State<Notary> {
                             Expanded(
                               child: EditInput(
                                 initialValue: _ronLicense,
-                                hintText: 'RON Commission Number',
-                                labelText: 'RON Commission Number',
+                                hintText: 'Commission Number',
+                                labelText: 'Commission Number',
                                 onChanged: (value) {
                                   _ronLicense = value;
                                   setState(() {});
@@ -204,12 +204,12 @@ class _NotaryState extends State<Notary> {
                           children: [
                             Expanded(
                               child: InkWell(
-                                onTap: () => modalContainer(
+                                onTap: () => modalContainerSimple(
                                     StateSelect(
                                       changeState: (abbrevCity, selectedCity) {
                                         _state = abbrevCity;
                                         setState(() {});
-                                        StateM(context).navBack();
+                                        Navigator.pop(context);
                                       },
                                       isSetting: true,
                                     ),
@@ -292,30 +292,57 @@ class _NotaryState extends State<Notary> {
                             setState(() {});
                           },
                         ),
-                        EditInput(
-                          initialValue: _companyEmail,
-                          labelText: 'Company Email Address',
-                          hintText: "Enter Company Email",
-                          keyboardType: TextInputType.emailAddress,
-                          noCapitalize: true,
-                          onChanged: (String value) {
-                            _companyEmail = value;
-                            if (!value.contains("@")) {
-                              _validEmail = false;
+                        Focus(
+                          onFocusChange: (hasFocus) {
+                            if (!hasFocus) {
+                              if (_companyEmail == null ||
+                                  _companyEmail.isEmpty ||
+                                  !_companyEmail.contains("@")) {
+                                _emailError = true;
+                                setState(() {});
+                              }
                             } else {
-                              _validEmail = true;
+                              _emailError = false;
+                              setState(() {});
                             }
-                            if (value.isEmpty) {
-                              _validEmail = true;
-                            }
-                            setState(() {});
                           },
-                          validate: (String value) {
-                            if (!_validEmail) {
-                              return "Please add a valid email";
-                            }
-                            return null;
-                          },
+                          child: Column(
+                            children: [
+                              EditInput(
+                                initialValue: _companyEmail,
+                                labelText: 'Company Email Address',
+                                hintText: "Enter Company Email",
+                                keyboardType: TextInputType.emailAddress,
+                                noCapitalize: true,
+                                onChanged: (String value) {
+                                  _companyEmail = value;
+                                  _emailError = false;
+                                  setState(() {});
+                                },
+                              ),
+                              if (_emailError)
+                                Column(
+                                  children: [
+                                    SizedBox(
+                                      height: 5,
+                                    ),
+                                    Container(
+                                      width: StateM(context).width() - 40,
+                                      child: Text(
+                                        "Please check company email",
+                                        style: TextStyle(
+                                          color: Color(0xFFFF4E4E),
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w400,
+                                          height: 0.5,
+                                        ),
+                                        textAlign: TextAlign.start,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                            ],
+                          ),
                         ),
                         SizedBox(height: reSize(context, 40)),
                       ],
@@ -345,7 +372,7 @@ class _NotaryState extends State<Notary> {
         _city.isNotEmpty &&
         _zip.isNotEmpty &&
         _zip.length > 4 &&
-        _validEmail) {
+        _emailError) {
       return true;
     }
     return false;
@@ -369,7 +396,7 @@ class _NotaryState extends State<Notary> {
   }
 
   _selectRonExpire() async {
-    await modalContainer(
+    await modalContainerSimple(
         Container(
           height: StateM(context).height() / 2,
           color: Color(0xFFFFFFFF),

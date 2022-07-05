@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:notary/controllers/payment.dart';
 import 'package:notary/controllers/plan.dart';
 import 'package:notary/controllers/user.dart';
 import 'package:notary/widgets/loading_page.dart';
@@ -25,6 +26,7 @@ class PurchaseCat extends StatefulWidget {
 class _PurchaseCatState extends State<PurchaseCat> {
   List<Offering> _offerings = [];
   UserController _userController;
+  PaymentController _paymentController;
   PlanController _planController;
   PageController pageController;
   int _indexPage;
@@ -35,6 +37,7 @@ class _PurchaseCatState extends State<PurchaseCat> {
   void initState() {
     _loading = true;
     _userController = Provider.of<UserController>(context, listen: false);
+    _paymentController = Provider.of<PaymentController>(context, listen: false);
     _planController = Provider.of<PlanController>(context, listen: false);
     _indexPage = 1;
     pageController =
@@ -44,8 +47,8 @@ class _PurchaseCatState extends State<PurchaseCat> {
   }
 
   @override
-  void dispose() {
-    Purchases.logOut();
+  void dispose()  {
+    // await Purchases.logOut();
     Purchases.close();
     super.dispose();
   }
@@ -84,14 +87,17 @@ class _PurchaseCatState extends State<PurchaseCat> {
       }
       offerings.all.forEach((key, value) {
         print(value);
-        if(value.availablePackages[0].identifier != 'Extra Notarization') {
+        if (value.availablePackages[0].identifier != 'Extra Notarization') {
           _offerings.add(value);
         }
       });
 
       PurchaserInfo info = await Purchases.getPurchaserInfo();
-      if (info.entitlements.all['pro monthly'].isActive || info.entitlements.active.isNotEmpty) {
+      print("info.entitlements.all $info");
+      if (info.entitlements.all['pro monthly'].isActive ||
+          info.entitlements.active.isNotEmpty) {
         _oldSKU = info.entitlements.all['pro monthly'].productIdentifier;
+        print("_oldSKU $_oldSKU");
       }
       setState(() {});
     } on PlatformException catch (e) {
@@ -108,30 +114,33 @@ class _PurchaseCatState extends State<PurchaseCat> {
     try {
       Package package = _offerings[_indexPage].availablePackages[0];
       PurchaserInfo purchaserInfo;
-
+      print("_oldSKU $_oldSKU");
       if (_oldSKU != null && Platform.isAndroid) {
         UpgradeInfo _upgradeInfo = new UpgradeInfo(
           _oldSKU,
           prorationMode: ProrationMode.immediateWithoutProration,
         );
+        print("_upgradeInfo $_upgradeInfo");
+
         purchaserInfo = await Purchases.purchasePackage(
           package,
           upgradeInfo: _upgradeInfo,
         );
       } else {
-        await Purchases.purchasePackage(package);
+        purchaserInfo = await Purchases.purchasePackage(package);
       }
+
       if (purchaserInfo == null) {
         _loading = false;
+
         setState(() {});
         return;
       }
-
-      print(purchaserInfo.entitlements.all["pro monthly"]);
       _loading = false;
       setState(() {});
-        StateM(context).navOff(PaymentSuccess());
-
+      StateM(context).navOff(
+        PaymentSuccess(),
+      );
     } on PlatformException catch (e) {
       _loading = false;
       setState(() {});
@@ -148,8 +157,6 @@ class _PurchaseCatState extends State<PurchaseCat> {
 
   @override
   Widget build(BuildContext context) {
-    print(_planController.plans);
-    print(_offerings);
     return NetworkConnection(LoadingPage(
       _loading,
       Container(
@@ -178,33 +185,34 @@ class _PurchaseCatState extends State<PurchaseCat> {
                   padding: EdgeInsets.all(1),
                   child: Row(
                     children: [
-                    if(_offerings.length > 0)  ..._offerings.asMap().entries.map((product) {
-                        int index = product.key;
-                        return Expanded(
-                          child: InkWell(
-                            onTap: () {
-                              pageController.animateToPage(
-                                index,
-                                duration: const Duration(seconds: 1),
-                                curve: Curves.easeInOut,
-                              );
-                              _indexPage = index;
-                              setState(() {});
-                            },
-                            child: Container(
-                              height: reSize(context, 30),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(2),
-                                  color: _indexPage == index
-                                      ? Color(0xFFFFC600)
-                                      : Colors.transparent),
-                              child: Center(
-                                child: Text(product.value.identifier),
+                      if (_offerings.length > 0)
+                        ..._offerings.asMap().entries.map((product) {
+                          int index = product.key;
+                          return Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                pageController.animateToPage(
+                                  index,
+                                  duration: const Duration(seconds: 1),
+                                  curve: Curves.easeInOut,
+                                );
+                                _indexPage = index;
+                                setState(() {});
+                              },
+                              child: Container(
+                                height: reSize(context, 30),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(2),
+                                    color: _indexPage == index
+                                        ? Color(0xFFFFC600)
+                                        : Colors.transparent),
+                                child: Center(
+                                  child: Text(product.value.identifier),
+                                ),
                               ),
                             ),
-                          ),
-                        );
-                      })
+                          );
+                        })
                     ],
                   ),
                 )),
@@ -220,22 +228,23 @@ class _PurchaseCatState extends State<PurchaseCat> {
                   setState(() {});
                 },
                 children: <Widget>[
-                  if(_offerings.length > 0)  ..._offerings.asMap().entries.map((package) {
-                    int index = package.key;
-                    return PlanBlock(
-                      indexPage: _indexPage,
-                      indexBlock: index,
-                      package: _offerings[index].availablePackages[0],
-                      plan: _planController.plans.length > 0
-                          ? _planController.plans?.firstWhere((element) =>
-                              element.productId ==
-                              _offerings[index]
-                                  .availablePackages[0]
-                                  .product
-                                  .identifier)
-                          : null,
-                    );
-                  }),
+                  if (_offerings.length > 0)
+                    ..._offerings.asMap().entries.map((package) {
+                      int index = package.key;
+                      return PlanBlock(
+                        indexPage: _indexPage,
+                        indexBlock: index,
+                        package: _offerings[index].availablePackages[0],
+                        plan: _planController.plans.length > 0
+                            ? _planController.plans?.firstWhere((element) =>
+                                element.productId ==
+                                _offerings[index]
+                                    .availablePackages[0]
+                                    .product
+                                    .identifier)
+                            : null,
+                      );
+                    }),
                 ],
               ),
             ),

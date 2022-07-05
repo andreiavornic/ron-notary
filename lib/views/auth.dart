@@ -30,6 +30,7 @@ class _AuthState extends State<Auth> {
   bool _isLoading;
   bool _remember;
   bool _firstInit;
+  bool _emailError = false;
 
   GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: [
@@ -234,7 +235,7 @@ class _AuthState extends State<Auth> {
                               ),
                               SizedBox(width: reSize(context, 5)),
                               InkWell(
-                                onTap: _makeReady ,
+                                onTap: _makeReady,
                                 child: Text(
                                   'Login',
                                   style: TextStyle(
@@ -281,24 +282,67 @@ class _AuthState extends State<Auth> {
                               key: _formKey,
                               child: Column(
                                 children: [
-                                  EditInput(
-                                    labelText: "Email",
-                                    hintText: "Enter your email",
-                                    keyboardType: TextInputType.emailAddress,
-                                    obscureText: false,
-                                    noCapitalize: true,
-                                    onChanged: (String value) {
-                                      _email = value;
-                                      setState(() {});
-                                    },
-                                    validate: (String value) {
-                                      if (value.isEmpty) {
-                                        return "Email is required!";
-                                      } else if (!value.contains("@")) {
-                                        return "Please add a valid email";
+                                  Focus(
+                                    onFocusChange: (hasFocus) {
+                                      if (!hasFocus) {
+                                        if (_email == null ||
+                                            _email.isEmpty ||
+                                            !_email.contains("@")) {
+                                          _emailError = true;
+                                          setState(() {});
+                                        }
+                                      } else {
+                                        _emailError = false;
+                                        setState(() {});
                                       }
-                                      return null;
                                     },
+                                    child: Column(
+                                      children: [
+                                        EditInput(
+                                          labelText: "Email",
+                                          hintText: "Enter your email",
+                                          keyboardType:
+                                              TextInputType.emailAddress,
+                                          obscureText: false,
+                                          noCapitalize: true,
+                                          onChanged: (String value) {
+                                            _email = value;
+                                            _emailError = false;
+                                            setState(() {});
+                                          },
+                                          // validate: (String value) {
+                                          //   if (value.isEmpty) {
+                                          //     return "Email is required!";
+                                          //   } else if (!value.contains("@")) {
+                                          //     return "Please add a valid email";
+                                          //   }
+                                          //   return null;
+                                          // },
+                                        ),
+                                        if (_emailError)
+                                          Column(
+                                            children: [
+                                              SizedBox(
+                                                height: 5,
+                                              ),
+                                              Container(
+                                                width: StateM(context).width() -
+                                                    40,
+                                                child: Text(
+                                                  "Please check your email",
+                                                  style: TextStyle(
+                                                    color: Color(0xFFFF4E4E),
+                                                    fontSize: 10,
+                                                    fontWeight: FontWeight.w400,
+                                                    height: 0.5,
+                                                  ),
+                                                  textAlign: TextAlign.start,
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                      ],
+                                    ),
                                   ),
                                   EditInput(
                                     labelText: "Password",

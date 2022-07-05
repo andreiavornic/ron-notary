@@ -41,9 +41,12 @@ class _DocumentSettingState extends State<DocumentSetting> {
     try {
       await Provider.of<SessionController>(context, listen: false)
           .getTypeNotarization();
+      _typeNotarizations =
+          Provider.of<SessionController>(context, listen: false).notarizations;
       Provider.of<SessionController>(context, listen: false)
           .updateStageByString("DOCUMENT_SETTING");
       if (_session != null && _session.typeNotarization != null) {
+        print(_typeNotarizations);
         _typeNotarization = _typeNotarizations.firstWhere(
             (element) => element.id == _session.typeNotarization.id);
       }
@@ -90,7 +93,7 @@ class _DocumentSettingState extends State<DocumentSetting> {
                     needHelp: true,
                     title: "Document Settings",
                     description:
-                        "Indicate type of notarization for eJournal Log",
+                        "Indicate type of notarization for eJournal",
                   ),
                   Expanded(
                     child: Column(
@@ -157,7 +160,7 @@ class _DocumentSettingState extends State<DocumentSetting> {
                                                   textAlign: TextAlign.start,
                                                 )
                                               : Text(
-                                                  'Choose type of document',
+                                                  'Choose type of notarization',
                                                   style: TextStyle(
                                                     color: Color(0xFFADAEAF),
                                                     fontSize: 14,

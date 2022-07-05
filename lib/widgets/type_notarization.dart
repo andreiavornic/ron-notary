@@ -53,7 +53,7 @@ class _SelectTypeNotarizationState extends State<SelectTypeNotarization> {
             ),
           ),
           SizedBox(height: reSize(context, 15)),
-          Text('Choose type of document'),
+          Text('Choose type of notarization'),
           SizedBox(height: reSize(context, 20)),
           Expanded(
             child: Padding(

@@ -55,11 +55,13 @@ class AuthenticationController with ChangeNotifier {
   Future<void> getVerify(String verifyToken) async {
     try {
       dio.Response resDio = await makeRequest(
-        'auth/activate',
+        'user/activate',
         "POST",
         {"verifyToken": verifyToken},
       );
       var extracted = resDio.data;
+
+      print(extracted);
 
       if (!extracted['success']) {
         throw extracted['message'];
@@ -69,6 +71,7 @@ class AuthenticationController with ChangeNotifier {
       isLogged = true;
       notifyListeners();
     } catch (err) {
+      print(err);
       throw err;
     }
   }

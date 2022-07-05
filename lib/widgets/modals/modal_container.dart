@@ -73,26 +73,29 @@ modalContainerSimple(Widget widget, BuildContext context) {
       ),
     ),
     builder: (BuildContext context) {
-      return SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Column(
-              children: [
-                SizedBox(height: 10),
-                Container(
-                  width: reSize(context, 50),
-                  height: reSize(context, 4),
-                  decoration: BoxDecoration(
-                      color: Color(0xFFE0E0E0),
-                      borderRadius: BorderRadius.circular(4)),
-                ),
-                SizedBox(height: reSize(context, 20)),
-              ],
-            ),
-            widget
-          ],
+      return Padding(
+        padding: MediaQuery.of(context).viewInsets,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Column(
+                children: [
+                  SizedBox(height: 10),
+                  Container(
+                    width: reSize(context, 50),
+                    height: reSize(context, 4),
+                    decoration: BoxDecoration(
+                        color: Color(0xFFE0E0E0),
+                        borderRadius: BorderRadius.circular(4)),
+                  ),
+                  SizedBox(height: reSize(context, 20)),
+                ],
+              ),
+              widget
+            ],
+          ),
         ),
       );
     },

@@ -87,7 +87,8 @@ class _SettingsMenuState extends State<SettingsMenu> {
                               ButtonNavigator(
                                 title: "Billing & Plan",
                                 icon: "52",
-                                onPressed: _controller.payment == null
+                                onPressed: _controller.user.promoCode !=null ? () =>
+                                    StateM(context).navTo(BillingPlan()) : _controller.payment == null
                                     ? null
                                     : () =>
                                         StateM(context).navTo(BillingPlan()),

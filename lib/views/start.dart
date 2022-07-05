@@ -223,6 +223,9 @@ class _StartState extends State<Start> {
     if (_controller.certificate == null) {
       return CertificateUpload();
     }
+    if (_controller.user.promoCode != null && _controller.user.promoCode.ronsLeft != 0) {
+      return StartSession();
+    }
     if (_controller.payment == null || !_controller.payment.paid) {
       return PaymentBtn();
     }

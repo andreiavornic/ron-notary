@@ -26,6 +26,8 @@ import 'package:notary/widgets/title_page.dart';
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:provider/provider.dart';
 
+import '../../widgets/confirm_delete.dart';
+import '../../widgets/modals/modal_container.dart';
 import '../encrypt.dart';
 import '../session_process.dart';
 import 'document_tag_session.dart';
@@ -344,52 +346,30 @@ class _VideoSessionState extends State<VideoSession> {
                                                   SizedBox(
                                                       width:
                                                           reSize(context, 15)),
-                                                  ..._recipients.map(
-                                                    (Recipient recipient) =>
-                                                        Container(
-                                                      child: Row(
-                                                        children: [
-                                                          ReadyRecipient(
-                                                            callback: () {
-                                                              _conferenceRoom
-                                                                  .activateParticipant(
-                                                                      recipient
-                                                                          .id,
-                                                                      false,
-                                                                      false);
-                                                              _documentIsActive =
-                                                                  false;
-                                                            },
-                                                            child: _conferenceRoom ==
-                                                                    null
-                                                                ? Container(
-                                                                    width: reSize(
-                                                                        context,
-                                                                        58),
-                                                                    height: reSize(
-                                                                        context,
-                                                                        58),
-                                                                    decoration:
-                                                                        BoxDecoration(
-                                                                      color: recipient
-                                                                          .color,
-                                                                    ),
-                                                                    child: Center(
-                                                                        child:
-                                                                            BlackLoading()),
-                                                                  )
-                                                                : _conferenceRoom
-                                                                    .participants
-                                                                    .firstWhere(
-                                                                    (element) =>
-                                                                        element
-                                                                            .id ==
-                                                                        recipient
-                                                                            .id,
-                                                                    orElse: () =>
-                                                                        new ParticipantWidget(
-                                                                      child:
-                                                                          Container(
+                                                  Expanded(
+                                                      child: ListView(
+                                                    scrollDirection:
+                                                        Axis.horizontal,
+                                                    children: [
+                                                      ..._recipients.map(
+                                                        (Recipient recipient) =>
+                                                            Container(
+                                                          child: Row(
+                                                            children: [
+                                                              ReadyRecipient(
+                                                                callback: () {
+                                                                  _conferenceRoom
+                                                                      .activateParticipant(
+                                                                          recipient
+                                                                              .id,
+                                                                          false,
+                                                                          false);
+                                                                  _documentIsActive =
+                                                                      false;
+                                                                },
+                                                                child: _conferenceRoom ==
+                                                                        null
+                                                                    ? Container(
                                                                         width: reSize(
                                                                             context,
                                                                             58),
@@ -401,34 +381,58 @@ class _VideoSessionState extends State<VideoSession> {
                                                                           color:
                                                                               recipient.color,
                                                                         ),
-                                                                        child:
-                                                                            Center(
+                                                                        child: Center(
+                                                                            child:
+                                                                                BlackLoading()),
+                                                                      )
+                                                                    : _conferenceRoom
+                                                                        .participants
+                                                                        .firstWhere(
+                                                                        (element) =>
+                                                                            element.id ==
+                                                                            recipient.id,
+                                                                        orElse: () =>
+                                                                            new ParticipantWidget(
                                                                           child:
-                                                                              BlackLoading(),
+                                                                              Container(
+                                                                            width:
+                                                                                reSize(context, 58),
+                                                                            height:
+                                                                                reSize(context, 58),
+                                                                            decoration:
+                                                                                BoxDecoration(
+                                                                              color: recipient.color,
+                                                                            ),
+                                                                            child:
+                                                                                Center(
+                                                                              child: BlackLoading(),
+                                                                            ),
+                                                                          ),
+                                                                          audioEnabled:
+                                                                              false,
+                                                                          videoEnabled:
+                                                                              false,
+                                                                          isActive:
+                                                                              false,
+                                                                          id: recipient
+                                                                              .id,
+                                                                          isRemote:
+                                                                              true,
                                                                         ),
                                                                       ),
-                                                                      audioEnabled:
-                                                                          false,
-                                                                      videoEnabled:
-                                                                          false,
-                                                                      isActive:
-                                                                          false,
-                                                                      id: recipient
-                                                                          .id,
-                                                                      isRemote:
-                                                                          true,
-                                                                    ),
-                                                                  ),
-                                                            color:
-                                                                recipient.color,
+                                                                color: recipient
+                                                                    .color,
+                                                              ),
+                                                              SizedBox(
+                                                                  width: reSize(
+                                                                      context,
+                                                                      15)),
+                                                            ],
                                                           ),
-                                                          SizedBox(
-                                                              width: reSize(
-                                                                  context, 15)),
-                                                        ],
+                                                        ),
                                                       ),
-                                                    ),
-                                                  ),
+                                                    ],
+                                                  )),
                                                 ],
                                               ),
                                             ),
@@ -515,7 +519,21 @@ class _VideoSessionState extends State<VideoSession> {
                                           .every((point) => point.isSigned) &&
                                       _conferenceRoom.participants.length !=
                                           _controller.recipients.length
-                                  ? _finishSession
+                                  ? () => modalContainerSimple(
+                                      ConfirmDelete(
+                                        callback: () => _finishSession(),
+                                        btnTxt: 'Finish Session',
+                                        icon: 107,
+                                        description: Text(
+                                          'Are you sure you want to finish session?',
+                                          style: TextStyle(
+                                            color: Color(0xFF494949),
+                                            fontSize: 14,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                      context)
                                   : null,
                       text: "Finish",
                     ),

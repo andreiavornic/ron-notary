@@ -80,7 +80,7 @@ class _StagesState extends State<Stages> {
                                                     Stage.ADD_PARTICIPANT,
                                                 title: 'Add Participants',
                                                 description:
-                                                    'Signers, witness and other recipients for current session',
+                                                    'Signers, witnesses and other recipients for current session',
                                                 item: 3,
                                               ),
                                               StageItem(
@@ -92,7 +92,7 @@ class _StagesState extends State<Stages> {
                                               ),
                                               StageItem(
                                                 needStage: Stage.INVITE,
-                                                title: 'Add Participants',
+                                                title: 'Invite Participants',
                                                 description:
                                                     'Last step to begin session. Just send invite link to your recipients',
                                                 item: 5,

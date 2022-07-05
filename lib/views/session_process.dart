@@ -316,6 +316,7 @@ class _SessionProcessState extends State<SessionProcess> {
       _loading = false;
       setState(() {});
     } catch (err) {
+      print("err _deleteSession: $err");
       _loading = false;
       setState(() {});
       showError(err, context);

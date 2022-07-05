@@ -1,4 +1,5 @@
 import 'package:notary/models/payment.dart';
+import 'package:notary/models/promo_code.dart';
 
 import 'font_family.dart';
 
@@ -9,9 +10,11 @@ class User {
   String email;
   String phone;
   String longState;
+
   bool termsAccept;
   bool skipInfo;
   Font fontFamily;
+  PromoCode promoCode;
   int stamp;
   Payment payment;
 
@@ -25,7 +28,12 @@ class User {
         phone = json['phone'],
         longState = json['longState'],
         termsAccept = json['termsAccept'],
-        fontFamily = json['fontFamily'] != null ?  Font.fromJson(json['fontFamily']) : null,
+        fontFamily = json['fontFamily'] != null
+            ? Font.fromJson(json['fontFamily'])
+            : null,
+        promoCode = json['promoCode'] != null
+            ? PromoCode.fromJson(json['promoCode'])
+            : null,
         skipInfo = json['skipInfo'],
         stamp = json['stamp'];
 
